@@ -1,0 +1,81 @@
+name: tailorsync_v2
+description: The ultimate OS for modern tailors.
+version: 2.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 🏗 CORE ARCHITECTURE
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  go_router: ^14.0.0
+  fpdart: ^1.1.0
+  uuid: ^4.3.0
+
+  # ☁️ BACKEND
+  supabase_flutter: ^2.6.0  
+
+  # 🎨 UI & UX
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  flutter_svg: ^2.0.10
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  intl: ^0.19.0
+
+  # 💰 MONETIZATION 
+  purchases_flutter: ^8.1.0
+  google_mobile_ads: ^5.1.0
+  share_plus: ^12.0.1
+
+  # 🧵 TAILOR TOOLS
+  image_picker: ^1.1.2
+  image_painter: ^0.7.0
+  url_launcher: ^6.3.0
+  pdf: ^3.11.0
+  printing: ^5.11.0
+  path_provider: ^2.1.2
+
+  # 🔧 FORCE FIX for "Registrar" Error
+  sign_in_with_apple: ^6.1.0 
+  freezed_annotation: ^2.4.4
+
+  shared_preferences: ^2.1.1
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.5.4
+  riverpod_generator: ^2.4.0
+  freezed: ^2.5.8
+  flutter_launcher_icons: ^0.13.1
+  json_annotation: ^4.8.0
+  json_serializable: ^6.9.5
+
+# 🛡️ SAFETY NET: This forces all plugins to use modern versions
+dependency_overrides:
+  sign_in_with_apple: ^6.1.0
+  supabase_flutter: ^2.6.0
+
+# ⚙️ FLUTTER CONFIGURATION
+flutter:
+  uses-material-design: true # 👈 THIS FIXES THE MISSING ICONS
+  
+  assets:
+    - assets/
+
+# 🖼️ APP ICONS
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app_icon.png"
+  min_sdk_android: 21 
+  adaptive_icon_background: "#E6E7E8" 
+  adaptive_icon_foreground: "assets/app_icon.png"
