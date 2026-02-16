@@ -4,7 +4,7 @@ import 'package:tailorsync_v2/core_v2/measurements/measurement_unit.dart';
 
 import '../../core_v2/customers/customer_id.dart';
 import '../../core_v2/customers/customer_measurement_controller.dart';
-import '../../core_v2/customers/measurement_profile.dart';
+import '../../core_v2/measurements/measurement_profile.dart';
 import '../../core_v2/measurements/measurement_value.dart';
 
 class MeasurementEditScreen extends ConsumerWidget {

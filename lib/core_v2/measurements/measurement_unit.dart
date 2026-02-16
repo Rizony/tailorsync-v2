@@ -4,15 +4,16 @@ enum MeasurementUnit {
   centimeters,
 }
 
-extension MeasurementUnitLabel on MeasurementUnit {
+extension MeasurementUnitSymbol on MeasurementUnit {
   String get symbol {
     switch (this) {
-      case MeasurementUnit.inches:
-        return 'in';
       case MeasurementUnit.centimeters:
         return 'cm';
+      case MeasurementUnit.inches:
+        return 'in';
     }
   }
 }
+
 
 

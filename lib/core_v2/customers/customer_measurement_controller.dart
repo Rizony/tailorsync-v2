@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'customer_id.dart';
 import 'customer_measurement_book.dart';
-import 'measurement_profile_factory.dart';
+import '../measurements/measurement_profile_factory.dart';
 import '../measurements/garment_type.dart';
-import 'measurement_profile.dart';
+import '../measurements/measurement_profile.dart';
 
 final customerMeasurementProvider = StateNotifierProvider<
     CustomerMeasurementController,

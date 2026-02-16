@@ -5,7 +5,7 @@ import 'package:tailorsync_v2/core_v2/measurements/measurement_unit.dart';
 
 import '../../core_v2/customers/customer_id.dart';
 import '../../core_v2/customers/customer_measurements_controller.dart';
-import '../../core_v2/customers/measurement_profile.dart';
+import '../../core_v2/measurements/measurement_profile.dart';
 import '../../core_v2/measurements/measurement_value.dart';
 import '../../core_v2/measurements/garment_type.dart';
 
@@ -93,7 +93,7 @@ class _MeasurementField extends StatelessWidget {
         ),
         onSubmitted: (v) {
           final parsed = double.tryParse(v);
-          if (parsed != null) {
+          if (parsed != null) { 
             onChanged(value.copyWith(value: parsed));
           }
         },

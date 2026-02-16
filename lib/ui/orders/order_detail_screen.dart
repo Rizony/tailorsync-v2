@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/core_v2/invoicing/invoices_provider.dart';
 
 import 'package:tailorsync_v2/core_v2/orders/order.dart';
+import 'package:tailorsync_v2/core_v2/orders/order_alteration.dart';
 import 'package:tailorsync_v2/core_v2/orders/order_application_service.dart';
 import 'package:tailorsync_v2/core_v2/orders/order_status.dart';
 
 import 'package:tailorsync_v2/core_v2/invoicing/payment.dart';
+import 'package:tailorsync_v2/ui/orders/widgets/order_alterations_card.dart';
 import 'package:tailorsync_v2/ui/orders/widgets/order_measurements_card.dart';
 
 import 'order_timeline.dart';
@@ -44,6 +46,25 @@ class _OrderDetailScreenState
     final invoice =
         hasInvoice ? invoices[_order.id]! : null;
 
+        void addAlteration() {
+  final service = ref.read(orderApplicationServiceProvider);
+
+  final alteration = OrderAlteration(
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    reason: 'First fitting',
+    createdAt: DateTime.now(),
+    changes: [],
+  );
+
+  setState(() {
+    _order = service.addAlteration(
+      order: _order,
+      alteration: alteration,
+    );
+  });
+}
+
+
     return Scaffold(
       appBar: AppBar(title: const Text('Order Details')),
       body: Padding(
@@ -63,6 +84,19 @@ class _OrderDetailScreenState
     style: TextStyle(color: Colors.grey),
   ),
 ],
+const SizedBox(height: 24),
+_sectionTitle('Alterations'),
+OrderAlterationsCard(
+  alterations: _order.alterations,
+),
+if (_order.measurementSnapshot != null &&
+    _order.status == OrderStatus.inProgress)
+  ElevatedButton(
+    onPressed: addAlteration,
+    child: const Text('Add Alteration'),
+  ),
+
+
             const SizedBox(height: 12),
             _infoRow('Order ID', _order.id.value),
             _infoRow('Status', _order.status.name),

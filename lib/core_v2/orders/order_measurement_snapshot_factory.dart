@@ -1,4 +1,4 @@
-import '../customers/measurement_profile.dart';
+import '../measurements/measurement_profile.dart';
 import 'order_measurement_snapshot.dart';
 
 class OrderMeasurementSnapshotFactory {

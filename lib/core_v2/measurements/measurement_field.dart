@@ -73,33 +73,12 @@ extension MeasurementFieldLabel on MeasurementField {
     }
   }
 }
+
+
 extension MeasurementFieldUnit on MeasurementField {
   MeasurementUnit get unit {
     switch (this) {
-      // Upper body
-      case MeasurementField.neck:
-      case MeasurementField.chest:
-      case MeasurementField.shoulder:
-      case MeasurementField.sleeveLength:
-      case MeasurementField.armHole:
-      case MeasurementField.bicep:
-      case MeasurementField.wrist:
-      case MeasurementField.topLength:
-
-      // Lower body
-      case MeasurementField.waist:
-      case MeasurementField.hip:
-      case MeasurementField.thigh:
-      case MeasurementField.knee:
-      case MeasurementField.ankle:
-      case MeasurementField.inseam:
-      case MeasurementField.outseam:
-      case MeasurementField.trouserLength:
-
-      // Traditional
-      case MeasurementField.agbadaWidth:
-      case MeasurementField.kaftanLength:
-      case MeasurementField.wrapperLength:
+      default:
         return MeasurementUnit.centimeters;
     }
   }

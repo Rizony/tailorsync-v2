@@ -1,8 +1,8 @@
 // ignore: depend_on_referenced_packages
 import 'package:uuid/uuid.dart';
 
-import '../measurements/measurement_entry_engine.dart';
-import '../measurements/garment_type.dart';
+import 'measurement_entry_engine.dart';
+import 'garment_type.dart';
 import 'measurement_profile.dart';
 
 class MeasurementProfileFactory {

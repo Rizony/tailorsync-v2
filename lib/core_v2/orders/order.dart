@@ -1,3 +1,4 @@
+import 'package:tailorsync_v2/core_v2/orders/order_alteration.dart';
 import 'package:tailorsync_v2/core_v2/orders/order_measurement_snapshot.dart';
 
 import '../customers/customer_id.dart';
@@ -33,6 +34,8 @@ class Order {
   final DateTime? cancelledAt;
 
   final OrderMeasurementSnapshot? measurementSnapshot;
+  final List<OrderAlteration> alterations;
+
 
   const Order({
     required this.id,
@@ -45,6 +48,7 @@ class Order {
     this.deliveredAt,
     this.cancelledAt,
     this.measurementSnapshot,
+    this.alterations = const [],
   }) : assert(items.length > 0, 'Order must contain at least one item');
 
   /// Orders that are still relevant operationally
@@ -59,22 +63,25 @@ bool get isBusinessActive =>
       
   /// Controlled mutation entry point.
   Order copyWith({
-    OrderStatus? status,
-    List<OrderItem>? items,
-    DateTime? workCompletedAt,
-    DateTime? deliveredAt,
-    DateTime? cancelledAt,
-  }) {
-    return Order(
-      id: id,
-      customerId: customerId,
-      items: items ?? this.items,
-      quotation: quotation,
-      status: status ?? this.status,
-      createdAt: createdAt,
-      workCompletedAt: workCompletedAt ?? this.workCompletedAt,
-      deliveredAt: deliveredAt ?? this.deliveredAt,
-      cancelledAt: cancelledAt ?? this.cancelledAt,
-    );
-  }
+  OrderStatus? status,
+  Quotation? quotation,
+  OrderMeasurementSnapshot? measurementSnapshot,
+  List<OrderAlteration>? alterations,
+  DateTime? cancelledAt,
+  DateTime? workCompletedAt,
+}) {
+  return Order(
+    id: id,
+    customerId: customerId,
+    items: items,
+    quotation: quotation ?? this.quotation,
+    status: status ?? this.status,
+    createdAt: createdAt,
+    cancelledAt: cancelledAt ?? this.cancelledAt,
+    workCompletedAt: workCompletedAt ?? this.workCompletedAt,
+    measurementSnapshot:
+        measurementSnapshot ?? this.measurementSnapshot,
+    alterations: alterations ?? this.alterations,
+  );
+}
 }

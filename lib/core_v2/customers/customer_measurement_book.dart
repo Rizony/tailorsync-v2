@@ -1,5 +1,5 @@
 import 'customer_id.dart';
-import 'measurement_profile.dart';
+import '../measurements/measurement_profile.dart';
 import '../measurements/garment_type.dart';
 
 class CustomerMeasurementBook {

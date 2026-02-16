@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tailorsync_v2/core_v2/orders/order_alteration.dart';
 
 import 'order.dart';
 import 'order_state_machine.dart';
@@ -30,9 +31,28 @@ class OrderApplicationService {
 
     return updated;
   }
+  Order addAlteration({
+  required Order order,
+  required OrderAlteration alteration,
+}) {
+  return order.copyWith(
+    alterations: [...order.alterations, alteration],
+  );
+}
+
 }
 
 final orderApplicationServiceProvider =
     Provider<OrderApplicationService>((ref) {
   return OrderApplicationService(ref);
 });
+
+Order addAlteration({
+  required Order order,
+  required OrderAlteration alteration,
+}) {
+  return order.copyWith(
+    alterations: [...order.alterations, alteration],
+  );
+}
+
