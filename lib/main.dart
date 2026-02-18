@@ -1,97 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'core_v2/app/app_config.dart';
-import 'core_v2/app/app_shell.dart';
-import 'core_v2/app/splash_screen.dart';
-import 'core_v2/auth/auth_controller.dart';
-import 'core_v2/auth/auth_state.dart';
-import 'core_v2/invoicing/invoices_controller.dart';
-import 'core_v2/session/session_controller.dart';
-import 'core_v2/theme/theme_resolver.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:tailorsync_v2/core/app/app_shell.dart';
+import 'package:tailorsync_v2/core/auth/auth_gate.dart';
+import 'package:tailorsync_v2/core/notifications/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        /// SESSION
-        sessionControllerProvider.overrideWith(
-          (ref) => throw UnimplementedError(),
-        ),
+  // Initialize Mobile Ads
+  MobileAds.instance.initialize();
 
-        /// INVOICES
-        invoicesControllerProvider.overrideWith(
-          (ref) => throw UnimplementedError(),
-        ),
-      ],
-      child: const TailorSyncBootstrap(),
+  // Initialize Notifications
+  await NotificationService.init();
+
+  // 1. Initialize Supabase (Add your URL and Anon Key)
+  await Supabase.initialize(
+    url: 'https://uoesjxeleiluelbpnzie.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvZXNqeGVsZWlsdWVsYnBuemllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNDA4NjksImV4cCI6MjA4MTcxNjg2OX0.0nLT4ztjZqt5B7xaPQtO0HSeFIfjEiPy9D_kzC-jLic',
+  );
+
+  // 2. Initialize Hive for local storage
+  await Hive.initFlutter();
+  await Hive.openBox('settings');
+
+  runApp(
+    const ProviderScope(
+      child: TailorSyncApp(),
     ),
   );
 }
 
-/// ------------------------------------------------------------
-/// Bootstrap Gate
-/// ------------------------------------------------------------
-class TailorSyncBootstrap extends ConsumerWidget {
-  const TailorSyncBootstrap({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sessionAsync = ref.watch(sessionBootstrapProvider);
-    final invoicesAsync = ref.watch(invoicesBootstrapProvider);
-
-    return sessionAsync.when(
-      loading: () => const SplashScreen(),
-      error: (_, __) => const SplashScreen(),
-      data: (sessionController) {
-        return invoicesAsync.when(
-          loading: () => const SplashScreen(),
-          error: (_, __) => const SplashScreen(),
-          data: (invoicesController) {
-            return ProviderScope(
-              overrides: [
-                sessionControllerProvider.overrideWith(
-                  (ref) => sessionController,
-                ),
-                invoicesControllerProvider.overrideWith(
-                  (ref) => invoicesController,
-                ),
-              ],
-              child: const TailorSyncApp(),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-/// ------------------------------------------------------------
-/// App
-/// ------------------------------------------------------------
 class TailorSyncApp extends ConsumerWidget {
   const TailorSyncApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = AppConfig.defaultConfig();
-    final session = ref.watch(sessionControllerProvider).session;
-    final authState = ref.watch(authControllerProvider);
-
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'TailorSync',
-      theme: ThemeResolver.resolve(
-        brand: config.brand,
-        session: session,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF5D3FD3),
       ),
-      home: switch (authState.status) {
-        AuthStatus.loading => const SplashScreen(),
-        AuthStatus.unauthenticated => const SplashScreen(),
-        AuthStatus.authenticated => const AppShell(),
-      },
+      // The AuthGate wraps everything
+      home: const AuthGate(
+        child: AppShell(), 
+      ),
     );
   }
 }
