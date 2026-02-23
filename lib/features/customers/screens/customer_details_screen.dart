@@ -7,6 +7,7 @@ import 'package:tailorsync_v2/features/customers/repositories/customer_repositor
 import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
 import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
 import 'package:tailorsync_v2/features/jobs/screens/job_details_screen.dart';
+import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 
 class CustomerDetailsScreen extends ConsumerWidget {
   final Customer customer;
@@ -190,11 +191,7 @@ class CustomerDetailsScreen extends ConsumerWidget {
           }
         }
       } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error deleting customer: $e')),
-          );
-        }
+        if (context.mounted) showErrorSnackBar(context, e);
       }
     }
   }

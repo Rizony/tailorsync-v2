@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
+import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 
 class AddEditCustomerScreen extends ConsumerStatefulWidget {
   final Customer? customer;
@@ -56,27 +57,23 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
       if (widget.customer == null) {
         // Create
-        await ref.read(customerRepositoryProvider.notifier).addCustomer(customer);
+        final newCustomer = await ref.read(customerRepositoryProvider.notifier).addCustomer(customer);
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Customer created!')));
+           await Future.delayed(const Duration(milliseconds: 50));
+           if (mounted) Navigator.pop(context, newCustomer);
+        }
       } else {
         // Update
         await ref.read(customerRepositoryProvider.notifier).updateCustomer(customer);
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.customer == null ? 'Customer created!' : 'Customer updated!')),
-        );
         if (mounted) {
-          await Future.delayed(const Duration(milliseconds: 50));
-          if (mounted) Navigator.pop(context);
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Customer updated!')));
+           await Future.delayed(const Duration(milliseconds: 50));
+           if (mounted) Navigator.pop(context, customer); // Return updated input (though ID might be missing if we used input? No, widget.customer has ID)
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+      if (mounted) showErrorSnackBar(context, e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -150,22 +147,62 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     );
   }
 
+  String _selectedGender = 'Male'; 
+
   Widget _buildMeasurementsSection() {
     return Card(
       child: ExpansionTile(
         title: const Text('Measurements'),
-        subtitle: const Text('Tap to add/edit measurements'),
+        subtitle: const Text('Use Gender Selector to quick-fill'),
         initiallyExpanded: true,
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                 // Gender Selector
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Center(child: Text('Male')),
+                        selected: _selectedGender == 'Male',
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedGender = 'Male';
+                              _applyTemplate(Customer.maleMeasurements);
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Center(child: Text('Female')),
+                        selected: _selectedGender == 'Female',
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedGender = 'Female';
+                              _applyTemplate(Customer.femaleMeasurements);
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 8),
+
                 // List existing measurements
                 if (_measurements.isEmpty)
                   const Padding(
                     padding: EdgeInsets.only(bottom: 16.0),
-                    child: Text("No measurements added yet.", style: TextStyle(color: Colors.grey)),
+                    child: Text("Select gender or add manually.", style: TextStyle(color: Colors.grey)),
                   ),
                 
                 ..._measurements.entries.map((e) => _buildMeasurementRow(e.key, e.value.toString())),
@@ -183,6 +220,14 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
         ],
       ),
     );
+  }
+
+  void _applyTemplate(List<String> keys) {
+    for (var key in keys) {
+      if (!_measurements.containsKey(key)) {
+        _measurements[key] = '';
+      }
+    }
   }
 
   Widget _buildMeasurementRow(String key, String value) {

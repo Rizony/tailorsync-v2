@@ -7,36 +7,72 @@ import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
 import 'package:tailorsync_v2/features/jobs/screens/job_details_screen.dart';
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
+import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool _hasCheckedTutorial = false;
+
+  void _checkTutorial(String? userId) async {
+    if (_hasCheckedTutorial || userId == null) return;
+    _hasCheckedTutorial = true;
+    
+    final hasSeen = await TutorialService.hasSeenTutorial(userId);
+    if (!hasSeen && mounted) {
+      TutorialService.showTutorial(context, userId);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dashboardAsync = ref.watch(dashboardStatsProvider);
+    final currencySymbol = ref.watch(profileNotifierProvider).valueOrNull?.currencySymbol ?? '₦';
 
     return Scaffold(
       body: dashboardAsync.when(
-        data: (data) => RefreshIndicator(
-          onRefresh: () => ref.refresh(dashboardStatsProvider.future),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40), // Top padding for status bar
-                _buildHeader(context, data.userName),
-                const SizedBox(height: 24),
-                _buildStatsGrid(data),
-                const SizedBox(height: 24),
-                _buildQuickActions(context),
-                const SizedBox(height: 24),
-                _buildRecentActivity(data.recentJobs),
-              ],
+        data: (data) {
+          final userId = Supabase.instance.client.auth.currentUser?.id;
+          
+          if (!_hasCheckedTutorial && userId != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _checkTutorial(userId);
+            });
+          }
+          
+          return RefreshIndicator(
+            onRefresh: () => ref.refresh(dashboardStatsProvider.future),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40), // Top padding for status bar
+                  _buildHeader(context, data.userName),
+                  const SizedBox(height: 24),
+                  _buildStatsGrid(context, data, currencySymbol),
+                  const SizedBox(height: 24),
+                  _buildQuickActions(context),
+                  const SizedBox(height: 24),
+                  _buildRecentActivity(data.recentJobs, currencySymbol),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
@@ -52,10 +88,10 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Hello, $name 👋',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF5D3FD3),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const Text(
@@ -84,7 +120,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsGrid(data) {
+  Widget _buildStatsGrid(BuildContext context, dynamic data, String currencySymbol) {
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16,
@@ -93,27 +129,31 @@ class DashboardScreen extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('Active Jobs', '${data.activeJobs}', Icons.content_cut, Colors.blue),
-        _buildStatCard('Pending', '${data.activeJobs}', Icons.assignment_late, Colors.orange), // Redundant?
-        _buildStatCard('Customers', '${data.totalCustomers}', Icons.people, Colors.purple),
-        _buildStatCard('Revenue', '\$${data.totalRevenue}', Icons.attach_money, Colors.green),
+        _buildStatCard(context, 'Active Jobs', '${data.activeJobs}', Icons.content_cut, Colors.blue),
+        _buildStatCard(context, 'Pending', '${data.activeJobs}', Icons.assignment_late, Colors.orange), // Redundant?
+        _buildStatCard(context, 'Customers', '${data.totalCustomers}', Icons.people, Colors.purple),
+        _buildStatCard(context, 'Revenue', '$currencySymbol${data.totalRevenue}', Icons.attach_money, Colors.green),
       ],
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          if (Theme.of(context).brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
         ],
+        border: Theme.of(context).brightness == Brightness.dark 
+            ? Border.all(color: Colors.white.withValues(alpha: 0.1))
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,6 +189,7 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Expanded(
           child: ElevatedButton.icon(
+            key: TutorialService.newOrderKey,
             onPressed: () {
               Navigator.push(
                 context,
@@ -158,7 +199,7 @@ class DashboardScreen extends ConsumerWidget {
             icon: const Icon(Icons.add),
             label: const Text('New Order'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5D3FD3),
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -168,6 +209,7 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(width: 16),
         Expanded(
           child: OutlinedButton.icon(
+            key: TutorialService.addCustomerKey,
             onPressed: () {
               Navigator.push(
                 context,
@@ -177,9 +219,9 @@ class DashboardScreen extends ConsumerWidget {
             icon: const Icon(Icons.person_add),
             label: const Text('Add Customer'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF5D3FD3),
+              foregroundColor: Theme.of(context).colorScheme.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              side: const BorderSide(color: Color(0xFF5D3FD3)),
+              side: BorderSide(color: Theme.of(context).colorScheme.primary),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -188,7 +230,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentActivity(List<JobModel> jobs) {
+  Widget _buildRecentActivity(List<JobModel> jobs, String currencySymbol) {
     if (jobs.isEmpty) {
        return const Center(child: Text("No recent activity"));
     }
@@ -223,9 +265,13 @@ class DashboardScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardTheme.color,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.white.withValues(alpha: 0.1) 
+                        : Colors.grey.shade200
+                  ),
                 ),
               child: Row(
                 children: [
@@ -233,7 +279,9 @@ class DashboardScreen extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.shopping_bag_outlined, color: Colors.grey),
@@ -258,7 +306,7 @@ class DashboardScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '\$${job.price}',
+                        '$currencySymbol${job.price}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Container(

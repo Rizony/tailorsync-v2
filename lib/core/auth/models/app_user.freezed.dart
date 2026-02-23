@@ -21,7 +21,9 @@ AppUser _$AppUserFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$AppUser {
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'full_name')
   String? get fullName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shop_name')
   String? get shopName => throw _privateConstructorUsedError;
   SubscriptionTier get subscriptionTier => throw _privateConstructorUsedError;
   String? get referralCode => throw _privateConstructorUsedError;
@@ -43,7 +45,23 @@ mixin _$AppUser {
   @JsonKey(name: 'invoice_notes')
   String? get invoiceNotes => throw _privateConstructorUsedError;
   @JsonKey(name: 'terms_and_conditions')
-  String? get termsAndConditions => throw _privateConstructorUsedError;
+  String? get termsAndConditions =>
+      throw _privateConstructorUsedError; // Currency Settings
+  @JsonKey(name: 'currency_code')
+  String get currencyCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'currency_symbol')
+  String get currencySymbol =>
+      throw _privateConstructorUsedError; // Branding Contact Info
+  @JsonKey(name: 'shop_address')
+  String? get shopAddress => throw _privateConstructorUsedError;
+  @JsonKey(name: 'phone_number')
+  String? get phoneNumber => throw _privateConstructorUsedError;
+  @JsonKey(name: 'email')
+  String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'website')
+  String? get website => throw _privateConstructorUsedError;
+  @JsonKey(name: 'social_media_handle')
+  String? get socialMediaHandle => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -61,8 +79,8 @@ abstract class $AppUserCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String? fullName,
-      String? shopName,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'shop_name') String? shopName,
       SubscriptionTier subscriptionTier,
       String? referralCode,
       String? referrerId,
@@ -74,7 +92,14 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'accent_color') String? accentColor,
       @JsonKey(name: 'default_tax_rate') double defaultTaxRate,
       @JsonKey(name: 'invoice_notes') String? invoiceNotes,
-      @JsonKey(name: 'terms_and_conditions') String? termsAndConditions});
+      @JsonKey(name: 'terms_and_conditions') String? termsAndConditions,
+      @JsonKey(name: 'currency_code') String currencyCode,
+      @JsonKey(name: 'currency_symbol') String currencySymbol,
+      @JsonKey(name: 'shop_address') String? shopAddress,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'website') String? website,
+      @JsonKey(name: 'social_media_handle') String? socialMediaHandle});
 }
 
 /// @nodoc
@@ -107,6 +132,13 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? defaultTaxRate = null,
     Object? invoiceNotes = freezed,
     Object? termsAndConditions = freezed,
+    Object? currencyCode = null,
+    Object? currencySymbol = null,
+    Object? shopAddress = freezed,
+    Object? phoneNumber = freezed,
+    Object? email = freezed,
+    Object? website = freezed,
+    Object? socialMediaHandle = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -169,6 +201,34 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.termsAndConditions
           : termsAndConditions // ignore: cast_nullable_to_non_nullable
               as String?,
+      currencyCode: null == currencyCode
+          ? _value.currencyCode
+          : currencyCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      currencySymbol: null == currencySymbol
+          ? _value.currencySymbol
+          : currencySymbol // ignore: cast_nullable_to_non_nullable
+              as String,
+      shopAddress: freezed == shopAddress
+          ? _value.shopAddress
+          : shopAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      website: freezed == website
+          ? _value.website
+          : website // ignore: cast_nullable_to_non_nullable
+              as String?,
+      socialMediaHandle: freezed == socialMediaHandle
+          ? _value.socialMediaHandle
+          : socialMediaHandle // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -182,8 +242,8 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String? fullName,
-      String? shopName,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'shop_name') String? shopName,
       SubscriptionTier subscriptionTier,
       String? referralCode,
       String? referrerId,
@@ -195,7 +255,14 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'accent_color') String? accentColor,
       @JsonKey(name: 'default_tax_rate') double defaultTaxRate,
       @JsonKey(name: 'invoice_notes') String? invoiceNotes,
-      @JsonKey(name: 'terms_and_conditions') String? termsAndConditions});
+      @JsonKey(name: 'terms_and_conditions') String? termsAndConditions,
+      @JsonKey(name: 'currency_code') String currencyCode,
+      @JsonKey(name: 'currency_symbol') String currencySymbol,
+      @JsonKey(name: 'shop_address') String? shopAddress,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'website') String? website,
+      @JsonKey(name: 'social_media_handle') String? socialMediaHandle});
 }
 
 /// @nodoc
@@ -226,6 +293,13 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? defaultTaxRate = null,
     Object? invoiceNotes = freezed,
     Object? termsAndConditions = freezed,
+    Object? currencyCode = null,
+    Object? currencySymbol = null,
+    Object? shopAddress = freezed,
+    Object? phoneNumber = freezed,
+    Object? email = freezed,
+    Object? website = freezed,
+    Object? socialMediaHandle = freezed,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -288,6 +362,34 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.termsAndConditions
           : termsAndConditions // ignore: cast_nullable_to_non_nullable
               as String?,
+      currencyCode: null == currencyCode
+          ? _value.currencyCode
+          : currencyCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      currencySymbol: null == currencySymbol
+          ? _value.currencySymbol
+          : currencySymbol // ignore: cast_nullable_to_non_nullable
+              as String,
+      shopAddress: freezed == shopAddress
+          ? _value.shopAddress
+          : shopAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      website: freezed == website
+          ? _value.website
+          : website // ignore: cast_nullable_to_non_nullable
+              as String?,
+      socialMediaHandle: freezed == socialMediaHandle
+          ? _value.socialMediaHandle
+          : socialMediaHandle // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -297,8 +399,8 @@ class __$$AppUserImplCopyWithImpl<$Res>
 class _$AppUserImpl implements _AppUser {
   const _$AppUserImpl(
       {required this.id,
-      this.fullName,
-      this.shopName,
+      @JsonKey(name: 'full_name') this.fullName,
+      @JsonKey(name: 'shop_name') this.shopName,
       this.subscriptionTier = SubscriptionTier.freemium,
       this.referralCode,
       this.referrerId,
@@ -310,7 +412,14 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'accent_color') this.accentColor,
       @JsonKey(name: 'default_tax_rate') this.defaultTaxRate = 0.0,
       @JsonKey(name: 'invoice_notes') this.invoiceNotes,
-      @JsonKey(name: 'terms_and_conditions') this.termsAndConditions});
+      @JsonKey(name: 'terms_and_conditions') this.termsAndConditions,
+      @JsonKey(name: 'currency_code') this.currencyCode = 'NGN',
+      @JsonKey(name: 'currency_symbol') this.currencySymbol = '₦',
+      @JsonKey(name: 'shop_address') this.shopAddress,
+      @JsonKey(name: 'phone_number') this.phoneNumber,
+      @JsonKey(name: 'email') this.email,
+      @JsonKey(name: 'website') this.website,
+      @JsonKey(name: 'social_media_handle') this.socialMediaHandle});
 
   factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppUserImplFromJson(json);
@@ -318,8 +427,10 @@ class _$AppUserImpl implements _AppUser {
   @override
   final String id;
   @override
+  @JsonKey(name: 'full_name')
   final String? fullName;
   @override
+  @JsonKey(name: 'shop_name')
   final String? shopName;
   @override
   @JsonKey()
@@ -357,10 +468,33 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey(name: 'terms_and_conditions')
   final String? termsAndConditions;
+// Currency Settings
+  @override
+  @JsonKey(name: 'currency_code')
+  final String currencyCode;
+  @override
+  @JsonKey(name: 'currency_symbol')
+  final String currencySymbol;
+// Branding Contact Info
+  @override
+  @JsonKey(name: 'shop_address')
+  final String? shopAddress;
+  @override
+  @JsonKey(name: 'phone_number')
+  final String? phoneNumber;
+  @override
+  @JsonKey(name: 'email')
+  final String? email;
+  @override
+  @JsonKey(name: 'website')
+  final String? website;
+  @override
+  @JsonKey(name: 'social_media_handle')
+  final String? socialMediaHandle;
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle)';
   }
 
   @override
@@ -395,28 +529,48 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.invoiceNotes, invoiceNotes) ||
                 other.invoiceNotes == invoiceNotes) &&
             (identical(other.termsAndConditions, termsAndConditions) ||
-                other.termsAndConditions == termsAndConditions));
+                other.termsAndConditions == termsAndConditions) &&
+            (identical(other.currencyCode, currencyCode) ||
+                other.currencyCode == currencyCode) &&
+            (identical(other.currencySymbol, currencySymbol) ||
+                other.currencySymbol == currencySymbol) &&
+            (identical(other.shopAddress, shopAddress) ||
+                other.shopAddress == shopAddress) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.website, website) || other.website == website) &&
+            (identical(other.socialMediaHandle, socialMediaHandle) ||
+                other.socialMediaHandle == socialMediaHandle));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      fullName,
-      shopName,
-      subscriptionTier,
-      referralCode,
-      referrerId,
-      walletBalance,
-      adCredits,
-      brandName,
-      logoUrl,
-      signatureUrl,
-      accentColor,
-      defaultTaxRate,
-      invoiceNotes,
-      termsAndConditions);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        fullName,
+        shopName,
+        subscriptionTier,
+        referralCode,
+        referrerId,
+        walletBalance,
+        adCredits,
+        brandName,
+        logoUrl,
+        signatureUrl,
+        accentColor,
+        defaultTaxRate,
+        invoiceNotes,
+        termsAndConditions,
+        currencyCode,
+        currencySymbol,
+        shopAddress,
+        phoneNumber,
+        email,
+        website,
+        socialMediaHandle
+      ]);
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.
@@ -437,8 +591,8 @@ class _$AppUserImpl implements _AppUser {
 abstract class _AppUser implements AppUser {
   const factory _AppUser(
       {required final String id,
-      final String? fullName,
-      final String? shopName,
+      @JsonKey(name: 'full_name') final String? fullName,
+      @JsonKey(name: 'shop_name') final String? shopName,
       final SubscriptionTier subscriptionTier,
       final String? referralCode,
       final String? referrerId,
@@ -450,16 +604,25 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'accent_color') final String? accentColor,
       @JsonKey(name: 'default_tax_rate') final double defaultTaxRate,
       @JsonKey(name: 'invoice_notes') final String? invoiceNotes,
-      @JsonKey(name: 'terms_and_conditions')
-      final String? termsAndConditions}) = _$AppUserImpl;
+      @JsonKey(name: 'terms_and_conditions') final String? termsAndConditions,
+      @JsonKey(name: 'currency_code') final String currencyCode,
+      @JsonKey(name: 'currency_symbol') final String currencySymbol,
+      @JsonKey(name: 'shop_address') final String? shopAddress,
+      @JsonKey(name: 'phone_number') final String? phoneNumber,
+      @JsonKey(name: 'email') final String? email,
+      @JsonKey(name: 'website') final String? website,
+      @JsonKey(name: 'social_media_handle')
+      final String? socialMediaHandle}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
   @override
   String get id;
   @override
+  @JsonKey(name: 'full_name')
   String? get fullName;
   @override
+  @JsonKey(name: 'shop_name')
   String? get shopName;
   @override
   SubscriptionTier get subscriptionTier;
@@ -492,7 +655,28 @@ abstract class _AppUser implements AppUser {
   String? get invoiceNotes;
   @override
   @JsonKey(name: 'terms_and_conditions')
-  String? get termsAndConditions;
+  String? get termsAndConditions; // Currency Settings
+  @override
+  @JsonKey(name: 'currency_code')
+  String get currencyCode;
+  @override
+  @JsonKey(name: 'currency_symbol')
+  String get currencySymbol; // Branding Contact Info
+  @override
+  @JsonKey(name: 'shop_address')
+  String? get shopAddress;
+  @override
+  @JsonKey(name: 'phone_number')
+  String? get phoneNumber;
+  @override
+  @JsonKey(name: 'email')
+  String? get email;
+  @override
+  @JsonKey(name: 'website')
+  String? get website;
+  @override
+  @JsonKey(name: 'social_media_handle')
+  String? get socialMediaHandle;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

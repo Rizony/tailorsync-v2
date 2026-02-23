@@ -4,6 +4,8 @@ import 'package:tailorsync_v2/features/dashboard/screens/dashboard_screen.dart';
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/jobs/screens/jobs_list_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/customers_screen.dart';
+import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
+import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -26,7 +28,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: OfflineWrapper(child: _screens[_currentIndex]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -34,14 +36,17 @@ class _AppShellState extends State<AppShell> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: const Color(0xFF5D3FD3),
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.style), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(key: TutorialService.ordersTabKey, Icons.style), 
+            label: 'Orders'
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
+          BottomNavigationBarItem(
+            icon: Icon(key: TutorialService.settingsTabKey, Icons.settings), 
+            label: 'Settings'
+          ),
         ],
       ),
     );

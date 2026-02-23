@@ -37,8 +37,13 @@ class ProfileNotifier extends _$ProfileNotifier {
       'accent_color': updatedUser.accentColor,
       'default_tax_rate': updatedUser.defaultTaxRate,
       'invoice_notes': updatedUser.invoiceNotes,
-      'terms_and_conditions': updatedUser.termsAndConditions,
-      // Add other fields as needed
+      'shop_address': updatedUser.shopAddress,
+      'phone_number': updatedUser.phoneNumber,
+      'email': updatedUser.email,
+      'website': updatedUser.website,
+      'social_media_handle': updatedUser.socialMediaHandle,
+      'currency_code': updatedUser.currencyCode,
+      'currency_symbol': updatedUser.currencySymbol,
     }).eq('id', user.id);
     
     // Update local state
@@ -47,7 +52,7 @@ class ProfileNotifier extends _$ProfileNotifier {
 
   // Helper to check if user can add a customer based on Tier
   bool canAddCustomer(int currentCount) {
-    final user = state.value;
+    final user = state.valueOrNull;
     if (user == null) return false;
     if (user.subscriptionTier != SubscriptionTier.freemium) return true;
     

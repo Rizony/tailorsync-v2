@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tailorsync_v2/core/ads/ad_service.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 import '../models/customer.dart';
 
@@ -14,16 +15,20 @@ class CustomerRepository extends _$CustomerRepository {
 
   @override
   Future<List<Customer>> build() async {
-    final response = await _supabase
-        .from('customers')
-        .select()
-        .order('created_at', ascending: false);
-    return (response as List).map((e) => Customer.fromJson(e)).toList();
+    try {
+      final response = await _supabase
+          .from('customers')
+          .select()
+          .order('created_at', ascending: false);
+      return (response as List).map((e) => Customer.fromJson(e)).toList();
+    } catch (e, stack) {
+      throw ErrorHandler.handle(e, stack);
+    }
   }
 
-  Future<void> addCustomer(Customer customer) async {
-    final profile = ref.read(profileNotifierProvider).value;
-    final currentCount = state.value?.length ?? 0;
+  Future<Customer> addCustomer(Customer customer) async {
+    final profile = ref.read(profileNotifierProvider).valueOrNull;
+    final currentCount = state.valueOrNull?.length ?? 0;
 
     // 🛡️ THE GATEKEEPER LOGIC
     // Updated: Freemium users can add up to 50 customers (20 base + 30 via ads)
@@ -50,15 +55,16 @@ class CustomerRepository extends _$CustomerRepository {
       ..remove('created_at')
       ..['user_id'] = _supabase.auth.currentUser!.id; // Ensure user_id is set
 
-    await _supabase.from('customers').insert(data);
+    final response = await _supabase.from('customers').insert(data).select().single();
     
     ref.invalidateSelf(); // Refresh the list
+    return Customer.fromJson(response);
   }
   
   /// Handle adding customer after watching ad (grants 1 customer credit)
   Future<void> addCustomerAfterAd(Customer customer) async {
-    final profile = ref.read(profileNotifierProvider).value;
-    final currentCount = state.value?.length ?? 0;
+    final profile = ref.read(profileNotifierProvider).valueOrNull;
+    final currentCount = state.valueOrNull?.length ?? 0;
 
     // Check if user can still add (max 50 for freemium)
     if (profile?.subscriptionTier == SubscriptionTier.freemium && 
@@ -116,7 +122,7 @@ class CustomerRepository extends _$CustomerRepository {
   }
   Future<Customer?> getCustomer(String id) async {
     // Try to find in current state first
-    final currentList = state.value;
+    final currentList = state.valueOrNull;
     if (currentList != null) {
       try {
         return currentList.firstWhere((c) => c.id == id);
@@ -133,21 +139,31 @@ class CustomerRepository extends _$CustomerRepository {
           .single();
       return Customer.fromJson(response);
     } catch (e) {
-      return null;
+       // Return null if not found or error, or throw? 
+       // Keeping return null for now to match interface, but ideally should throw Not Found
+       return null;
     }
   }
 
   Future<void> updateCustomer(Customer customer) async {
-    await _supabase
-        .from('customers')
-        .update(customer.toJson()..remove('id')..remove('created_at'))
-        .eq('id', customer.id!);
-    
-    ref.invalidateSelf();
+    try {
+      await _supabase
+          .from('customers')
+          .update(customer.toJson()..remove('id')..remove('created_at'))
+          .eq('id', customer.id!);
+      
+      ref.invalidateSelf();
+    } catch (e, stack) {
+      throw ErrorHandler.handle(e, stack);
+    }
   }
 
   Future<void> deleteCustomer(String id) async {
-    await _supabase.from('customers').delete().eq('id', id);
-    ref.invalidateSelf();
+    try {
+      await _supabase.from('customers').delete().eq('id', id);
+      ref.invalidateSelf();
+    } catch (e, stack) {
+       throw ErrorHandler.handle(e, stack);
+    }
   }
 }

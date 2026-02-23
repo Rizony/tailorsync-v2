@@ -17,4 +17,16 @@ class Customer with _$Customer {
   }) = _Customer;
 
   factory Customer.fromJson(Map<String, dynamic> json) => _$CustomerFromJson(json);
+
+  static const List<String> maleMeasurements = [
+    'Neck', 'Shoulder', 'Chest', 'Stomach', 'Top Length', 'Sleeve Length', 
+    'Muscle', 'Forearm', 'Wrist', 'Waist', 'Hips', 'Thigh', 'Knee', 
+    'Calf', 'Ankle', 'Trouser Length'
+  ];
+
+  static const List<String> femaleMeasurements = [
+    'Bust', 'Waist', 'Hips', 'Shoulder', 'Sleeve', 'Nipple to Nipple', 
+    'Shoulder to Nipple', 'Shoulder to Underbust', 'Shoulder to Waist', 
+    'Gown Length', 'Skirt Length', 'Blouse Length', 'Wrapper Length'
+  ];
 }

@@ -11,7 +11,7 @@ part 'dashboard_provider.g.dart';
 @riverpod
 Future<DashboardData> dashboardStats(Ref ref) async {
   // Fetch data in parallel
-  final jobsFuture = ref.watch(jobRepositoryProvider.future);
+  final jobsFuture = ref.watch(recentJobsProvider.future);
   final customersFuture = ref.watch(customerRepositoryProvider.future);
   final profileFuture = ref.watch(profileNotifierProvider.future);
 

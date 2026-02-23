@@ -8,7 +8,6 @@ import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-// Removed unused dart:typed_data import
 
 final invoiceServiceProvider = Provider((ref) => InvoiceService());
 
@@ -19,10 +18,54 @@ class InvoiceService {
     required AppUser profile,
   }) async {
     final pdf = pw.Document();
+    await _buildPdfContent(pdf, job, customer, profile);
     
-    final fontRegular = await PdfGoogleFonts.openSansRegular();
-    final fontBold = await PdfGoogleFonts.openSansBold();
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+      name: 'Invoice-${job.id.substring(0, 8)}',
+    );
+  }
 
+  Future<Uint8List> generateInvoiceBytes({
+    required JobModel job,
+    required Customer customer,
+    required AppUser profile,
+  }) async {
+    final pdf = pw.Document();
+    // ... duplicate logic for now, or refactor to internal _buildPdf method
+    // For implementation speed and safety, let's extract the building logic
+    await _buildPdfContent(pdf, job, customer, profile);
+    return pdf.save();
+  }
+
+  Future<void> _buildPdfContent(pw.Document pdf, JobModel job, Customer customer, AppUser profile) async {
+    // Load fonts with fallback
+    pw.Font fontRegular;
+    pw.Font fontBold;
+    try {
+      fontRegular = await PdfGoogleFonts.notoSansRegular();
+      fontBold = await PdfGoogleFonts.notoSansBold();
+    } catch (e) {
+      debugPrint('Error loading fonts: $e');
+      fontRegular = pw.Font.helvetica();
+      fontBold = pw.Font.helveticaBold();
+    }
+
+    // Safely parse accent color
+    PdfColor accentColor;
+    try {
+      String cleanHex = (profile.accentColor ?? '5D3FD3')
+          .replaceAll('#', '')
+          .replaceAll('0x', '')
+          .replaceAll('0X', '');
+      if (cleanHex.length == 8) cleanHex = cleanHex.substring(2); 
+      accentColor = PdfColor.fromHex(cleanHex);
+    } catch (e) {
+      debugPrint('Error parsing color: $e');
+      accentColor = PdfColor.fromHex('5D3FD3');
+    }
+
+    // Load logo
     pw.MemoryImage? logoImage;
     if (profile.logoUrl != null && profile.logoUrl!.isNotEmpty) {
       try {
@@ -31,10 +74,11 @@ class InvoiceService {
           logoImage = pw.MemoryImage(response.bodyBytes);
         }
       } catch (e) {
-        debugPrint('Error loading logo: $e'); // FIXED: Changed print to debugPrint
+        debugPrint('Error loading logo: $e');
       }
     }
     
+    // Load signature
      pw.MemoryImage? signatureImage;
     if (profile.signatureUrl != null && profile.signatureUrl!.isNotEmpty) {
       try {
@@ -43,11 +87,9 @@ class InvoiceService {
           signatureImage = pw.MemoryImage(response.bodyBytes);
         }
       } catch (e) {
-          debugPrint('Error loading signature: $e'); // FIXED: Changed print to debugPrint
+          debugPrint('Error loading signature: $e');
       }
     }
-
-    final accentColor = PdfColor.fromHex(profile.accentColor ?? '5D3FD3');
 
     pdf.addPage(
       pw.Page(
@@ -77,6 +119,12 @@ class InvoiceService {
                         profile.brandName?.isNotEmpty == true ? profile.brandName! : (profile.shopName ?? 'Tailor Shop'),
                         style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: accentColor),
                       ),
+                      pw.SizedBox(height: 4),
+                      if (profile.shopAddress != null) pw.Text(profile.shopAddress!, style: const pw.TextStyle(fontSize: 10)),
+                      if (profile.phoneNumber != null) pw.Text(profile.phoneNumber!, style: const pw.TextStyle(fontSize: 10)),
+                      if (profile.email != null) pw.Text(profile.email!, style: const pw.TextStyle(fontSize: 10)),
+                      if (profile.website != null) pw.Text(profile.website!, style: const pw.TextStyle(fontSize: 10, color: PdfColors.blue)),
+                      if (profile.socialMediaHandle != null) pw.Text(profile.socialMediaHandle!, style: const pw.TextStyle(fontSize: 10)),
                     ],
                   ),
                   pw.Column(
@@ -133,14 +181,40 @@ class InvoiceService {
                         child: pw.Column(
                            crossAxisAlignment: pw.CrossAxisAlignment.start,
                            children: [
-                             pw.Text('Tailoring Service: ${job.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                             if (job.items.isEmpty) ...[
+                               pw.Text('Tailoring Service: ${job.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                             ] else ...[
+                               for (var item in job.items)
+                                 pw.Padding(
+                                   padding: const pw.EdgeInsets.only(bottom: 4),
+                                   child: pw.Row(
+                                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       pw.Text('${item.quantity}x ${item.name}'),
+                                     ]
+                                   )
+                                 ),
+                             ],
                              if (job.notes != null) pw.Text(job.notes!, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
                            ],
                         ),
                       ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(8), 
-                        child: pw.Text(_formatCurrency(job.price), textAlign: pw.TextAlign.right)
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.end,
+                          children: [
+                            if (job.items.isEmpty) ...[
+                              pw.Text(_formatCurrency(job.price, profile.currencySymbol)),
+                            ] else ...[
+                              for (var item in job.items)
+                                pw.Padding(
+                                   padding: const pw.EdgeInsets.only(bottom: 4),
+                                   child: pw.Text(_formatCurrency(item.price * item.quantity, profile.currencySymbol)),
+                                ),
+                            ],
+                          ],
+                        )
                       ),
                     ],
                   ),
@@ -156,23 +230,43 @@ class InvoiceService {
                     width: 200,
                     child: pw.Column(
                       children: [
-                        _buildTotalRow('Subtotal', job.price),
+                        _buildTotalRow(
+                          'Subtotal', 
+                          job.price, 
+                          profile.currencySymbol,
+                        ),
+                        pw.SizedBox(height: 4),
+                        
+                        if (job.balanceDue != job.price)
+                          _buildTotalRow(
+                            'Paid', 
+                            job.price - job.balanceDue, 
+                            profile.currencySymbol,
+                            color: PdfColors.green,
+                          ),
+                        
                         if (profile.defaultTaxRate > 0)
-                          _buildTotalRow('Tax (${profile.defaultTaxRate}%)', job.price * (profile.defaultTaxRate / 100)),
-                         
+                          _buildTotalRow(
+                            'Tax (${profile.defaultTaxRate}%)', 
+                            job.price * (profile.defaultTaxRate / 100), 
+                            profile.currencySymbol,
+                          ),
+                          
                         pw.Divider(), 
+
                         _buildTotalRow(
                           'Total', 
                           job.price * (1 + (profile.defaultTaxRate / 100)),
+                          profile.currencySymbol,
                           isBold: true,
                           color: accentColor,
                         ),
                         pw.SizedBox(height: 4),
                         
-                        // FIXED: Removed the duplicate job.balanceDue parameter
                         _buildTotalRow(
                           'Balance Due', 
                           job.balanceDue, 
+                          profile.currencySymbol,
                           isBold: true,
                         ),
                       ],
@@ -209,24 +303,19 @@ class InvoiceService {
         },
       ),
     );
-
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
-      name: 'Invoice-${job.id.substring(0, 8)}',
-    );
   }
 
-  pw.Widget _buildTotalRow(String label, double value, {bool isBold = false, PdfColor? color}) {
+  pw.Widget _buildTotalRow(String label, double value, String symbol, {bool isBold = false, PdfColor? color}) {
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
         pw.Text(label, style: pw.TextStyle(fontWeight: isBold ? pw.FontWeight.bold : null, color: color)),
-        pw.Text(_formatCurrency(value), style: pw.TextStyle(fontWeight: isBold ? pw.FontWeight.bold : null, color: color)),
+        pw.Text(_formatCurrency(value, symbol), style: pw.TextStyle(fontWeight: isBold ? pw.FontWeight.bold : null, color: color)),
       ],
     );
   }
 
-  String _formatCurrency(double amount) {
-    return '₦${amount.toStringAsFixed(2)}'; 
+  String _formatCurrency(double amount, String symbol) {
+    return '$symbol${amount.toStringAsFixed(2)}'; 
   }
 }

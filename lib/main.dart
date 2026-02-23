@@ -6,6 +6,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tailorsync_v2/core/app/app_shell.dart';
 import 'package:tailorsync_v2/core/auth/auth_gate.dart';
 import 'package:tailorsync_v2/core/notifications/notification_service.dart';
+import 'package:tailorsync_v2/core/theme/app_theme.dart';
+import 'package:tailorsync_v2/core/theme/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,12 +40,14 @@ class TailorSyncApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 1. Watch the theme mode provider
+    final currentThemeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'TailorSync',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF5D3FD3),
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: currentThemeMode, // 2. Apply it here
       // The AuthGate wraps everything
       home: const AuthGate(
         child: AppShell(), 

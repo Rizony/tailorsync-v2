@@ -5,6 +5,17 @@ part 'job_model.freezed.dart';
 part 'job_model.g.dart';
 
 @freezed
+class JobItem with _$JobItem {
+  const factory JobItem({
+    required String name,
+    @Default(1) int quantity,
+    @Default(0) double price,
+  }) = _JobItem;
+
+  factory JobItem.fromJson(Map<String, dynamic> json) => _$JobItemFromJson(json);
+}
+
+@freezed
 class JobModel with _$JobModel {
   const factory JobModel({
     required String id,
@@ -16,10 +27,12 @@ class JobModel with _$JobModel {
     @JsonKey(name: 'due_date') required DateTime dueDate,
     @Default('pending') String status,
     @Default([]) List<String> images,
+    @Default([]) List<JobItem> items, // Added items list
     String? notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'assigned_to') String? assignedTo,
     @JsonKey(name: 'is_outsourced') @Default(false) bool isOutsourced,
+    @JsonKey(readValue: _readCustomerName, includeToJson: false) String? customerName,
   }) = _JobModel;
 
   factory JobModel.fromJson(Map<String, dynamic> json) => _$JobModelFromJson(json);
@@ -50,4 +63,11 @@ class JobModel with _$JobModel {
     statusCanceled,
     statusQuote,
   ];
+}
+
+Object? _readCustomerName(Map map, String key) {
+  if (map['customers'] is Map) {
+    return map['customers']['full_name'];
+  }
+  return null;
 }

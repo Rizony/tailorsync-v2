@@ -1,0 +1,5 @@
+﻿00:00 +0: loading C:/Users/user/tailorsync-v2/test/features/jobs/controllers/job_controller_test.dart
+00:00 +0: JobController.build fetches job from repository
+00:00 +1: updateStatus calls repository and updates state
+00:00 +2: convertQuoteToOrder updates status and balance
+00:00 +3: All tests passed!

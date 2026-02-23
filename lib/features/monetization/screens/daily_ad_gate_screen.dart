@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/ads/ad_service.dart';
-import '../../../../core/app/app_shell.dart';
 
 class DailyAdGateScreen extends StatefulWidget {
-  const DailyAdGateScreen({super.key});
+  final Widget child;
+  const DailyAdGateScreen({super.key, required this.child});
 
   @override
   State<DailyAdGateScreen> createState() => _DailyAdGateScreenState();
@@ -25,14 +25,18 @@ class _DailyAdGateScreenState extends State<DailyAdGateScreen> {
     final String today = DateTime.now().toIso8601String().split('T')[0];
 
     if (lastAdDate == today) {
-      // User already watched an ad today, go straight to the app
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _navigateToApp();
-      });
+      // User already watched an ad today, just show the app immediately without checking 
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+      }
     } else {
-      setState(() {
-        _isChecking = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+      }
     }
   }
 
@@ -41,21 +45,24 @@ class _DailyAdGateScreenState extends State<DailyAdGateScreen> {
       final box = Hive.box('settings');
       final String today = DateTime.now().toIso8601String().split('T')[0];
       box.put('last_ad_date', today);
-      _navigateToApp();
+      if (mounted) {
+        setState(() {}); // trigger rebuild to show child
+      }
     });
-  }
-
-  void _navigateToApp() {
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AppShell()),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isChecking) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+
+    final box = Hive.box('settings');
+    final String? lastAdDate = box.get('last_ad_date');
+    final String today = DateTime.now().toIso8601String().split('T')[0];
+    
+    // If ad is already watched, return the actual application shell
+    if (lastAdDate == today) {
+      return widget.child;
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,

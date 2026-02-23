@@ -6,7 +6,40 @@ part of 'job_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$jobsByStatusesHash() => r'2cc6ba1e6d944d30a0468f9aec1504b8e5383ddb';
+String _$jobRepositoryHash() => r'd51732ebd2f2d8b1e9d2ae4488ba478995f2b986';
+
+/// See also [jobRepository].
+@ProviderFor(jobRepository)
+final jobRepositoryProvider = AutoDisposeProvider<JobRepository>.internal(
+  jobRepository,
+  name: r'jobRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$jobRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef JobRepositoryRef = AutoDisposeProviderRef<JobRepository>;
+String _$recentJobsHash() => r'c6463842d8bd895f90edb977c4360a9cf026f57c';
+
+/// See also [recentJobs].
+@ProviderFor(recentJobs)
+final recentJobsProvider = AutoDisposeFutureProvider<List<JobModel>>.internal(
+  recentJobs,
+  name: r'recentJobsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$recentJobsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RecentJobsRef = AutoDisposeFutureProviderRef<List<JobModel>>;
+String _$jobsByStatusesHash() => r'62dfb52f0441e470d226ebf62f7b94f6fb3f0840';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -158,7 +191,7 @@ class _JobsByStatusesProviderElement
   List<String> get statuses => (origin as JobsByStatusesProvider).statuses;
 }
 
-String _$jobsByCustomerHash() => r'45ff15e3cc00d5575553bff1e184f7a9d29a3a0e';
+String _$jobsByCustomerHash() => r'74327edf19f6e2ae3abc4b7156a669800f694a02';
 
 /// See also [jobsByCustomer].
 @ProviderFor(jobsByCustomer)
@@ -288,22 +321,5 @@ class _JobsByCustomerProviderElement
   @override
   String get customerId => (origin as JobsByCustomerProvider).customerId;
 }
-
-String _$jobRepositoryHash() => r'5ab3ebe2fe0a16cc112e2233221a0e42ad6a8440';
-
-/// See also [JobRepository].
-@ProviderFor(JobRepository)
-final jobRepositoryProvider =
-    AutoDisposeAsyncNotifierProvider<JobRepository, List<JobModel>>.internal(
-  JobRepository.new,
-  name: r'jobRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$jobRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$JobRepository = AutoDisposeAsyncNotifier<List<JobModel>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
