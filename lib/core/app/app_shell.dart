@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/features/dashboard/screens/dashboard_screen.dart';
-// Note: Ensure your import matches your pubspec.yaml name (tailorsync_v2)
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/jobs/screens/jobs_list_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/customers_screen.dart';
 import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
 import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
+import 'package:tailorsync_v2/core/widgets/subscription_banner.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   int _currentIndex = 0;
 
   // The index of these screens must match the BottomNavigationBar items exactly
@@ -28,7 +29,14 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: OfflineWrapper(child: _screens[_currentIndex]),
+      body: Column(
+        children: [
+          const SubscriptionBanner(),
+          Expanded(
+            child: OfflineWrapper(child: _screens[_currentIndex]),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
