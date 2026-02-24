@@ -29,31 +29,30 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: OfflineWrapper(child: _screens[_currentIndex]),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const SubscriptionBanner(),
-          Expanded(
-            child: OfflineWrapper(child: _screens[_currentIndex]),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(key: TutorialService.ordersTabKey, Icons.style), 
-            label: 'Orders'
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
-          BottomNavigationBarItem(
-            icon: Icon(key: TutorialService.settingsTabKey, Icons.settings), 
-            label: 'Settings'
+          BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            items: [
+              const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(key: TutorialService.ordersTabKey, Icons.style),
+                label: 'Orders',
+              ),
+              const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
+              BottomNavigationBarItem(
+                icon: Icon(key: TutorialService.settingsTabKey, Icons.settings),
+                label: 'Settings',
+              ),
+            ],
           ),
         ],
       ),
