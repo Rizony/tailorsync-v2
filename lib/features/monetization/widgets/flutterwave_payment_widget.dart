@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterwave_standard/flutterwave.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/billing/billing_service.dart';
 
 /// Widget to handle Flutterwave payment
 class FlutterwavePaymentWidget {
@@ -73,18 +72,29 @@ class FlutterwavePaymentWidget {
     }
   }
 
-  /// Verify payment and activate subscription
+  /// Verify payment via Edge Function (service role — bypasses RLS)
   static Future<bool> _verifyAndActivateSubscription({
     required String userId,
     required String planId,
     required String transactionReference,
     required String paymentProvider,
+    String? transactionId,
   }) async {
-    return await BillingService.verifyAndActivateSubscription(
-      userId: userId,
-      planId: planId,
-      transactionReference: transactionReference,
-      paymentProvider: paymentProvider,
-    );
+    try {
+      final res = await Supabase.instance.client.functions.invoke(
+        'verify-flutterwave-payment',
+        body: {
+          'tx_ref': transactionReference,
+          if (transactionId != null) 'transaction_id': transactionId,
+          'user_id': userId,
+          'plan_id': planId,
+        },
+      );
+      final data = res.data as Map?;
+      return data != null && data['success'] == true;
+    } catch (e) {
+      debugPrint('Flutterwave verify Edge Function error: $e');
+      return false;
+    }
   }
 }

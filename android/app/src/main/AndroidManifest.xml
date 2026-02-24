@@ -37,6 +37,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="io.supabase.tailorsync" android:host="login-callback" />
             </intent-filter>
+
+            <!-- Deep linking for payment callbacks -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tailorsync" android:host="payment-callback" />
+            </intent-filter>
         </activity>
         
         <meta-data

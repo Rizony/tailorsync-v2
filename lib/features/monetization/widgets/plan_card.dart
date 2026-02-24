@@ -78,7 +78,7 @@ class PlanCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: isCurrent
                                   ? Colors.green
-                                  : Colors.white.withValues(alpha: 0.25),
+                                  : plan.badgeColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(

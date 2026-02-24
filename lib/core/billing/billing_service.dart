@@ -93,7 +93,7 @@ class BillingService {
         'create-paystack-payment',
         body: {
           'email': userEmail,
-          'amount': amountInNaira * 100, // Paystack uses kobo (multiply by 100)
+          'amount': amountInNaira, // Edge function converts to kobo (×100)
           'reference': txRef,
           'callback_url': 'tailorsync://payment-callback',
           'metadata': {

@@ -41,7 +41,8 @@ class PlanPricing {
   final int monthlyNaira;
   final int yearlyNaira;
   final Color accentColor;
-  final String badge; // '' = none
+  final String badge;
+  final Color badgeColor;
   final List<String> highlights;
 
   const PlanPricing({
@@ -51,6 +52,7 @@ class PlanPricing {
     required this.yearlyNaira,
     required this.accentColor,
     this.badge = '',
+    this.badgeColor = const Color(0xFF607D8B),
     required this.highlights,
   });
 
@@ -66,7 +68,9 @@ const List<PlanPricing> kPlans = [
     subtitle: 'Get started for free',
     monthlyNaira: 0,
     yearlyNaira: 0,
-    accentColor: Color(0xFF78909C),
+    accentColor: Color(0xFF607D8B),
+    badge: 'FREE',
+    badgeColor: Color(0xFF607D8B),
     highlights: [
       'Up to 20 customers',
       'Basic job tracking',
@@ -79,6 +83,8 @@ const List<PlanPricing> kPlans = [
     monthlyNaira: 3000,
     yearlyNaira: 30000,
     accentColor: Color(0xFF1E78D2),
+    badge: 'MOST POPULAR',
+    badgeColor: Color(0xFF1E78D2),
     highlights: [
       'Unlimited customers',
       'No ads ever',
@@ -92,6 +98,7 @@ const List<PlanPricing> kPlans = [
     yearlyNaira: 50000,
     accentColor: Color(0xFFF58220),
     badge: 'BEST VALUE',
+    badgeColor: Color(0xFFE65100),
     highlights: [
       'Everything in Standard',
       'Referral commissions (up to 40%)',
