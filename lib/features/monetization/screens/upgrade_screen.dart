@@ -16,19 +16,46 @@ class UpgradeScreen extends ConsumerStatefulWidget {
   ConsumerState<UpgradeScreen> createState() => _UpgradeScreenState();
 }
 
-class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
+class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
+    with WidgetsBindingObserver {
   bool _isAnnual = false;
   bool _isProcessing = false;
   bool _showComparison = false;
 
-  // Paystack post-payment verification
-  String? _pendingTxRef;    // stored after browser opens
+  String? _pendingTxRef;
   String? _pendingUserId;
-  String? _pendingPlanId;   // e.g. 'standard_monthly'
+  String? _pendingPlanId;
   bool _isVerifying = false;
+  bool _launchedPaystack = false; // true while browser is open
 
-  String? _pendingPaymentMethod; // chosen after tapping a plan
+  String? _pendingPaymentMethod;
   PlanPricing? _pendingPlan;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Called automatically when the app comes back to the foreground.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        _launchedPaystack &&
+        _pendingTxRef != null) {
+      // Small delay to let the browser fully close first
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) _verifyPaystackPayment();
+      });
+      setState(() => _launchedPaystack = false);
+    }
+  }
 
   Future<void> _pay(PlanPricing plan) async {
     if (_pendingPaymentMethod == null) {
@@ -72,15 +99,13 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
         if (paymentUrl != null) {
           final uri = Uri.parse(paymentUrl);
           if (await canLaunchUrl(uri)) {
+            setState(() {
+              _pendingTxRef = txRef;
+              _pendingUserId = user.id;
+              _pendingPlanId = planId;
+              _launchedPaystack = true; // app will auto-verify on resume
+            });
             await launchUrl(uri, mode: LaunchMode.externalApplication);
-            // Store reference so user can verify in-app after returning
-            if (mounted) {
-              setState(() {
-                _pendingTxRef = txRef;
-                _pendingUserId = user.id;
-                _pendingPlanId = planId;
-              });
-            }
           }
         } else {
           throw Exception('Failed to generate payment link');
