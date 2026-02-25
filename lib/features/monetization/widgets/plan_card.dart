@@ -113,12 +113,15 @@ class PlanCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        priceLabel,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          priceLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       if (isAnnual && isPaid)
@@ -205,10 +208,13 @@ class PlanCard extends StatelessWidget {
                                             color: Colors.white))
                                     : const Icon(Icons.arrow_upward,
                                         size: 16),
-                                label: Text(
-                                    'Upgrade to ${plan.title}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold)),
+                                label: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                      'Upgrade to ${plan.title}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: color,
                                   foregroundColor: Colors.white,

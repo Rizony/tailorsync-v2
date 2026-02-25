@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
+import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
 
 class AddEditCustomerScreen extends ConsumerStatefulWidget {
   final Customer? customer;
@@ -73,10 +74,46 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
         }
       }
     } catch (e) {
-      if (mounted) showErrorSnackBar(context, e);
+      if (mounted) {
+        final errStr = e.toString();
+        if (errStr.contains('MAX_LIMIT_REACHED')) {
+          _showUpgradeDialog('You have reached the absolute maximum of 50 customers allowed on the Freemium plan. Upgrade to Standard or Premium for unlimited customers.');
+        } else if (errStr.contains('LIMIT_REACHED')) {
+          _showUpgradeDialog('You have reached your 20-customer limit. Upgrade to Standard or Premium for unlimited customers.');
+        } else {
+          showErrorSnackBar(context, e);
+        }
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showUpgradeDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Upgrade Required', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E78D2),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+            },
+            child: const Text('View Plans'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

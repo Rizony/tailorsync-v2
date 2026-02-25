@@ -12,6 +12,8 @@ import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
 import 'package:tailorsync_v2/features/invoicing/screens/invoice_preview_screen.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as tailorsync_upgrade;
+import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 
 class JobDetailsScreen extends ConsumerStatefulWidget {
   final JobModel job;
@@ -126,6 +128,29 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Preview Invoice',
             onPressed: _customer == null ? null : () {
+              final tier = ref.read(profileNotifierProvider).valueOrNull?.subscriptionTier ?? SubscriptionTier.freemium;
+              if (tier == SubscriptionTier.freemium) {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Premium Feature', style: TextStyle(fontWeight: FontWeight.bold)),
+                    content: const Text('PDF Invoices & Quotations are only available on Standard and Premium plans. Upgrade to unlock this feature!'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E78D2), foregroundColor: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const tailorsync_upgrade.UpgradeScreen()));
+                        },
+                        child: const Text('View Plans'),
+                      ),
+                    ],
+                  ),
+                );
+                return;
+              }
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
