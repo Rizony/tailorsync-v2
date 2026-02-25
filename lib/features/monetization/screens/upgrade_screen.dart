@@ -56,7 +56,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
           planId: planId,
           planName: plan.title,
           amountInNaira: amount,
-          publicKey: 'FLWPUBK_TEST-b479ce503a1b9c3554ed266761ad0ffc-X',
+          publicKey: 'FLWPUBK_TEST-c4c8b96627b8fa2ca1bb01d58362e530-X',
         );
         if (success && mounted) ref.invalidate(profileNotifierProvider);
       } else {

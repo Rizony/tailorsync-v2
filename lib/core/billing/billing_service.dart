@@ -4,7 +4,7 @@ import 'package:flutterwave_standard/flutterwave.dart';
 
 class BillingService {
   // Get these from your Flutterwave dashboard: https://dashboard.flutterwave.com/
-  static const String _flutterwavePublicKey = 'FLWPUBK_TEST-b479ce503a1b9c3554ed266761ad0ffc-X';
+  static const String _flutterwavePublicKey = 'FLWPUBK_TEST-c4c8b96627b8fa2ca1bb01d58362e530-X';
   
   /// Initialize billing service (no longer needed for RevenueCat)
   static Future<void> init() async {
