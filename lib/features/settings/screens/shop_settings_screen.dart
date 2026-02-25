@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
+import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
 
 class ShopSettingsScreen extends ConsumerStatefulWidget {
   const ShopSettingsScreen({super.key});
@@ -130,6 +132,29 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   }
 
   Future<void> _pickImage(bool isLogo) async {
+    final profile = ref.read(profileNotifierProvider).valueOrNull;
+    if (profile?.subscriptionTier == SubscriptionTier.freemium) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Premium Feature', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('Custom Shop Branding & Logos are only available on Standard and Premium plans. Upgrade to unlock this feature!'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E78D2), foregroundColor: Colors.white),
+              onPressed: () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+              },
+              child: const Text('View Plans'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     
