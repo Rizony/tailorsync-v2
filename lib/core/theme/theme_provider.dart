@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/core/theme/app_theme.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {

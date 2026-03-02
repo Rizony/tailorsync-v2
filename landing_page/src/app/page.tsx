@@ -12,13 +12,14 @@ export default function LandingPage() {
       <nav className="fixed left-0 right-0 top-0 z-50 glass-panel border-b border-white/20">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            {/* Simple CSS Logo representation for Needlix */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0076B6] to-[#00AEEF] text-white shadow-lg shadow-[#00AEEF]/20">
-              <Scissors className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter text-[#0A1128]">
-              NEEDLIX
-            </span>
+            <Image
+              src="/logo.png"
+              alt="Needlix Logo"
+              width={160}
+              height={48}
+              className="h-8 md:h-10 w-auto object-contain"
+              priority
+            />
           </div>
           <div className="flex items-center gap-6">
             <Link href="#features" className="hidden text-sm font-semibold text-slate-600 transition-colors hover:text-[#0076B6] sm:block">
@@ -100,7 +101,7 @@ export default function LandingPage() {
                 className="relative mx-auto w-full max-w-lg lg:max-w-none"
               >
                 {/* Decorative Elements around "Phone" */}
-                <div className="absolute -left-12 top-20 z-20 animate-float-delayed glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
+                <div className="hidden sm:block absolute -left-12 top-20 z-20 animate-float-delayed glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -112,7 +113,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="absolute -right-8 bottom-32 z-20 animate-float glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
+                <div className="hidden sm:block absolute -right-8 bottom-32 z-20 animate-float glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-[#00AEEF]/10 flex items-center justify-center">
                       <Users className="h-5 w-5 text-[#00AEEF]" />
@@ -249,8 +250,13 @@ export default function LandingPage() {
       <footer className="bg-white border-t border-slate-100 py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2">
-            <Scissors className="h-5 w-5 text-[#0076B6]" />
-            <span className="font-bold text-[#0A1128]">NEEDLIX</span>
+            <Image
+              src="/logo.png"
+              alt="Needlix Logo"
+              width={140}
+              height={40}
+              className="h-6 md:h-8 w-auto object-contain"
+            />
           </div>
           <p className="text-sm text-slate-500">
             &copy; {new Date().getFullYear()} TailorSync App. All rights reserved.
