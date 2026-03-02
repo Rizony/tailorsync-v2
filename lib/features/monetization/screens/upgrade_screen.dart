@@ -85,10 +85,17 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
           amountInNaira: amount,
           publicKey: 'FLWPUBK_TEST-c4c8b96627b8fa2ca1bb01d58362e530-X',
         );
-        if (success && mounted) ref.invalidate(profileNotifierProvider);
+        if (success && mounted) {
+          await ref.read(profileNotifierProvider.notifier).fetchProfile();
+          final newTier = SubscriptionTier.values.firstWhere(
+            (t) => t.name.toLowerCase() == plan.title.toLowerCase(),
+            orElse: () => SubscriptionTier.standard,
+          );
+          _showWelcomeDialog(newTier);
+        }
       } else {
         // Generate a reference we can use to verify later
-        final txRef = 'tailorsync_${DateTime.now().millisecondsSinceEpoch}_${user.id}';
+        final txRef = 'NEEDLIX_${DateTime.now().millisecondsSinceEpoch}_${user.id}';
         final paymentUrl = await BillingService.getPaystackPaymentUrl(
           userEmail: user.email ?? '',
           amountInNaira: amount,
@@ -139,7 +146,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
       );
       final data = res.data as Map?;
       if (data != null && data['success'] == true) {
-        ref.invalidate(profileNotifierProvider);
+        await ref.read(profileNotifierProvider.notifier).fetchProfile();
         if (mounted) {
           setState(() {
             _pendingTxRef = null;
@@ -148,13 +155,12 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
             _pendingPlan = null;
             _pendingPaymentMethod = null;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('🎉 ${(data['tier']?.toString() ?? 'Subscription').toUpperCase().substring(0, 1)}${(data['tier']?.toString() ?? 'subscription').substring(1)} plan activated!'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 4),
-            ),
+          final newTierStr = data['tier']?.toString().toLowerCase() ?? 'freemium';
+          final newTier = SubscriptionTier.values.firstWhere(
+            (t) => t.name == newTierStr, 
+            orElse: () => SubscriptionTier.standard
           );
+          _showWelcomeDialog(newTier);
         }
       } else {
         if (mounted) {
@@ -181,8 +187,101 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
       ref.watch(profileNotifierProvider).valueOrNull?.subscriptionTier ??
       SubscriptionTier.freemium;
 
+  int _tierWeight(SubscriptionTier tier) {
+    switch (tier) {
+      case SubscriptionTier.premium: return 2;
+      case SubscriptionTier.standard: return 1;
+      case SubscriptionTier.freemium: return 0;
+    }
+  }
+
+  bool _canUpgradeTo(PlanPricing plan) {
+    final currentWeight = _tierWeight(_currentTier());
+    final planTier = SubscriptionTier.values.firstWhere(
+      (t) => t.name.toLowerCase() == plan.title.toLowerCase(),
+      orElse: () => SubscriptionTier.freemium,
+    );
+    return _tierWeight(planTier) > currentWeight;
+  }
+
   bool _isCurrent(PlanPricing plan) =>
       plan.title.toLowerCase() == _currentTier().name.toLowerCase();
+
+  void _showWelcomeDialog(SubscriptionTier newTier) {
+    final features = kPlanFeatures.where((f) {
+      if (newTier == SubscriptionTier.premium) return f.premium && !f.standard;
+      if (newTier == SubscriptionTier.standard) return f.standard && !f.freemium;
+      return false;
+    }).map((f) => f.label).toList();
+
+    var displayFeatures = features.isNotEmpty 
+        ? features 
+        : kPlanFeatures.where((f) => newTier == SubscriptionTier.premium ? f.premium : f.standard).map((f) => f.label).toList();
+    if (displayFeatures.length > 5) {
+      displayFeatures = displayFeatures.take(5).toList()..add('And much more...');
+    }
+
+    final tierName = newTier.name.toUpperCase();
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Column(
+          children: [
+            const Icon(Icons.celebration, color: Colors.orange, size: 48),
+            const SizedBox(height: 12),
+            Text(
+              'Welcome to $tierName!',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Your account has been successfully upgraded. Here is what you just unlocked:',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            ...displayFeatures.map((f) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(f, style: const TextStyle(fontSize: 13))),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop(); // Go back to original screen
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E78D2),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('Start Exploring', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +317,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
                             color: Colors.white, size: 36),
                         const SizedBox(height: 8),
                         const Text(
-                          'Upgrade TailorSync',
+                          'Upgrade NEEDLIX',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 26,
@@ -262,9 +361,9 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
                         isCurrent: _isCurrent(plan),
                         isProcessing:
                             _isProcessing && _pendingPlan == plan,
-                        onUpgrade: _isCurrent(plan) || plan.monthlyNaira == 0
-                            ? null
-                            : () => _showPaymentPicker(plan),
+                        onUpgrade: _canUpgradeTo(plan)
+                            ? () => _showPaymentPicker(plan)
+                            : null,
                       )),
 
                   // ── Post-payment verify card (shown after Paystack browser) ──

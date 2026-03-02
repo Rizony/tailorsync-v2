@@ -14,13 +14,42 @@ class ProfileNotifier extends _$ProfileNotifier {
     final user = _supabase.auth.currentUser;
     if (user == null) return null;
 
+    // Fetch initial data
     final data = await _supabase
         .from('profiles')
         .select()
         .eq('id', user.id)
         .single();
-    
+        
+    // Listen for realtime updates to keep subscription & profile fully synced
+    final subscription = _supabase
+        .from('profiles')
+        .stream(primaryKey: ['id'])
+        .eq('id', user.id)
+        .listen((payload) {
+          if (payload.isNotEmpty) {
+            state = AsyncValue.data(AppUser.fromJson(payload.first));
+          }
+        });
+
+    ref.onDispose(() {
+      subscription.cancel();
+    });
+
     return AppUser.fromJson(data);
+  }
+
+  Future<void> fetchProfile() async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    final data = await _supabase
+        .from('profiles')
+        .select()
+        .eq('id', user.id)
+        .single();
+        
+    state = AsyncValue.data(AppUser.fromJson(data));
   }
 
   Future<void> updateProfile(AppUser updatedUser) async {

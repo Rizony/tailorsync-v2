@@ -12,6 +12,7 @@ _$CustomerImpl _$$CustomerImplFromJson(Map<String, dynamic> json) =>
       fullName: json['full_name'] as String,
       phoneNumber: json['phone_number'] as String?,
       email: json['email'] as String?,
+      photoUrl: json['photo_url'] as String?,
       measurements: json['measurements'] as Map<String, dynamic>? ?? const {},
       createdAt: json['created_at'] == null
           ? null
@@ -25,6 +26,7 @@ Map<String, dynamic> _$$CustomerImplToJson(_$CustomerImpl instance) =>
       'full_name': instance.fullName,
       'phone_number': instance.phoneNumber,
       'email': instance.email,
+      'photo_url': instance.photoUrl,
       'measurements': instance.measurements,
       'created_at': instance.createdAt?.toIso8601String(),
       'user_id': instance.userId,

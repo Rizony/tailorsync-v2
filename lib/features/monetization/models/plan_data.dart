@@ -32,6 +32,8 @@ const List<PlanFeature> kPlanFeatures = [
   PlanFeature(label: '40% commission – first month', freemium: false, standard: false, premium: true),
   PlanFeature(label: '20% recurring commissions', freemium: false, standard: false, premium: true),
   PlanFeature(label: 'Passive income dashboard', freemium: false, standard: false, premium: true),
+  PlanFeature(label: 'Exclusive Tailor Community', freemium: false, standard: false, premium: true),
+  PlanFeature(label: 'Fast priority support', freemium: false, standard: false, premium: true),
 ];
 
 /// Pricing for each plan.
@@ -101,8 +103,10 @@ const List<PlanPricing> kPlans = [
     badgeColor: Color(0xFFE65100),
     highlights: [
       'Everything in Standard',
+      'Exclusive Tailor Community',
       'Referral commissions (up to 40%)',
       'Passive income dashboard',
+      'Fast priority support',
     ],
   ),
 ];

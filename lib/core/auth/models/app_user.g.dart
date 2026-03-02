@@ -12,10 +12,10 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       fullName: json['full_name'] as String?,
       shopName: json['shop_name'] as String?,
       subscriptionTier: $enumDecodeNullable(
-              _$SubscriptionTierEnumMap, json['subscriptionTier']) ??
+              _$SubscriptionTierEnumMap, json['subscription_tier']) ??
           SubscriptionTier.freemium,
-      referralCode: json['referralCode'] as String?,
-      referrerId: json['referrerId'] as String?,
+      referralCode: json['referral_code'] as String?,
+      referrerId: json['referrer_id'] as String?,
       walletBalance: (json['walletBalance'] as num?)?.toDouble() ?? 0.0,
       adCredits: (json['adCredits'] as num?)?.toInt() ?? 0,
       brandName: json['brand_name'] as String?,
@@ -32,6 +32,10 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String?,
       website: json['website'] as String?,
       socialMediaHandle: json['social_media_handle'] as String?,
+      bankName: json['bank_name'] as String?,
+      accountNumber: json['account_number'] as String?,
+      accountName: json['account_name'] as String?,
+      withdrawalPin: json['withdrawal_pin'] as String?,
     );
 
 Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
@@ -39,9 +43,10 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'id': instance.id,
       'full_name': instance.fullName,
       'shop_name': instance.shopName,
-      'subscriptionTier': _$SubscriptionTierEnumMap[instance.subscriptionTier]!,
-      'referralCode': instance.referralCode,
-      'referrerId': instance.referrerId,
+      'subscription_tier':
+          _$SubscriptionTierEnumMap[instance.subscriptionTier]!,
+      'referral_code': instance.referralCode,
+      'referrer_id': instance.referrerId,
       'walletBalance': instance.walletBalance,
       'adCredits': instance.adCredits,
       'brand_name': instance.brandName,
@@ -58,6 +63,10 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'email': instance.email,
       'website': instance.website,
       'social_media_handle': instance.socialMediaHandle,
+      'bank_name': instance.bankName,
+      'account_number': instance.accountNumber,
+      'account_name': instance.accountName,
+      'withdrawal_pin': instance.withdrawalPin,
     };
 
 const _$SubscriptionTierEnumMap = {

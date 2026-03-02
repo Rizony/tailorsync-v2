@@ -23,8 +23,21 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
   final _bankCtrl = TextEditingController();
   final _accNumberCtrl = TextEditingController();
   final _accNameCtrl = TextEditingController();
+  final _pinCtrl = TextEditingController();
 
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill saved bank details
+    final profile = ref.read(profileNotifierProvider).valueOrNull;
+    if (profile != null) {
+      _bankCtrl.text = profile.bankName ?? '';
+      _accNumberCtrl.text = profile.accountNumber ?? '';
+      _accNameCtrl.text = profile.accountName ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -32,6 +45,7 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
     _bankCtrl.dispose();
     _accNumberCtrl.dispose();
     _accNameCtrl.dispose();
+    _pinCtrl.dispose();
     super.dispose();
   }
 
@@ -56,29 +70,30 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
       final uid = Supabase.instance.client.auth.currentUser?.id;
       if (uid == null) throw Exception('Not logged in');
 
-      final res = await Supabase.instance.client.functions.invoke(
-        'request-withdrawal',
-        body: {
-          'user_id': uid,
-          'amount': amount,
-          'bank_name': _bankCtrl.text.trim(),
-          'account_number': _accNumberCtrl.text.trim(),
-          'account_name': _accNameCtrl.text.trim(),
+      final bankDetails = '${_bankCtrl.text.trim()} | ${_accNumberCtrl.text.trim()} | ${_accNameCtrl.text.trim()}';
+
+      await Supabase.instance.client.rpc(
+        'request_withdrawal',
+        params: {
+          'req_amount': amount,
+          'req_bank_details': bankDetails,
+          'req_pin': _pinCtrl.text.trim(),
         },
       );
 
-      final data = res.data as Map?;
-      if (data != null && data['success'] == true) {
-        ref.invalidate(profileNotifierProvider);
-        if (mounted) {
-          _snack('Withdrawal request submitted! We\'ll process it within 48 hours.');
-          Navigator.pop(context);
-        }
-      } else {
-        _snack(data?['error'] ?? 'Request failed. Please try again.', isError: true);
+      ref.invalidate(profileNotifierProvider);
+      if (mounted) {
+        _snack('Withdrawal request submitted! We\'ll process it shortly.');
+        Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) _snack('Error: $e', isError: true);
+      if (mounted) {
+        // Safe casting the error to get the Postgres message if available
+        final errorMsg = e.toString().contains('Insufficient balance') 
+            ? 'Insufficient balance' 
+            : 'Request failed. Please try again.';
+        _snack(errorMsg, isError: true);
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -117,7 +132,7 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF5D3FD3), Color(0xFF8B5CF6)],
+                    colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -213,6 +228,29 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
+              const SizedBox(height: 20),
+              
+              // ── Security PIN ───────────────────────────────
+              const Text('Security Verification',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _pinCtrl,
+                decoration: const InputDecoration(
+                  labelText: '4-Digit Withdrawal PIN',
+                  prefixIcon: Icon(Icons.lock_outline),
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter your PIN'
+                ),
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 4,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v.trim().length != 4) return 'PIN must be 4 digits';
+                  return null;
+                },
+              ),
               const SizedBox(height: 28),
 
               // ── Notice ─────────────────────────────────────
@@ -245,7 +283,7 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5D3FD3),
+                    backgroundColor: const Color(0xFF0076B6),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),

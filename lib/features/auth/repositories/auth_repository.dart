@@ -57,7 +57,7 @@ class AuthRepository extends _$AuthRepository {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'io.supabase.tailorsync://login-callback/',
+        redirectTo: 'io.supabase.NEEDLIX://login-callback/',
       );
     } catch (e, stack) {
       throw ErrorHandler.handle(e, stack);
@@ -68,7 +68,7 @@ class AuthRepository extends _$AuthRepository {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.facebook,
-        redirectTo: 'io.supabase.tailorsync://login-callback/',
+        redirectTo: 'io.supabase.NEEDLIX://login-callback/',
       );
     } catch (e, stack) {
       throw ErrorHandler.handle(e, stack);

@@ -12,7 +12,7 @@ import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
 import 'package:tailorsync_v2/features/invoicing/screens/invoice_preview_screen.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as tailorsync_upgrade;
+import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 
 class JobDetailsScreen extends ConsumerStatefulWidget {
@@ -54,6 +54,46 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
     }
 
     await controller.updateStatus(newStatus);
+
+    if (newStatus == JobModel.statusFitting || newStatus == JobModel.statusCompleted) {
+      if (_customer?.phoneNumber != null && mounted) {
+        _promptWhatsAppUpdate(newStatus);
+      }
+    }
+  }
+
+  Future<void> _promptWhatsAppUpdate(String status) async {
+    final wantToNotify = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Notify Customer?'),
+        content: Text('Would you like to notify ${_customer!.fullName.split(' ').first} via WhatsApp that this order is now ${status.toUpperCase()}?'),
+        actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), foregroundColor: Colors.white),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                   Icon(Icons.message, size: 18),
+                   SizedBox(width: 8),
+                   Text('Open WhatsApp'),
+                ]
+              ),
+            ),
+        ],
+      )
+    );
+
+    if (wantToNotify == true) {
+        String phone = _customer!.phoneNumber!.replaceAll(RegExp(r'\D'), '');
+        if (phone.startsWith('0')) phone = '234${phone.substring(1)}';
+        
+        final action = status == JobModel.statusFitting ? 'ready for fitting' : 'completed and ready for pickup';
+        final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_job.title}' from MyTailorShop is now $action!");
+        launchUrl(Uri.parse('https://wa.me/$phone?text=$message'), mode: LaunchMode.externalApplication);
+    }
   }
 
   Future<double?> _showDepositDialog() async {
@@ -141,7 +181,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E78D2), foregroundColor: Colors.white),
                         onPressed: () {
                           Navigator.pop(ctx);
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const tailorsync_upgrade.UpgradeScreen()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const needlix_upgrade.UpgradeScreen()));
                         },
                         child: const Text('View Plans'),
                       ),
@@ -243,7 +283,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                           String phone = _customer!.phoneNumber!.replaceAll(RegExp(r'\D'), '');
                           if (phone.startsWith('0')) phone = '234${phone.substring(1)}';
                           
-                          final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order from TailorSync is ready!");
+                          final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_job.title}' from MyTailorShop is ready!");
                           launchUrl(Uri.parse('https://wa.me/$phone?text=$message'), mode: LaunchMode.externalApplication);
                         },
                       ),

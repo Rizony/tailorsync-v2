@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // --- Brand Colors ---
-  static const Color brandBlue = Color(0xFF1E78D2);
-  static const Color brandOrange = Color(0xFFF58220);
+  static const Color brandDark = Color(0xFF1A1A1A);
+  static const Color brandGold = Color(0xFFD4AF37);
   static const Color errorColor = Color(0xFFE53935);
   static const Color successColor = Color(0xFF43A047);
 
@@ -24,15 +24,15 @@ class AppTheme {
   }
 
   // --- Light Theme ---
-  static ThemeData get lightTheme {
+  static ThemeData lightTheme({Color customPrimaryColor = brandDark}) {
     final baseTheme = ThemeData.light();
     
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: brandBlue,
-        primary: brandBlue,
-        secondary: brandOrange,
+        seedColor: customPrimaryColor,
+        primary: customPrimaryColor,
+        secondary: brandGold,
         error: errorColor,
         brightness: Brightness.light,
         surface: const Color(0xFFFFFFFF),
@@ -59,9 +59,9 @@ class AppTheme {
       ),
 
       // Bottom Navigation Bar
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
-        selectedItemColor: brandBlue,
+        selectedItemColor: customPrimaryColor,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
@@ -91,7 +91,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: brandBlue, width: 2),
+          borderSide: BorderSide(color: customPrimaryColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -103,7 +103,7 @@ class AppTheme {
       // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: brandBlue,
+          backgroundColor: customPrimaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -112,14 +112,14 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: brandBlue,
+          foregroundColor: customPrimaryColor,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           side: BorderSide(color: Colors.grey.shade300, width: 1.5), // Softer outline
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: brandOrange,
+        backgroundColor: brandGold,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))), // Squircle shape
@@ -128,15 +128,15 @@ class AppTheme {
   }
 
   // --- Dark Theme ---
-  static ThemeData get darkTheme {
+  static ThemeData darkTheme({Color customPrimaryColor = brandDark}) {
     final baseTheme = ThemeData.dark();
     
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: brandBlue,
-        primary: brandBlue,
-        secondary: brandOrange,
+        seedColor: customPrimaryColor,
+        primary: customPrimaryColor,
+        secondary: brandGold,
         error: errorColor,
         brightness: Brightness.dark,
         surface: const Color(0xFF1E1E1E),
@@ -163,7 +163,7 @@ class AppTheme {
       // Bottom Navigation Bar
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF1A1A1A),
-        selectedItemColor: brandOrange, // High contrast for dark mode
+        selectedItemColor: brandGold, // High contrast for dark mode
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
@@ -194,14 +194,15 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: brandBlue, width: 2),
+          borderSide: BorderSide(color: customPrimaryColor, width: 2),
         ),
         labelStyle: const TextStyle(color: Colors.grey),
       ),
 
+      // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: brandBlue,
+          backgroundColor: customPrimaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -217,7 +218,7 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: brandOrange,
+        backgroundColor: brandGold,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),

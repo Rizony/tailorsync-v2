@@ -11,6 +11,7 @@ class Customer with _$Customer {
     @JsonKey(name: 'full_name') required String fullName,
     @JsonKey(name: 'phone_number') String? phoneNumber,
     String? email,
+    @JsonKey(name: 'photo_url') String? photoUrl,
     @Default({}) Map<String, dynamic> measurements,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'user_id') String? userId,

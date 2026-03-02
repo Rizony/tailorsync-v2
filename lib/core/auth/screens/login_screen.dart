@@ -16,6 +16,7 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _referralCodeController = TextEditingController();
 
   bool _isLoading = false;
   bool _isLogin = true;
@@ -54,7 +55,11 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
         await ref.read(authRepositoryProvider.notifier).signUp(
           email: email,
           password: password,
-          data: {'full_name': name.isNotEmpty ? name : 'Shop Owner'},
+          data: {
+            'full_name': name.isNotEmpty ? name : 'Shop Owner',
+            if (_referralCodeController.text.trim().isNotEmpty)
+              'referred_by': _referralCodeController.text.trim(),
+          },
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +70,14 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
         }
       }
     } catch (e) {
-      if (mounted) showErrorSnackBar(context, e);
+      if (mounted) {
+        final errString = e.toString().toLowerCase();
+        if (errString.contains('failed host lookup') || errString.contains('socketexception')) {
+          showErrorSnackBar(context, 'No internet connection. Please check your network and try again.');
+        } else {
+          showErrorSnackBar(context, e);
+        }
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -129,6 +141,7 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
+    _referralCodeController.dispose();
     super.dispose();
   }
 
@@ -151,7 +164,7 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
                 height: 120,
                 errorBuilder: (context, error, stackTrace) {
                   return Text(
-                    'TailorSync',
+                    'NEEDLIX',
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.primary,
@@ -162,7 +175,7 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'The OS for modern tailors',
+                'Connect & Create',
                 style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
@@ -192,6 +205,16 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
                               prefixIcon: Icon(Icons.person),
                             ),
                             textCapitalization: TextCapitalization.words,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _referralCodeController,
+                            decoration: const InputDecoration(
+                              labelText: 'Referral Code (Optional)',
+                              prefixIcon: Icon(Icons.group_add),
+                              hintText: 'e.g. TAILOR123',
+                            ),
+                            textCapitalization: TextCapitalization.characters,
                           ),
                           const SizedBox(height: 16),
                         ],

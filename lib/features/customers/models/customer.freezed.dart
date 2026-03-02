@@ -26,6 +26,8 @@ mixin _$Customer {
   @JsonKey(name: 'phone_number')
   String? get phoneNumber => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'photo_url')
+  String? get photoUrl => throw _privateConstructorUsedError;
   Map<String, dynamic> get measurements => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -52,6 +54,7 @@ abstract class $CustomerCopyWith<$Res> {
       @JsonKey(name: 'full_name') String fullName,
       @JsonKey(name: 'phone_number') String? phoneNumber,
       String? email,
+      @JsonKey(name: 'photo_url') String? photoUrl,
       Map<String, dynamic> measurements,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'user_id') String? userId});
@@ -76,6 +79,7 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
     Object? fullName = null,
     Object? phoneNumber = freezed,
     Object? email = freezed,
+    Object? photoUrl = freezed,
     Object? measurements = null,
     Object? createdAt = freezed,
     Object? userId = freezed,
@@ -96,6 +100,10 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      photoUrl: freezed == photoUrl
+          ? _value.photoUrl
+          : photoUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       measurements: null == measurements
           ? _value.measurements
@@ -126,6 +134,7 @@ abstract class _$$CustomerImplCopyWith<$Res>
       @JsonKey(name: 'full_name') String fullName,
       @JsonKey(name: 'phone_number') String? phoneNumber,
       String? email,
+      @JsonKey(name: 'photo_url') String? photoUrl,
       Map<String, dynamic> measurements,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'user_id') String? userId});
@@ -148,6 +157,7 @@ class __$$CustomerImplCopyWithImpl<$Res>
     Object? fullName = null,
     Object? phoneNumber = freezed,
     Object? email = freezed,
+    Object? photoUrl = freezed,
     Object? measurements = null,
     Object? createdAt = freezed,
     Object? userId = freezed,
@@ -168,6 +178,10 @@ class __$$CustomerImplCopyWithImpl<$Res>
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      photoUrl: freezed == photoUrl
+          ? _value.photoUrl
+          : photoUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       measurements: null == measurements
           ? _value._measurements
@@ -193,6 +207,7 @@ class _$CustomerImpl implements _Customer {
       @JsonKey(name: 'full_name') required this.fullName,
       @JsonKey(name: 'phone_number') this.phoneNumber,
       this.email,
+      @JsonKey(name: 'photo_url') this.photoUrl,
       final Map<String, dynamic> measurements = const {},
       @JsonKey(name: 'created_at') this.createdAt,
       @JsonKey(name: 'user_id') this.userId})
@@ -211,6 +226,9 @@ class _$CustomerImpl implements _Customer {
   final String? phoneNumber;
   @override
   final String? email;
+  @override
+  @JsonKey(name: 'photo_url')
+  final String? photoUrl;
   final Map<String, dynamic> _measurements;
   @override
   @JsonKey()
@@ -229,7 +247,7 @@ class _$CustomerImpl implements _Customer {
 
   @override
   String toString() {
-    return 'Customer(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, email: $email, measurements: $measurements, createdAt: $createdAt, userId: $userId)';
+    return 'Customer(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, email: $email, photoUrl: $photoUrl, measurements: $measurements, createdAt: $createdAt, userId: $userId)';
   }
 
   @override
@@ -243,6 +261,8 @@ class _$CustomerImpl implements _Customer {
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.photoUrl, photoUrl) ||
+                other.photoUrl == photoUrl) &&
             const DeepCollectionEquality()
                 .equals(other._measurements, _measurements) &&
             (identical(other.createdAt, createdAt) ||
@@ -252,8 +272,16 @@ class _$CustomerImpl implements _Customer {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, fullName, phoneNumber, email,
-      const DeepCollectionEquality().hash(_measurements), createdAt, userId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      phoneNumber,
+      email,
+      photoUrl,
+      const DeepCollectionEquality().hash(_measurements),
+      createdAt,
+      userId);
 
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
@@ -277,6 +305,7 @@ abstract class _Customer implements Customer {
       @JsonKey(name: 'full_name') required final String fullName,
       @JsonKey(name: 'phone_number') final String? phoneNumber,
       final String? email,
+      @JsonKey(name: 'photo_url') final String? photoUrl,
       final Map<String, dynamic> measurements,
       @JsonKey(name: 'created_at') final DateTime? createdAt,
       @JsonKey(name: 'user_id') final String? userId}) = _$CustomerImpl;
@@ -294,6 +323,9 @@ abstract class _Customer implements Customer {
   String? get phoneNumber;
   @override
   String? get email;
+  @override
+  @JsonKey(name: 'photo_url')
+  String? get photoUrl;
   @override
   Map<String, dynamic> get measurements;
   @override

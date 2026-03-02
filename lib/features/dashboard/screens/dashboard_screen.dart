@@ -39,7 +39,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardAsync = ref.watch(dashboardStatsProvider);
-    final currencySymbol = ref.watch(profileNotifierProvider).valueOrNull?.currencySymbol ?? '₦';
+    final profileAsync = ref.watch(profileNotifierProvider);
+    final profile = profileAsync.valueOrNull;
+    final currencySymbol = profile?.currencySymbol ?? '₦';
+    
+    // Check if shop details are missing
+    final isProfileIncomplete = profile != null && 
+        (profile.shopName == null || profile.shopName!.isEmpty ||
+         profile.phoneNumber == null || profile.phoneNumber!.isEmpty);
 
     return Scaffold(
       body: dashboardAsync.when(
@@ -62,11 +69,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   const SizedBox(height: 40), // Top padding for status bar
                   _buildHeader(context, data.userName),
+                  if (isProfileIncomplete) ...[
+                    const SizedBox(height: 16),
+                    _buildProfileCompletionCard(context),
+                  ],
                   const SizedBox(height: 24),
                   _buildStatsGrid(context, data, currencySymbol),
                   const SizedBox(height: 24),
                   _buildQuickActions(context),
                   const SizedBox(height: 24),
+                  if (data.urgentJobs.isNotEmpty) ...[
+                    _buildUrgentJobs(context, data.urgentJobs, currencySymbol),
+                    const SizedBox(height: 24),
+                  ],
                   _buildRecentActivity(data.recentJobs, currencySymbol),
                 ],
               ),
@@ -117,6 +132,53 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildProfileCompletionCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.storefront, color: Theme.of(context).colorScheme.primary, size: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Complete Your Shop Profile',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Add your shop name and phone number. This is important for generating professional PDF invoices and building trust in the community.',
+                  style: TextStyle(fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text('Update Profile'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -224,6 +286,120 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               side: BorderSide(color: Theme.of(context).colorScheme.primary),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUrgentJobs(BuildContext context, List<JobModel> jobs, String currencySymbol) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            SizedBox(width: 8),
+            Text(
+              'Urgent Deliveries (Next 48h)',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 120,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: jobs.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final job = jobs[index];
+              final hoursLeft = job.dueDate.difference(DateTime.now()).inHours;
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => JobDetailsScreen(job: job),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 240,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.orange.withValues(alpha: 0.1)
+                      : Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              job.title,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${hoursLeft}h',
+                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        'Due: ${DateFormat.jm().format(job.dueDate)} - ${DateFormat.yMMMd().format(job.dueDate)}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$currencySymbol${job.balanceDue} due',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(job.status).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              job.status.toUpperCase(),
+                              style: TextStyle(
+                                color: _getStatusColor(job.status),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],

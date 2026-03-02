@@ -10,9 +10,9 @@ class AppUser with _$AppUser {
     required String id,
     @JsonKey(name: 'full_name') String? fullName,
     @JsonKey(name: 'shop_name') String? shopName,
-    @Default(SubscriptionTier.freemium) SubscriptionTier subscriptionTier,
-    String? referralCode,
-    String? referrerId,
+    @JsonKey(name: 'subscription_tier') @Default(SubscriptionTier.freemium) SubscriptionTier subscriptionTier,
+    @JsonKey(name: 'referral_code') String? referralCode,
+    @JsonKey(name: 'referrer_id') String? referrerId,
     @Default(0.0) double walletBalance,
     @Default(0) int adCredits, // Used for the "Watch ad to add customer" logic
     
@@ -35,6 +35,12 @@ class AppUser with _$AppUser {
     @JsonKey(name: 'email') String? email,
     @JsonKey(name: 'website') String? website,
     @JsonKey(name: 'social_media_handle') String? socialMediaHandle,
+    
+    // Withdrawal Settings
+    @JsonKey(name: 'bank_name') String? bankName,
+    @JsonKey(name: 'account_number') String? accountNumber,
+    @JsonKey(name: 'account_name') String? accountName,
+    @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);

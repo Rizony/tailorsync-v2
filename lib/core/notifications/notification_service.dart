@@ -12,7 +12,7 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       // 1. Added 'settings:' named parameter
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: true,
           requestBadgePermission: true,
@@ -37,8 +37,8 @@ class NotificationService {
       scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
-          'tailorsync_channel',
-          'TailorSync Notifications',
+          'NEEDLIX_channel',
+          'NEEDLIX Notifications',
           channelDescription: 'Job alerts and reminders',
           importance: Importance.max,
           priority: Priority.high,
@@ -63,8 +63,8 @@ class NotificationService {
       body: body,
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
-          'tailorsync_channel',
-          'TailorSync Notifications',
+          'NEEDLIX_channel',
+          'NEEDLIX Notifications',
           importance: Importance.max,
           priority: Priority.high,
         ),

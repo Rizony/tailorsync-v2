@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
@@ -21,6 +24,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
   late TextEditingController _emailController;
   bool _isLoading = false;
 
+  File? _profileImage;
+  String? _existingPhotoUrl;
+
   // Measurement editing
   Map<String, dynamic> _measurements = {};
 
@@ -31,6 +37,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     _phoneController = TextEditingController(text: widget.customer?.phoneNumber ?? '');
     _emailController = TextEditingController(text: widget.customer?.email ?? '');
     _measurements = Map.from(widget.customer?.measurements ?? {});
+    _existingPhotoUrl = widget.customer?.photoUrl;
   }
 
   @override
@@ -41,17 +48,55 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File imageFile) async {
+    try {
+      final ext = imageFile.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final path = '$userId/$fileName';
+      
+      await Supabase.instance.client.storage
+          .from('customer_photos')
+          .upload(path, imageFile);
+          
+      return Supabase.instance.client.storage
+          .from('customer_photos')
+          .getPublicUrl(path);
+    } catch (e) {
+      debugPrint('Photo upload failed: $e');
+      return null;
+    }
+  }
+
   Future<void> _saveCustomer() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
+      String? uploadedPhotoUrl = _existingPhotoUrl;
+      
+      if (_profileImage != null) {
+        final newUrl = await _uploadImage(_profileImage!);
+        if (newUrl != null) uploadedPhotoUrl = newUrl;
+      }
+
       final customer = Customer(
         id: widget.customer?.id, // Null for new, existing for edit
         fullName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
         email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        photoUrl: uploadedPhotoUrl,
         measurements: _measurements,
         createdAt: widget.customer?.createdAt ?? DateTime.now(),
       );
@@ -77,9 +122,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
       if (mounted) {
         final errStr = e.toString();
         if (errStr.contains('MAX_LIMIT_REACHED')) {
-          _showUpgradeDialog('You have reached the absolute maximum of 50 customers allowed on the Freemium plan. Upgrade to Standard or Premium for unlimited customers.');
+          _showLimitDialog(isHardLimit: true);
         } else if (errStr.contains('LIMIT_REACHED')) {
-          _showUpgradeDialog('You have reached your 20-customer limit. Upgrade to Standard or Premium for unlimited customers.');
+          _showLimitDialog(isHardLimit: false);
         } else {
           showErrorSnackBar(context, e);
         }
@@ -89,17 +134,28 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     }
   }
 
-  void _showUpgradeDialog(String message) {
+  void _showLimitDialog({required bool isHardLimit}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Upgrade Required', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(message),
+        title: const Text('Customer Limit Reached', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(isHardLimit 
+            ? 'You have reached the absolute maximum of 50 customers allowed on the Freemium plan. Upgrade to Standard or Premium for unlimited customers.'
+            : 'You have reached your free 20-customer limit. Watch a short ad to add 1 more customer, or upgrade for unlimited.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
+          if (!isHardLimit)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.play_circle_fill, color: Color(0xFF0076B6)),
+              label: const Text('Watch Ad (+1)', style: TextStyle(color: Color(0xFF0076B6))),
+              onPressed: () {
+                Navigator.pop(ctx);
+                ref.read(customerRepositoryProvider.notifier).handleLimitWithAd(context);
+              },
+            ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1E78D2),
@@ -131,6 +187,23 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // __ Profile Photo Picker ___ //
+              Center(
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.grey.shade200,
+                    backgroundImage: _profileImage != null 
+                      ? FileImage(_profileImage!) as ImageProvider
+                      : (_existingPhotoUrl != null ? NetworkImage(_existingPhotoUrl!) : null),
+                    child: _profileImage == null && _existingPhotoUrl == null
+                        ? const Icon(Icons.add_a_photo, size: 32, color: Colors.grey)
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -169,7 +242,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveCustomer,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5D3FD3),
+                  backgroundColor: const Color(0xFF0076B6),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

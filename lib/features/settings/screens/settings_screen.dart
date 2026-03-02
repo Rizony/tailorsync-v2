@@ -8,6 +8,7 @@ import 'package:tailorsync_v2/core/theme/app_theme.dart';
 import 'package:tailorsync_v2/core/theme/theme_provider.dart';
 import 'package:tailorsync_v2/core/auth/auth_provider.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:tailorsync_v2/features/referrals/screens/referral_dashboard_screen.dart';
 import 'package:tailorsync_v2/features/auth/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -97,7 +98,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.dark_mode_outlined, color: AppTheme.brandBlue),
+                  leading: const Icon(Icons.dark_mode_outlined, color: AppTheme.brandDark),
                   title: const Text('Appearance', style: TextStyle(fontWeight: FontWeight.w500)),
                   subtitle: Text(_getThemeString(ref.watch(themeModeProvider))),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
@@ -122,6 +123,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const UpgradeScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.handshake_outlined, color: Colors.green),
+                  title: const Text('Partner Program', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Referrals, Wallet & Withdrawals'),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ReferralDashboardScreen()),
                     );
                   },
                 ),

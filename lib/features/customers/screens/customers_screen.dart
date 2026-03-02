@@ -78,7 +78,10 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.purple.shade100,
-                        child: Text(customer.fullName[0].toUpperCase()),
+                        backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
+                        child: customer.photoUrl == null 
+                            ? Text(customer.fullName[0].toUpperCase())
+                            : null,
                       ),
                       title: Text(customer.fullName),
                       subtitle: Text(customer.phoneNumber ?? 'No phone number'),

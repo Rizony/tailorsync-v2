@@ -30,13 +30,19 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   late TextEditingController _websiteController;
   late TextEditingController _socialController;
   
+  // Withdrawal Settings
+  late TextEditingController _bankNameController;
+  late TextEditingController _accountNumberController;
+  late TextEditingController _accountNameController;
+  late TextEditingController _withdrawalPinController;
+  
   String _selectedColor = '0xFF1E78D2'; 
   final List<String> _colors = [
     '0xFF1E78D2', // Brand Blue
     '0xFFF58220', // Brand Orange
     '0xFF43A047', // Green
     '0xFFE53935', // Red
-    '0xFF5D3FD3', // Purple (Legacy)
+    '0xFF0076B6', // Deep Blue (Default)
     '0xFF000000', // Black
   ];
 
@@ -75,6 +81,10 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _emailController = TextEditingController();
     _websiteController = TextEditingController();
     _socialController = TextEditingController();
+    _bankNameController = TextEditingController();
+    _accountNumberController = TextEditingController();
+    _accountNameController = TextEditingController();
+    _withdrawalPinController = TextEditingController();
   }
 
   void _populateControllers(dynamic user) {
@@ -90,6 +100,10 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _emailController.text = user.email ?? '';
     _websiteController.text = user.website ?? '';
     _socialController.text = user.socialMediaHandle ?? '';
+    _bankNameController.text = user.bankName ?? '';
+    _accountNumberController.text = user.accountNumber ?? '';
+    _accountNameController.text = user.accountName ?? '';
+    _withdrawalPinController.text = user.withdrawalPin ?? '';
     if (user.accentColor != null) {
       _selectedColor = user.accentColor!;
     }
@@ -128,6 +142,11 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _emailController.dispose();
     _websiteController.dispose();
     _socialController.dispose();
+    
+    _bankNameController.dispose();
+    _accountNumberController.dispose();
+    _accountNameController.dispose();
+    _withdrawalPinController.dispose();
     super.dispose();
   }
 
@@ -224,6 +243,11 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
           email: _emailController.text,
           website: _websiteController.text,
           socialMediaHandle: _socialController.text,
+          
+          bankName: _bankNameController.text,
+          accountNumber: _accountNumberController.text,
+          accountName: _accountNameController.text,
+          withdrawalPin: _withdrawalPinController.text,
           
           currencyCode: _selectedCurrencyCode,
           currencySymbol: _currencies[_selectedCurrencyCode] ?? '₦',
@@ -442,7 +466,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _socialController,
-                        decoration: const InputDecoration(labelText: 'Social Media (e.g. @tailorsync, IG: @mystore)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.share_outlined)),
+                        decoration: const InputDecoration(labelText: 'Social Media (e.g. @NEEDLIX, IG: @mystore)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.share_outlined)),
                       ),
                     ],
                   ),
@@ -532,6 +556,49 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                           alignLabelWithHint: true,
                         ),
                         maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // --- 4. Withdrawal Bank Details ---
+              const Padding(
+                padding: EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('WITHDRAWAL SETTINGS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _bankNameController,
+                        decoration: const InputDecoration(labelText: 'Bank Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.account_balance_outlined)),
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _accountNumberController,
+                        decoration: const InputDecoration(labelText: 'Account Number', border: OutlineInputBorder(), prefixIcon: Icon(Icons.tag_outlined)),
+                        keyboardType: TextInputType.number,
+                        maxLength: 10,
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _accountNameController,
+                        decoration: const InputDecoration(labelText: 'Account Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person_outline)),
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _withdrawalPinController,
+                        decoration: const InputDecoration(labelText: 'Secure Withdrawal PIN (4 Digits)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock_outline), hintText: 'Create a 4-digit PIN to secure withdrawals'),
+                        keyboardType: TextInputType.number,
+                        obscureText: true,
+                        maxLength: 4,
                       ),
                     ],
                   ),

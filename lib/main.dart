@@ -30,24 +30,26 @@ void main() async {
 
   runApp(
     const ProviderScope(
-      child: TailorSyncApp(),
+      child: NeedlixApp(),
     ),
   );
 }
 
-class TailorSyncApp extends ConsumerWidget {
-  const TailorSyncApp({super.key});
+class NeedlixApp extends ConsumerWidget {
+  const NeedlixApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 1. Watch the theme mode provider
     final currentThemeMode = ref.watch(themeModeProvider);
+    // 2. Watch the tier color provider
+    final currentThemeColor = ref.watch(themeColorProvider);
 
     return MaterialApp(
-      title: 'TailorSync',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: currentThemeMode, // 2. Apply it here
+      title: 'NEEDLIX',
+      theme: AppTheme.lightTheme(customPrimaryColor: currentThemeColor),
+      darkTheme: AppTheme.darkTheme(customPrimaryColor: currentThemeColor),
+      themeMode: currentThemeMode, // Apply it here
       // The AuthGate wraps everything
       home: const AuthGate(
         child: AppShell(), 

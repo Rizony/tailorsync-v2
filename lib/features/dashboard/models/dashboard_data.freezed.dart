@@ -21,6 +21,7 @@ mixin _$DashboardData {
   int get totalCustomers => throw _privateConstructorUsedError;
   double get totalRevenue => throw _privateConstructorUsedError;
   List<JobModel> get recentJobs => throw _privateConstructorUsedError;
+  List<JobModel> get urgentJobs => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
 
   /// Create a copy of DashboardData
@@ -42,6 +43,7 @@ abstract class $DashboardDataCopyWith<$Res> {
       int totalCustomers,
       double totalRevenue,
       List<JobModel> recentJobs,
+      List<JobModel> urgentJobs,
       String userName});
 }
 
@@ -65,6 +67,7 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
     Object? totalCustomers = null,
     Object? totalRevenue = null,
     Object? recentJobs = null,
+    Object? urgentJobs = null,
     Object? userName = null,
   }) {
     return _then(_value.copyWith(
@@ -88,6 +91,10 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
           ? _value.recentJobs
           : recentJobs // ignore: cast_nullable_to_non_nullable
               as List<JobModel>,
+      urgentJobs: null == urgentJobs
+          ? _value.urgentJobs
+          : urgentJobs // ignore: cast_nullable_to_non_nullable
+              as List<JobModel>,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -110,6 +117,7 @@ abstract class _$$DashboardDataImplCopyWith<$Res>
       int totalCustomers,
       double totalRevenue,
       List<JobModel> recentJobs,
+      List<JobModel> urgentJobs,
       String userName});
 }
 
@@ -131,6 +139,7 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
     Object? totalCustomers = null,
     Object? totalRevenue = null,
     Object? recentJobs = null,
+    Object? urgentJobs = null,
     Object? userName = null,
   }) {
     return _then(_$DashboardDataImpl(
@@ -154,6 +163,10 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
           ? _value._recentJobs
           : recentJobs // ignore: cast_nullable_to_non_nullable
               as List<JobModel>,
+      urgentJobs: null == urgentJobs
+          ? _value._urgentJobs
+          : urgentJobs // ignore: cast_nullable_to_non_nullable
+              as List<JobModel>,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -171,8 +184,10 @@ class _$DashboardDataImpl implements _DashboardData {
       required this.totalCustomers,
       required this.totalRevenue,
       required final List<JobModel> recentJobs,
+      required final List<JobModel> urgentJobs,
       required this.userName})
-      : _recentJobs = recentJobs;
+      : _recentJobs = recentJobs,
+        _urgentJobs = urgentJobs;
 
   @override
   final int activeJobs;
@@ -190,12 +205,20 @@ class _$DashboardDataImpl implements _DashboardData {
     return EqualUnmodifiableListView(_recentJobs);
   }
 
+  final List<JobModel> _urgentJobs;
+  @override
+  List<JobModel> get urgentJobs {
+    if (_urgentJobs is EqualUnmodifiableListView) return _urgentJobs;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_urgentJobs);
+  }
+
   @override
   final String userName;
 
   @override
   String toString() {
-    return 'DashboardData(activeJobs: $activeJobs, completedJobs: $completedJobs, totalCustomers: $totalCustomers, totalRevenue: $totalRevenue, recentJobs: $recentJobs, userName: $userName)';
+    return 'DashboardData(activeJobs: $activeJobs, completedJobs: $completedJobs, totalCustomers: $totalCustomers, totalRevenue: $totalRevenue, recentJobs: $recentJobs, urgentJobs: $urgentJobs, userName: $userName)';
   }
 
   @override
@@ -213,6 +236,8 @@ class _$DashboardDataImpl implements _DashboardData {
                 other.totalRevenue == totalRevenue) &&
             const DeepCollectionEquality()
                 .equals(other._recentJobs, _recentJobs) &&
+            const DeepCollectionEquality()
+                .equals(other._urgentJobs, _urgentJobs) &&
             (identical(other.userName, userName) ||
                 other.userName == userName));
   }
@@ -225,6 +250,7 @@ class _$DashboardDataImpl implements _DashboardData {
       totalCustomers,
       totalRevenue,
       const DeepCollectionEquality().hash(_recentJobs),
+      const DeepCollectionEquality().hash(_urgentJobs),
       userName);
 
   /// Create a copy of DashboardData
@@ -243,6 +269,7 @@ abstract class _DashboardData implements DashboardData {
       required final int totalCustomers,
       required final double totalRevenue,
       required final List<JobModel> recentJobs,
+      required final List<JobModel> urgentJobs,
       required final String userName}) = _$DashboardDataImpl;
 
   @override
@@ -255,6 +282,8 @@ abstract class _DashboardData implements DashboardData {
   double get totalRevenue;
   @override
   List<JobModel> get recentJobs;
+  @override
+  List<JobModel> get urgentJobs;
   @override
   String get userName;
 

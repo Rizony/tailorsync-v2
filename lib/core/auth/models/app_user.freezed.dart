@@ -25,8 +25,11 @@ mixin _$AppUser {
   String? get fullName => throw _privateConstructorUsedError;
   @JsonKey(name: 'shop_name')
   String? get shopName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'subscription_tier')
   SubscriptionTier get subscriptionTier => throw _privateConstructorUsedError;
+  @JsonKey(name: 'referral_code')
   String? get referralCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'referrer_id')
   String? get referrerId => throw _privateConstructorUsedError;
   double get walletBalance => throw _privateConstructorUsedError;
   int get adCredits =>
@@ -61,7 +64,16 @@ mixin _$AppUser {
   @JsonKey(name: 'website')
   String? get website => throw _privateConstructorUsedError;
   @JsonKey(name: 'social_media_handle')
-  String? get socialMediaHandle => throw _privateConstructorUsedError;
+  String? get socialMediaHandle =>
+      throw _privateConstructorUsedError; // Withdrawal Settings
+  @JsonKey(name: 'bank_name')
+  String? get bankName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'account_number')
+  String? get accountNumber => throw _privateConstructorUsedError;
+  @JsonKey(name: 'account_name')
+  String? get accountName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'withdrawal_pin')
+  String? get withdrawalPin => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -81,9 +93,9 @@ abstract class $AppUserCopyWith<$Res> {
       {String id,
       @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'shop_name') String? shopName,
-      SubscriptionTier subscriptionTier,
-      String? referralCode,
-      String? referrerId,
+      @JsonKey(name: 'subscription_tier') SubscriptionTier subscriptionTier,
+      @JsonKey(name: 'referral_code') String? referralCode,
+      @JsonKey(name: 'referrer_id') String? referrerId,
       double walletBalance,
       int adCredits,
       @JsonKey(name: 'brand_name') String? brandName,
@@ -99,7 +111,11 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'phone_number') String? phoneNumber,
       @JsonKey(name: 'email') String? email,
       @JsonKey(name: 'website') String? website,
-      @JsonKey(name: 'social_media_handle') String? socialMediaHandle});
+      @JsonKey(name: 'social_media_handle') String? socialMediaHandle,
+      @JsonKey(name: 'bank_name') String? bankName,
+      @JsonKey(name: 'account_number') String? accountNumber,
+      @JsonKey(name: 'account_name') String? accountName,
+      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin});
 }
 
 /// @nodoc
@@ -139,6 +155,10 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? email = freezed,
     Object? website = freezed,
     Object? socialMediaHandle = freezed,
+    Object? bankName = freezed,
+    Object? accountNumber = freezed,
+    Object? accountName = freezed,
+    Object? withdrawalPin = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -229,6 +249,22 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.socialMediaHandle
           : socialMediaHandle // ignore: cast_nullable_to_non_nullable
               as String?,
+      bankName: freezed == bankName
+          ? _value.bankName
+          : bankName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      accountNumber: freezed == accountNumber
+          ? _value.accountNumber
+          : accountNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      accountName: freezed == accountName
+          ? _value.accountName
+          : accountName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      withdrawalPin: freezed == withdrawalPin
+          ? _value.withdrawalPin
+          : withdrawalPin // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -244,9 +280,9 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       {String id,
       @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'shop_name') String? shopName,
-      SubscriptionTier subscriptionTier,
-      String? referralCode,
-      String? referrerId,
+      @JsonKey(name: 'subscription_tier') SubscriptionTier subscriptionTier,
+      @JsonKey(name: 'referral_code') String? referralCode,
+      @JsonKey(name: 'referrer_id') String? referrerId,
       double walletBalance,
       int adCredits,
       @JsonKey(name: 'brand_name') String? brandName,
@@ -262,7 +298,11 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'phone_number') String? phoneNumber,
       @JsonKey(name: 'email') String? email,
       @JsonKey(name: 'website') String? website,
-      @JsonKey(name: 'social_media_handle') String? socialMediaHandle});
+      @JsonKey(name: 'social_media_handle') String? socialMediaHandle,
+      @JsonKey(name: 'bank_name') String? bankName,
+      @JsonKey(name: 'account_number') String? accountNumber,
+      @JsonKey(name: 'account_name') String? accountName,
+      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin});
 }
 
 /// @nodoc
@@ -300,6 +340,10 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? email = freezed,
     Object? website = freezed,
     Object? socialMediaHandle = freezed,
+    Object? bankName = freezed,
+    Object? accountNumber = freezed,
+    Object? accountName = freezed,
+    Object? withdrawalPin = freezed,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -390,6 +434,22 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.socialMediaHandle
           : socialMediaHandle // ignore: cast_nullable_to_non_nullable
               as String?,
+      bankName: freezed == bankName
+          ? _value.bankName
+          : bankName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      accountNumber: freezed == accountNumber
+          ? _value.accountNumber
+          : accountNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      accountName: freezed == accountName
+          ? _value.accountName
+          : accountName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      withdrawalPin: freezed == withdrawalPin
+          ? _value.withdrawalPin
+          : withdrawalPin // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -401,9 +461,10 @@ class _$AppUserImpl implements _AppUser {
       {required this.id,
       @JsonKey(name: 'full_name') this.fullName,
       @JsonKey(name: 'shop_name') this.shopName,
+      @JsonKey(name: 'subscription_tier')
       this.subscriptionTier = SubscriptionTier.freemium,
-      this.referralCode,
-      this.referrerId,
+      @JsonKey(name: 'referral_code') this.referralCode,
+      @JsonKey(name: 'referrer_id') this.referrerId,
       this.walletBalance = 0.0,
       this.adCredits = 0,
       @JsonKey(name: 'brand_name') this.brandName,
@@ -419,7 +480,11 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'phone_number') this.phoneNumber,
       @JsonKey(name: 'email') this.email,
       @JsonKey(name: 'website') this.website,
-      @JsonKey(name: 'social_media_handle') this.socialMediaHandle});
+      @JsonKey(name: 'social_media_handle') this.socialMediaHandle,
+      @JsonKey(name: 'bank_name') this.bankName,
+      @JsonKey(name: 'account_number') this.accountNumber,
+      @JsonKey(name: 'account_name') this.accountName,
+      @JsonKey(name: 'withdrawal_pin') this.withdrawalPin});
 
   factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppUserImplFromJson(json);
@@ -433,11 +498,13 @@ class _$AppUserImpl implements _AppUser {
   @JsonKey(name: 'shop_name')
   final String? shopName;
   @override
-  @JsonKey()
+  @JsonKey(name: 'subscription_tier')
   final SubscriptionTier subscriptionTier;
   @override
+  @JsonKey(name: 'referral_code')
   final String? referralCode;
   @override
+  @JsonKey(name: 'referrer_id')
   final String? referrerId;
   @override
   @JsonKey()
@@ -491,10 +558,23 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey(name: 'social_media_handle')
   final String? socialMediaHandle;
+// Withdrawal Settings
+  @override
+  @JsonKey(name: 'bank_name')
+  final String? bankName;
+  @override
+  @JsonKey(name: 'account_number')
+  final String? accountNumber;
+  @override
+  @JsonKey(name: 'account_name')
+  final String? accountName;
+  @override
+  @JsonKey(name: 'withdrawal_pin')
+  final String? withdrawalPin;
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin)';
   }
 
   @override
@@ -541,7 +621,15 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.website, website) || other.website == website) &&
             (identical(other.socialMediaHandle, socialMediaHandle) ||
-                other.socialMediaHandle == socialMediaHandle));
+                other.socialMediaHandle == socialMediaHandle) &&
+            (identical(other.bankName, bankName) ||
+                other.bankName == bankName) &&
+            (identical(other.accountNumber, accountNumber) ||
+                other.accountNumber == accountNumber) &&
+            (identical(other.accountName, accountName) ||
+                other.accountName == accountName) &&
+            (identical(other.withdrawalPin, withdrawalPin) ||
+                other.withdrawalPin == withdrawalPin));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -569,7 +657,11 @@ class _$AppUserImpl implements _AppUser {
         phoneNumber,
         email,
         website,
-        socialMediaHandle
+        socialMediaHandle,
+        bankName,
+        accountNumber,
+        accountName,
+        withdrawalPin
       ]);
 
   /// Create a copy of AppUser
@@ -593,9 +685,10 @@ abstract class _AppUser implements AppUser {
       {required final String id,
       @JsonKey(name: 'full_name') final String? fullName,
       @JsonKey(name: 'shop_name') final String? shopName,
+      @JsonKey(name: 'subscription_tier')
       final SubscriptionTier subscriptionTier,
-      final String? referralCode,
-      final String? referrerId,
+      @JsonKey(name: 'referral_code') final String? referralCode,
+      @JsonKey(name: 'referrer_id') final String? referrerId,
       final double walletBalance,
       final int adCredits,
       @JsonKey(name: 'brand_name') final String? brandName,
@@ -611,8 +704,12 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'phone_number') final String? phoneNumber,
       @JsonKey(name: 'email') final String? email,
       @JsonKey(name: 'website') final String? website,
-      @JsonKey(name: 'social_media_handle')
-      final String? socialMediaHandle}) = _$AppUserImpl;
+      @JsonKey(name: 'social_media_handle') final String? socialMediaHandle,
+      @JsonKey(name: 'bank_name') final String? bankName,
+      @JsonKey(name: 'account_number') final String? accountNumber,
+      @JsonKey(name: 'account_name') final String? accountName,
+      @JsonKey(name: 'withdrawal_pin')
+      final String? withdrawalPin}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
@@ -625,10 +722,13 @@ abstract class _AppUser implements AppUser {
   @JsonKey(name: 'shop_name')
   String? get shopName;
   @override
+  @JsonKey(name: 'subscription_tier')
   SubscriptionTier get subscriptionTier;
   @override
+  @JsonKey(name: 'referral_code')
   String? get referralCode;
   @override
+  @JsonKey(name: 'referrer_id')
   String? get referrerId;
   @override
   double get walletBalance;
@@ -676,7 +776,19 @@ abstract class _AppUser implements AppUser {
   String? get website;
   @override
   @JsonKey(name: 'social_media_handle')
-  String? get socialMediaHandle;
+  String? get socialMediaHandle; // Withdrawal Settings
+  @override
+  @JsonKey(name: 'bank_name')
+  String? get bankName;
+  @override
+  @JsonKey(name: 'account_number')
+  String? get accountNumber;
+  @override
+  @JsonKey(name: 'account_name')
+  String? get accountName;
+  @override
+  @JsonKey(name: 'withdrawal_pin')
+  String? get withdrawalPin;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

@@ -20,19 +20,19 @@ class FlutterwavePaymentWidget {
       final userEmail = user.email ?? '';
       final userName = user.userMetadata?['full_name'] ?? 'User';
       final userId = user.id;
-      final txRef = 'tailorsync_${DateTime.now().millisecondsSinceEpoch}_$userId';
+      final txRef = 'NEEDLIX_${DateTime.now().millisecondsSinceEpoch}_$userId';
 
       final flutterwave = Flutterwave(
         publicKey: publicKey,
         currency: 'NGN',
         txRef: txRef,
         amount: amountInNaira.toString(),
-        redirectUrl: 'tailorsync://payment-callback',
+        redirectUrl: 'NEEDLIX://payment-callback',
         paymentOptions: 'card, banktransfer, ussd, account',
         customization: Customization(
-          title: 'TailorSync Subscription',
+          title: 'NEEDLIX Subscription',
           description: 'Subscribe to $planName plan - ₦$amountInNaira/month',
-          logo: 'https://tailorsync.app/logo.png',
+          logo: 'https://mytailorapp.com/logo.png',
         ),
         customer: Customer(
           name: userName,

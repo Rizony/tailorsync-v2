@@ -23,7 +23,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
         final currencySymbol = user?.currencySymbol ?? '₦';
         final walletBalance = user?.walletBalance ?? 0.0;
         final referralCode = user?.referralCode ?? '';
-        final referralLink = 'https://tailorsync.app/ref/$referralCode';
+        final referralLink = 'https://mytailorapp.com/ref/$referralCode';
 
         if (!isPremium) {
           return _PremiumLockedView(onUpgrade: () {
@@ -47,7 +47,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
                     background: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF5D3FD3), Color(0xFF8B5CF6)],
+                          colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -157,9 +157,9 @@ class ReferralDashboardScreen extends ConsumerWidget {
                         _ReferralLinkCard(
                           link: referralLink,
                           onShare: () => SharePlus.instance.share(ShareParams(
-                            text: 'Join me on TailorSync — the best app for tailors! 🎉\n'
+                            text: 'Join me on NEEDLIX — the best app for tailors! 🎉\n'
                                 'Sign up with my referral link and get started:\n$referralLink',
-                            subject: 'Join TailorSync',
+                            subject: 'Join NEEDLIX',
                           )),
                         ),
                         const SizedBox(height: 20),
@@ -218,7 +218,7 @@ class _PremiumLockedView extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF5D3FD3), Color(0xFF8B5CF6)],
+                    colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -245,7 +245,7 @@ class _PremiumLockedView extends StatelessWidget {
                 label: const Text('Upgrade to Premium',
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5D3FD3),
+                  backgroundColor: const Color(0xFF0076B6),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -309,14 +309,14 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFF5D3FD3).withValues(alpha: 0.07),
+          color: const Color(0xFF0076B6).withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: const Color(0xFF5D3FD3).withValues(alpha: 0.2)),
+              color: const Color(0xFF0076B6).withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: const Color(0xFF5D3FD3), size: 20),
+            Icon(icon, color: const Color(0xFF0076B6), size: 20),
             const SizedBox(height: 6),
             Text(value,
                 style: const TextStyle(
@@ -341,7 +341,7 @@ class _ReferralCodeCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF5D3FD3), Color(0xFF8B5CF6)],
+          colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -413,7 +413,7 @@ class _ReferralLinkCard extends StatelessWidget {
             icon: const Icon(Icons.share, size: 16),
             label: const Text('Share'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5D3FD3),
+              backgroundColor: const Color(0xFF0076B6),
               foregroundColor: Colors.white,
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -475,7 +475,7 @@ class _CommissionRow extends StatelessWidget {
           Text(value,
               style: const TextStyle(
                   fontSize: 12, fontWeight: FontWeight.bold,
-                  color: Color(0xFF5D3FD3))),
+                  color: Color(0xFF0076B6))),
         ],
       ),
     );
@@ -532,11 +532,11 @@ class _TransactionList extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5D3FD3).withValues(alpha: 0.1),
+                  color: const Color(0xFF0076B6).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.payments_outlined,
-                    color: Color(0xFF5D3FD3), size: 18),
+                    color: Color(0xFF0076B6), size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(

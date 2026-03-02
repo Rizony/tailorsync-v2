@@ -4,6 +4,7 @@ import 'package:tailorsync_v2/features/dashboard/screens/dashboard_screen.dart';
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/jobs/screens/jobs_list_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/customers_screen.dart';
+import 'package:tailorsync_v2/features/community/screens/community_screen.dart';
 import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
 import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
 import 'package:tailorsync_v2/core/widgets/subscription_banner.dart';
@@ -23,6 +24,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     const DashboardScreen(),
     const JobsListScreen(),
     const CustomersScreen(),
+    const CommunityScreen(), // The new Community tab
     const SettingsScreen(), // Settings
   ];
 
@@ -48,6 +50,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 label: 'Orders',
               ),
               const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
+              const BottomNavigationBarItem(icon: Icon(Icons.forum), label: 'Community'),
               BottomNavigationBarItem(
                 icon: Icon(key: TutorialService.settingsTabKey, Icons.settings),
                 label: 'Settings',

@@ -25,7 +25,7 @@ class BillingService {
   }) async {
     try {
       // Generate transaction reference
-      final txRef = "tailorsync_${DateTime.now().millisecondsSinceEpoch}_$userId";
+      final txRef = "NEEDLIX_${DateTime.now().millisecondsSinceEpoch}_$userId";
 
       final flutterwave = Flutterwave(
         publicKey: _flutterwavePublicKey,
@@ -33,12 +33,12 @@ class BillingService {
         txRef: txRef,
         amount: amountInNaira.toString(),
         // Required by Flutterwave Standard SDK
-        redirectUrl: "https://tailorsync.app/payment-callback",
+        redirectUrl: "https://mytailorapp.com/payment-callback",
         paymentOptions: "card, banktransfer, ussd, account",
         customization: Customization(
-          title: "TailorSync Subscription",
+          title: "NEEDLIX Subscription",
           description: "Subscribe to $planName plan",
-          logo: "https://tailorsync.app/logo.png", // Add your logo URL
+          logo: "https://mytailorapp.com/logo.png", // Add your logo URL
         ),
         customer: Customer(
           name: userName,
@@ -76,7 +76,7 @@ class BillingService {
   }) async {
     try {
       // Generate transaction reference
-      final txRef = "tailorsync_${DateTime.now().millisecondsSinceEpoch}_$userId";
+      final txRef = "NEEDLIX_${DateTime.now().millisecondsSinceEpoch}_$userId";
       
       // that generates Paystack payment links securely
       // For now, this is a placeholder that you'll need to implement
@@ -95,7 +95,7 @@ class BillingService {
           'email': userEmail,
           'amount': amountInNaira, // Edge function converts to kobo (×100)
           'reference': txRef,
-          'callback_url': 'tailorsync://payment-callback',
+          'callback_url': 'NEEDLIX://payment-callback',
           'metadata': {
             'plan_id': planId,
             'user_id': userId,

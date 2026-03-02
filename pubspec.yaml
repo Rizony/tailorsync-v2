@@ -1,5 +1,5 @@
 name: tailorsync_v2
-description: The ultimate OS for modern tailors.
+description: Connect & Create.
 version: 2.0.0+1
 publish_to: 'none'
 
@@ -68,6 +68,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   json_annotation: ^4.8.0
   json_serializable: ^6.9.5
+  flutter_native_splash: ^2.4.7
   
 
 
@@ -91,3 +92,18 @@ flutter_launcher_icons:
   min_sdk_android: 21 
   adaptive_icon_background: "#E6E7E8" 
   adaptive_icon_foreground: "assets/app_icon.png"
+
+# 🚀 NATIVE SPLASH SCREEN
+flutter_native_splash:
+  color: "#F8F9FC"
+  image: "assets/logo_full.png"
+  color_dark: "#121212"
+  image_dark: "assets/logo_full.png"
+  android_12:
+    color: "#F8F9FC"
+    image: "assets/logo_full.png"
+    color_dark: "#121212"
+    image_dark: "assets/logo_full.png"
+  android: true
+  ios: true
+  web: false

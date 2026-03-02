@@ -11,6 +11,7 @@ class DashboardData with _$DashboardData {
     required int totalCustomers,
     required double totalRevenue,
     required List<JobModel> recentJobs,
+    required List<JobModel> urgentJobs,
     required String userName,
   }) = _DashboardData;
 }

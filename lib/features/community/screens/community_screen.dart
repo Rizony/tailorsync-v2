@@ -1,0 +1,260 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:tailorsync_v2/features/community/providers/community_provider.dart';
+import 'package:tailorsync_v2/features/community/models/community_post.dart';
+import 'package:tailorsync_v2/features/community/screens/create_post_screen.dart';
+import 'package:tailorsync_v2/features/community/screens/post_details_screen.dart';
+
+class CommunityScreen extends ConsumerStatefulWidget {
+  const CommunityScreen({super.key});
+
+  @override
+  ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends ConsumerState<CommunityScreen> {
+  String _filterType = 'all'; // 'all', 'discussions', 'jobs'
+
+  @override
+  Widget build(BuildContext context) {
+    final profileAsync = ref.watch(profileNotifierProvider);
+    final isPremium = profileAsync.valueOrNull?.subscriptionTier == SubscriptionTier.premium;
+
+    if (!isPremium) {
+      return _buildLockedScreen(context);
+    }
+
+    final postsAsync = ref.watch(communityFeedProvider(_filterType));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Community Board'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              children: [
+                _FilterChip(
+                  label: 'All',
+                  isSelected: _filterType == 'all',
+                  onTap: () => setState(() => _filterType = 'all'),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Discussions',
+                  isSelected: _filterType == 'discussions',
+                  onTap: () => setState(() => _filterType = 'discussions'),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Job Offers',
+                  isSelected: _filterType == 'jobs',
+                  onTap: () => setState(() => _filterType = 'jobs'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async => ref.read(communityFeedProvider(_filterType).notifier).refresh(),
+        child: postsAsync.when(
+          data: (posts) {
+            if (posts.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 100),
+                  Center(child: Text('No posts found. Be the first to start a discussion!')),
+                ]
+              );
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return _PostCard(post: posts[index]);
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              const SizedBox(height: 100),
+              Center(child: Text('Error loading feed: $err')),
+            ]
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()));
+          // Refresh list when returning
+          ref.read(communityFeedProvider(_filterType).notifier).refresh();
+        },
+        child: const Icon(Icons.edit),
+      ),
+    );
+  }
+
+  Widget _buildLockedScreen(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Community')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              const Text(
+                'Premium Feature Only',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Join the exclusive NEEDLIX community to share ideas, templates, and collaborate with top tailors worldwide.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const UpgradeScreen()),
+                  );
+                },
+                child: const Text('Upgrade to Premium'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterChip({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      label: Text(label),
+      backgroundColor: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      onPressed: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      side: BorderSide(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent),
+    );
+  }
+}
+
+class _PostCard extends StatelessWidget {
+  final CommunityPost post;
+
+  const _PostCard({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    final isJob = post.postType == 'job_offer';
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+           Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailsScreen(post: post)));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    child: Text(
+                      post.authorName != null && post.authorName!.isNotEmpty ? post.authorName![0].toUpperCase() : '?',
+                      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text(DateFormat.yMMMd().format(post.createdAt), style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                  if (isJob)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange),
+                      ),
+                      child: const Text('JOB OFFER', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              
+              // Content
+              Text(post.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(
+                post.content,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Footer
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (isJob && post.budget > 0)
+                     Text('Budget: ₦${post.budget.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green))
+                  else
+                     const SizedBox.shrink(),
+                     
+                  const Row(
+                    children: [
+                      Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Text('Discuss', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

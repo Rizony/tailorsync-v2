@@ -54,7 +54,7 @@ class InvoiceService {
     // Safely parse accent color
     PdfColor accentColor;
     try {
-      String cleanHex = (profile.accentColor ?? '5D3FD3')
+      String cleanHex = (profile.accentColor ?? '0076B6')
           .replaceAll('#', '')
           .replaceAll('0x', '')
           .replaceAll('0X', '');
@@ -62,7 +62,7 @@ class InvoiceService {
       accentColor = PdfColor.fromHex(cleanHex);
     } catch (e) {
       debugPrint('Error parsing color: $e');
-      accentColor = PdfColor.fromHex('5D3FD3');
+      accentColor = PdfColor.fromHex('0076B6');
     }
 
     // Load logo

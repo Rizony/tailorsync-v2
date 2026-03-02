@@ -43,6 +43,19 @@ class CustomerDetailsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Customer Profile Avatar
+            Align(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.purple.shade100,
+                backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
+                child: customer.photoUrl == null 
+                    ? Text(customer.fullName[0].toUpperCase(), style: const TextStyle(fontSize: 40, color: Colors.white))
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 16),
             // Customer Info Card
             Card(
               child: Padding(

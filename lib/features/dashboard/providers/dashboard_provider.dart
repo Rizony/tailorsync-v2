@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tailorsync_v2/core/auth/models/app_user.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
+import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
 import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
 import '../models/dashboard_data.dart';
 
@@ -32,6 +33,20 @@ Future<DashboardData> dashboardStats(Ref ref) async {
       .where((job) => job.status == 'completed') // Assuming only completed count towards realized revenue? Or all? Usually completed.
       .fold(0.0, (sum, job) => sum + (job.price ?? 0));
 
+  // Calculate urgent jobs (due in less than 48 hours, active status check)
+  final now = DateTime.now();
+  final fortyEightHoursFromNow = now.add(const Duration(hours: 48));
+
+  final urgentJobs = (jobs as List<JobModel>).where((job) {
+    if (job.status == JobModel.statusCompleted || job.status == JobModel.statusDelivered || job.status == JobModel.statusCanceled) {
+      return false;
+    }
+    return job.dueDate.isBefore(fortyEightHoursFromNow) && job.dueDate.isAfter(now.subtract(const Duration(days: 30)));
+  }).toList();
+  
+  // Sort urgent jobs by due date
+  urgentJobs.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+
   // Get recent 5
   final recentJobs = jobs.take(5).toList();
 
@@ -41,6 +56,7 @@ Future<DashboardData> dashboardStats(Ref ref) async {
     totalCustomers: customers.length,
     totalRevenue: totalRevenue,
     recentJobs: List.from(recentJobs), // specific cast if needed
+    urgentJobs: List.from(urgentJobs),
     userName: profile?.fullName ?? 'Tailor',
   );
 }
