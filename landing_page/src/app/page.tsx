@@ -15,9 +15,9 @@ export default function LandingPage() {
             <Image
               src="/logo.png"
               alt="Needlix Logo"
-              width={160}
-              height={48}
-              className="h-8 md:h-10 w-auto object-contain"
+              width={200}
+              height={60}
+              className="h-10 md:h-14 w-auto object-contain"
               priority
             />
           </div>
@@ -253,9 +253,9 @@ export default function LandingPage() {
             <Image
               src="/logo.png"
               alt="Needlix Logo"
-              width={140}
-              height={40}
-              className="h-6 md:h-8 w-auto object-contain"
+              width={160}
+              height={48}
+              className="h-8 md:h-10 w-auto object-contain"
             />
           </div>
           <p className="text-sm text-slate-500">

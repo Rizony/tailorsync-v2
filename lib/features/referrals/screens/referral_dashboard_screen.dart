@@ -23,7 +23,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
         final currencySymbol = user?.currencySymbol ?? '₦';
         final walletBalance = user?.walletBalance ?? 0.0;
         final referralCode = user?.referralCode ?? '';
-        final referralLink = 'https://mytailorapp.com/ref/$referralCode';
+        final referralLink = 'https://needlix.com/ref/$referralCode';
 
         if (!isPremium) {
           return _PremiumLockedView(onUpgrade: () {
