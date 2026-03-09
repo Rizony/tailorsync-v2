@@ -8,6 +8,8 @@ import 'package:tailorsync_v2/features/customers/repositories/customer_repositor
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
 
+import 'package:tailorsync_v2/features/customers/utils/smart_measurement_engine.dart';
+
 class AddEditCustomerScreen extends ConsumerStatefulWidget {
   final Customer? customer;
 
@@ -29,6 +31,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
   // Measurement editing
   Map<String, dynamic> _measurements = {};
+  final Map<String, TextEditingController> _measurementControllers = {};
 
   @override
   void initState() {
@@ -38,6 +41,17 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     _emailController = TextEditingController(text: widget.customer?.email ?? '');
     _measurements = Map.from(widget.customer?.measurements ?? {});
     _existingPhotoUrl = widget.customer?.photoUrl;
+
+    if (widget.customer == null) {
+      _selectedGender = 'Male';
+    } else {
+      if (_measurements.containsKey('Bust') || _measurements.containsKey('Gown Length') || _measurements.containsKey('Skirt Length')) {
+        _selectedGender = 'Female';
+      }
+      for (var e in _measurements.entries) {
+        _measurementControllers[e.key] = TextEditingController(text: e.value.toString());
+      }
+    }
   }
 
   @override
@@ -45,6 +59,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    for (var controller in _measurementControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -258,6 +275,11 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
   }
 
   String _selectedGender = 'Male'; 
+  String _selectedFit = 'Regular';
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _chestController = TextEditingController();
+  final TextEditingController _waistController = TextEditingController();
+  final TextEditingController _hipController = TextEditingController();
 
   Widget _buildMeasurementsSection() {
     return Card(
@@ -281,7 +303,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                           if (selected) {
                             setState(() {
                               _selectedGender = 'Male';
-                              _applyTemplate(Customer.maleMeasurements);
+                              _triggerAutoCalculate();
                             });
                           }
                         },
@@ -296,7 +318,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                           if (selected) {
                             setState(() {
                               _selectedGender = 'Female';
-                              _applyTemplate(Customer.femaleMeasurements);
+                              _triggerAutoCalculate();
                             });
                           }
                         },
@@ -305,8 +327,75 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedFit,
+                  decoration: const InputDecoration(labelText: 'Fit Preference', border: OutlineInputBorder()),
+                  items: ['Slim', 'Regular', 'Loose'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      if (newValue != null) _selectedFit = newValue;
+                      _triggerAutoCalculate(); 
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Height (cm)', border: OutlineInputBorder()),
+                        onChanged: (_) => _triggerAutoCalculate(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _chestController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(labelText: _selectedGender == 'Male' ? 'Chest (cm)' : 'Bust (cm)', border: const OutlineInputBorder()),
+                        onChanged: (_) => _triggerAutoCalculate(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _waistController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Waist (Optional)', border: OutlineInputBorder()),
+                        onChanged: (_) => _triggerAutoCalculate(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _hipController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Hip (Optional)', border: OutlineInputBorder()),
+                        onChanged: (_) => _triggerAutoCalculate(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 8),
+                const Text("Auto-Generated Proportions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 12),
 
                 // List existing measurements
                 if (_measurements.isEmpty)
@@ -332,15 +421,41 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     );
   }
 
-  void _applyTemplate(List<String> keys) {
-    for (var key in keys) {
-      if (!_measurements.containsKey(key)) {
-        _measurements[key] = '';
-      }
+  void _triggerAutoCalculate() {
+    final height = double.tryParse(_heightController.text);
+    final chest = double.tryParse(_chestController.text);
+    final waist = double.tryParse(_waistController.text);
+    final hip = double.tryParse(_hipController.text);
+
+    if (height != null && chest != null) {
+      final results = SmartMeasurementEngine.generateMeasurements(
+        gender: _selectedGender,
+        height: height,
+        chest: chest,
+        waist: waist,
+        hip: hip,
+        fitType: _selectedFit,
+      );
+
+      setState(() {
+        _measurements.clear();
+        for (var controller in _measurementControllers.values) {
+          controller.dispose();
+        }
+        _measurementControllers.clear();
+
+        results.forEach((key, value) {
+           _measurements[key] = value.toString();
+           _measurementControllers[key] = TextEditingController(text: value.toString());
+        });
+      });
     }
   }
 
   Widget _buildMeasurementRow(String key, String value) {
+    _measurementControllers[key] ??= TextEditingController(text: value);
+    final controller = _measurementControllers[key]!;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -349,11 +464,13 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
-              initialValue: value,
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 isDense: true,
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(),
+                hintText: 'e.g. 36',
               ),
               onChanged: (val) {
                 _measurements[key] = val;
@@ -365,6 +482,8 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
             onPressed: () {
               setState(() {
                 _measurements.remove(key);
+                _measurementControllers[key]?.dispose();
+                _measurementControllers.remove(key);
               });
             },
           ),
@@ -403,6 +522,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
               if (key.isNotEmpty) {
                 setState(() {
                   _measurements[key] = value;
+                  _measurementControllers[key] = TextEditingController(text: value);
                 });
                 Navigator.pop(context);
               }
