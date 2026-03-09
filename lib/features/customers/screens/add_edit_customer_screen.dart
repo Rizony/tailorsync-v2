@@ -320,7 +320,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
         initiallyExpanded: true,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
             child: Column(
               children: [
                 // Gender Selector
@@ -365,7 +365,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                         initialValue: _selectedFit,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                            labelText: 'Fit Preference',
+                            labelText: 'Fit',
                             border: OutlineInputBorder()),
                         items: ['Slim', 'Regular', 'Loose'].map((String value) {
                           return DropdownMenuItem<String>(
@@ -446,7 +446,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                         controller: _waistController,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                            labelText: 'Waist (Optional)',
+                            labelText: 'Waist',
                             border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
@@ -457,7 +457,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                         controller: _hipController,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                            labelText: 'Hip (Optional)',
+                            labelText: 'Hip',
                             border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
