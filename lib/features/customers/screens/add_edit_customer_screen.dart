@@ -150,9 +150,10 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text('Customer updated!')));
           await Future.delayed(const Duration(milliseconds: 50));
-          if (mounted)
+          if (mounted) {
             Navigator.pop(context,
                 customer); // Return updated input (though ID might be missing if we used input? No, widget.customer has ID)
+          }
         }
       }
     } catch (e) {
@@ -362,6 +363,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _selectedFit,
+                        isExpanded: true,
                         decoration: const InputDecoration(
                             labelText: 'Fit Preference',
                             border: OutlineInputBorder()),
@@ -383,12 +385,13 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     Expanded(
                       child: DropdownButtonFormField<bool>(
                         initialValue: _isCm,
+                        isExpanded: true,
                         decoration: const InputDecoration(
-                            labelText: 'Measurement Unit',
+                            labelText: 'Unit',
                             border: OutlineInputBorder()),
                         items: const [
                           DropdownMenuItem(
-                              value: true, child: Text("Centimetres (cm)")),
+                              value: true, child: Text("CM (cm)")),
                           DropdownMenuItem(
                               value: false, child: Text("Inches (in)")),
                         ],
