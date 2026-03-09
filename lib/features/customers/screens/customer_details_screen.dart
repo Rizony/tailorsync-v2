@@ -48,7 +48,7 @@ class CustomerDetailsScreen extends ConsumerWidget {
               alignment: Alignment.center,
               child: CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.purple.shade100,
+                backgroundColor: const Color(0xFF1E78D2).withOpacity(0.1),
                 backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
                 child: customer.photoUrl == null 
                     ? Text(customer.fullName[0].toUpperCase(), style: const TextStyle(fontSize: 40, color: Colors.white))
@@ -84,7 +84,13 @@ class CustomerDetailsScreen extends ConsumerWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("${e.key}:", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Expanded(
+                                  child: Text("${e.key}:",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      overflow: TextOverflow.ellipsis),
+                                ),
+                                const SizedBox(width: 4),
                                 Text(e.value.toString()),
                               ],
                             ),
