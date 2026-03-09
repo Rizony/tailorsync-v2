@@ -16,7 +16,8 @@ class AddEditCustomerScreen extends ConsumerStatefulWidget {
   const AddEditCustomerScreen({super.key, this.customer});
 
   @override
-  ConsumerState<AddEditCustomerScreen> createState() => _AddEditCustomerScreenState();
+  ConsumerState<AddEditCustomerScreen> createState() =>
+      _AddEditCustomerScreenState();
 }
 
 class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
@@ -36,20 +37,26 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.customer?.fullName ?? '');
-    _phoneController = TextEditingController(text: widget.customer?.phoneNumber ?? '');
-    _emailController = TextEditingController(text: widget.customer?.email ?? '');
+    _nameController =
+        TextEditingController(text: widget.customer?.fullName ?? '');
+    _phoneController =
+        TextEditingController(text: widget.customer?.phoneNumber ?? '');
+    _emailController =
+        TextEditingController(text: widget.customer?.email ?? '');
     _measurements = Map.from(widget.customer?.measurements ?? {});
     _existingPhotoUrl = widget.customer?.photoUrl;
 
     if (widget.customer == null) {
       _selectedGender = 'Male';
     } else {
-      if (_measurements.containsKey('Bust') || _measurements.containsKey('Gown Length') || _measurements.containsKey('Skirt Length')) {
+      if (_measurements.containsKey('Bust') ||
+          _measurements.containsKey('Gown Length') ||
+          _measurements.containsKey('Skirt Length')) {
         _selectedGender = 'Female';
       }
       for (var e in _measurements.entries) {
-        _measurementControllers[e.key] = TextEditingController(text: e.value.toString());
+        _measurementControllers[e.key] =
+            TextEditingController(text: e.value.toString());
       }
     }
   }
@@ -67,7 +74,8 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
@@ -81,11 +89,11 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
       final userId = Supabase.instance.client.auth.currentUser!.id;
       final path = '$userId/$fileName';
-      
+
       await Supabase.instance.client.storage
           .from('customer_photos')
           .upload(path, imageFile);
-          
+
       return Supabase.instance.client.storage
           .from('customer_photos')
           .getPublicUrl(path);
@@ -102,7 +110,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
     try {
       String? uploadedPhotoUrl = _existingPhotoUrl;
-      
+
       if (_profileImage != null) {
         final newUrl = await _uploadImage(_profileImage!);
         if (newUrl != null) uploadedPhotoUrl = newUrl;
@@ -111,8 +119,12 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
       final customer = Customer(
         id: widget.customer?.id, // Null for new, existing for edit
         fullName: _nameController.text.trim(),
-        phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        phoneNumber: _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
         photoUrl: uploadedPhotoUrl,
         measurements: _measurements,
         createdAt: widget.customer?.createdAt ?? DateTime.now(),
@@ -120,19 +132,27 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
       if (widget.customer == null) {
         // Create
-        final newCustomer = await ref.read(customerRepositoryProvider.notifier).addCustomer(customer);
+        final newCustomer = await ref
+            .read(customerRepositoryProvider.notifier)
+            .addCustomer(customer);
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Customer created!')));
-           await Future.delayed(const Duration(milliseconds: 50));
-           if (mounted) Navigator.pop(context, newCustomer);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Customer created!')));
+          await Future.delayed(const Duration(milliseconds: 50));
+          if (mounted) Navigator.pop(context, newCustomer);
         }
       } else {
         // Update
-        await ref.read(customerRepositoryProvider.notifier).updateCustomer(customer);
+        await ref
+            .read(customerRepositoryProvider.notifier)
+            .updateCustomer(customer);
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Customer updated!')));
-           await Future.delayed(const Duration(milliseconds: 50));
-           if (mounted) Navigator.pop(context, customer); // Return updated input (though ID might be missing if we used input? No, widget.customer has ID)
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Customer updated!')));
+          await Future.delayed(const Duration(milliseconds: 50));
+          if (mounted)
+            Navigator.pop(context,
+                customer); // Return updated input (though ID might be missing if we used input? No, widget.customer has ID)
         }
       }
     } catch (e) {
@@ -155,8 +175,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Customer Limit Reached', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(isHardLimit 
+        title: const Text('Customer Limit Reached',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(isHardLimit
             ? 'You have reached the absolute maximum of 50 customers allowed on the Freemium plan. Upgrade to Standard or Premium for unlimited customers.'
             : 'You have reached your free 20-customer limit. Watch a short ad to add 1 more customer, or upgrade for unlimited.'),
         actions: [
@@ -166,11 +187,15 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           ),
           if (!isHardLimit)
             OutlinedButton.icon(
-              icon: const Icon(Icons.play_circle_fill, color: Color(0xFF0076B6)),
-              label: const Text('Watch Ad (+1)', style: TextStyle(color: Color(0xFF0076B6))),
+              icon:
+                  const Icon(Icons.play_circle_fill, color: Color(0xFF0076B6)),
+              label: const Text('Watch Ad (+1)',
+                  style: TextStyle(color: Color(0xFF0076B6))),
               onPressed: () {
                 Navigator.pop(ctx);
-                ref.read(customerRepositoryProvider.notifier).handleLimitWithAd(context);
+                ref
+                    .read(customerRepositoryProvider.notifier)
+                    .handleLimitWithAd(context);
               },
             ),
           ElevatedButton(
@@ -180,7 +205,8 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
             ),
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const UpgradeScreen()));
             },
             child: const Text('View Plans'),
           ),
@@ -211,11 +237,14 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey.shade200,
-                    backgroundImage: _profileImage != null 
-                      ? FileImage(_profileImage!) as ImageProvider
-                      : (_existingPhotoUrl != null ? NetworkImage(_existingPhotoUrl!) : null),
+                    backgroundImage: _profileImage != null
+                        ? FileImage(_profileImage!) as ImageProvider
+                        : (_existingPhotoUrl != null
+                            ? NetworkImage(_existingPhotoUrl!)
+                            : null),
                     child: _profileImage == null && _existingPhotoUrl == null
-                        ? const Icon(Icons.add_a_photo, size: 32, color: Colors.grey)
+                        ? const Icon(Icons.add_a_photo,
+                            size: 32, color: Colors.grey)
                         : null,
                   ),
                 ),
@@ -263,8 +292,8 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: _isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white) 
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
                     : Text(isEditing ? 'Update Customer' : 'Save Customer'),
               ),
             ],
@@ -274,8 +303,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     );
   }
 
-  String _selectedGender = 'Male'; 
+  String _selectedGender = 'Male';
   String _selectedFit = 'Regular';
+  bool _isCm = true;
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _chestController = TextEditingController();
   final TextEditingController _waistController = TextEditingController();
@@ -292,7 +322,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                 // Gender Selector
+                // Gender Selector
                 Row(
                   children: [
                     Expanded(
@@ -327,21 +357,52 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedFit,
-                  decoration: const InputDecoration(labelText: 'Fit Preference', border: OutlineInputBorder()),
-                  items: ['Slim', 'Regular', 'Loose'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      if (newValue != null) _selectedFit = newValue;
-                      _triggerAutoCalculate(); 
-                    });
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _selectedFit,
+                        decoration: const InputDecoration(
+                            labelText: 'Fit Preference',
+                            border: OutlineInputBorder()),
+                        items: ['Slim', 'Regular', 'Loose'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            if (newValue != null) _selectedFit = newValue;
+                            _triggerAutoCalculate();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<bool>(
+                        initialValue: _isCm,
+                        decoration: const InputDecoration(
+                            labelText: 'Measurement Unit',
+                            border: OutlineInputBorder()),
+                        items: const [
+                          DropdownMenuItem(
+                              value: true, child: Text("Centimetres (cm)")),
+                          DropdownMenuItem(
+                              value: false, child: Text("Inches (in)")),
+                        ],
+                        onChanged: (newValue) {
+                          setState(() {
+                            if (newValue != null) {
+                              _isCm = newValue;
+                              _triggerAutoCalculate();
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 const Divider(),
@@ -353,7 +414,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                       child: TextFormField(
                         controller: _heightController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Height (cm)', border: OutlineInputBorder()),
+                        decoration: InputDecoration(
+                            labelText: 'Height (${_isCm ? 'cm' : 'in'})',
+                            border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -362,7 +425,11 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                       child: TextFormField(
                         controller: _chestController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(labelText: _selectedGender == 'Male' ? 'Chest (cm)' : 'Bust (cm)', border: const OutlineInputBorder()),
+                        decoration: InputDecoration(
+                            labelText: _selectedGender == 'Male'
+                                ? 'Chest (${_isCm ? 'cm' : 'in'})'
+                                : 'Bust (${_isCm ? 'cm' : 'in'})',
+                            border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -375,7 +442,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                       child: TextFormField(
                         controller: _waistController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Waist (Optional)', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                            labelText: 'Waist (Optional)',
+                            border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -384,7 +453,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                       child: TextFormField(
                         controller: _hipController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Hip (Optional)', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                            labelText: 'Hip (Optional)',
+                            border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -394,18 +465,22 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),
-                const Text("Auto-Generated Proportions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text("Auto-Generated Proportions",
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 12),
 
                 // List existing measurements
                 if (_measurements.isEmpty)
                   const Padding(
                     padding: EdgeInsets.only(bottom: 16.0),
-                    child: Text("Select gender or add manually.", style: TextStyle(color: Colors.grey)),
+                    child: Text("Select gender or add manually.",
+                        style: TextStyle(color: Colors.grey)),
                   ),
-                
-                ..._measurements.entries.map((e) => _buildMeasurementRow(e.key, e.value.toString())),
-                
+
+                ..._measurements.entries.map(
+                    (e) => _buildMeasurementRow(e.key, e.value.toString())),
+
                 // Add new button
                 const SizedBox(height: 8),
                 TextButton.icon(
@@ -435,6 +510,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
         waist: waist,
         hip: hip,
         fitType: _selectedFit,
+        isCm: _isCm,
       );
 
       setState(() {
@@ -445,8 +521,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
         _measurementControllers.clear();
 
         results.forEach((key, value) {
-           _measurements[key] = value.toString();
-           _measurementControllers[key] = TextEditingController(text: value.toString());
+          _measurements[key] = value.toString();
+          _measurementControllers[key] =
+              TextEditingController(text: value.toString());
         });
       });
     }
@@ -460,15 +537,19 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
-          Expanded(child: Text("$key:", style: const TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              child: Text("$key:",
+                  style: const TextStyle(fontWeight: FontWeight.bold))),
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
               controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(),
                 hintText: 'e.g. 36',
               ),
@@ -495,7 +576,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
   Future<void> _showAddMeasurementDialog() async {
     String key = '';
     String value = '';
-    
+
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -504,25 +585,30 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              decoration: const InputDecoration(labelText: 'Name (e.g. Waist, Inseam)'),
+              decoration:
+                  const InputDecoration(labelText: 'Name (e.g. Waist, Inseam)'),
               autofocus: true,
               onChanged: (v) => key = v,
             ),
             const SizedBox(height: 8),
             TextField(
-              decoration: const InputDecoration(labelText: 'Value (e.g. 32, 10.5)'),
+              decoration:
+                  const InputDecoration(labelText: 'Value (e.g. 32, 10.5)'),
               onChanged: (v) => value = v,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               if (key.isNotEmpty) {
                 setState(() {
                   _measurements[key] = value;
-                  _measurementControllers[key] = TextEditingController(text: value);
+                  _measurementControllers[key] =
+                      TextEditingController(text: value);
                 });
                 Navigator.pop(context);
               }
