@@ -9,6 +9,7 @@ import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
 
 import 'package:tailorsync_v2/features/customers/utils/smart_measurement_engine.dart';
+import 'package:tailorsync_v2/features/customers/utils/measurement_guides.dart';
 
 class AddEditCustomerScreen extends ConsumerStatefulWidget {
   final Customer? customer;
@@ -34,9 +35,29 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
   Map<String, dynamic> _measurements = {};
   final Map<String, TextEditingController> _measurementControllers = {};
 
+  String _selectedGender = 'Male';
+  String _selectedFit = 'Regular';
+  bool _isCm = true;
+  String? _focusedField;
+
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _chestController = TextEditingController();
+  final TextEditingController _waistController = TextEditingController();
+  final TextEditingController _hipController = TextEditingController();
+
+  final FocusNode _heightFocus = FocusNode();
+  final FocusNode _chestFocus = FocusNode();
+  final FocusNode _waistFocus = FocusNode();
+  final FocusNode _hipFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
+    _heightFocus.addListener(() => _onFocusChange('Height', _heightFocus.hasFocus));
+    _chestFocus.addListener(() => _onFocusChange('Chest', _chestFocus.hasFocus));
+    _waistFocus.addListener(() => _onFocusChange('Waist', _waistFocus.hasFocus));
+    _hipFocus.addListener(() => _onFocusChange('Hip', _hipFocus.hasFocus));
+
     _nameController =
         TextEditingController(text: widget.customer?.fullName ?? '');
     _phoneController =
@@ -66,10 +87,78 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _heightController.dispose();
+    _chestController.dispose();
+    _waistController.dispose();
+    _hipController.dispose();
+    _heightFocus.dispose();
+    _chestFocus.dispose();
+    _waistFocus.dispose();
+    _hipFocus.dispose();
     for (var controller in _measurementControllers.values) {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  void _onFocusChange(String field, bool hasFocus) {
+    if (hasFocus) {
+      setState(() {
+        _focusedField = field;
+      });
+    }
+  }
+
+  Widget _buildMeasurementGuide() {
+    final guide = BeSafeTailorGuides.getGuide(_focusedField ?? 'Default');
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  guide.imagePath,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 80,
+                    height: 80,
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.image_not_supported),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      guide.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      guide.description,
+                      style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _pickImage() async {
@@ -304,13 +393,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     );
   }
 
-  String _selectedGender = 'Male';
-  String _selectedFit = 'Regular';
-  bool _isCm = true;
-  final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _chestController = TextEditingController();
-  final TextEditingController _waistController = TextEditingController();
-  final TextEditingController _hipController = TextEditingController();
+
 
   Widget _buildMeasurementsSection() {
     return Card(
@@ -411,15 +494,16 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                 const Divider(),
                 const SizedBox(height: 8),
 
+                if (_focusedField != null) _buildMeasurementGuide(),
+
                 Row(
                   children: [
                     Expanded(
                       child: TextFormField(
                         controller: _heightController,
+                        focusNode: _heightFocus,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            labelText: 'Height (${_isCm ? 'cm' : 'in'})',
-                            border: const OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: 'Height (${_isCm ? 'cm' : 'in'})', border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -427,12 +511,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _chestController,
+                        focusNode: _chestFocus,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            labelText: _selectedGender == 'Male'
-                                ? 'Chest (${_isCm ? 'cm' : 'in'})'
-                                : 'Bust (${_isCm ? 'cm' : 'in'})',
-                            border: const OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: _selectedGender == 'Male' ? 'Chest (${_isCm ? 'cm' : 'in'})' : 'Bust (${_isCm ? 'cm' : 'in'})', border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -444,6 +525,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _waistController,
+                        focusNode: _waistFocus,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                             labelText: 'Waist',
@@ -455,6 +537,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _hipController,
+                        focusNode: _hipFocus,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                             labelText: 'Hip',
@@ -536,42 +619,45 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     _measurementControllers[key] ??= TextEditingController(text: value);
     final controller = _measurementControllers[key]!;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        children: [
-          Expanded(
-              child: Text("$key:",
-                  style: const TextStyle(fontWeight: FontWeight.bold))),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                border: OutlineInputBorder(),
-                hintText: 'e.g. 36',
+    return Focus(
+      onFocusChange: (hasFocus) => _onFocusChange(key, hasFocus),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Row(
+          children: [
+            Expanded(
+                child: Text("$key:",
+                    style: const TextStyle(fontWeight: FontWeight.bold))),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: controller,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  isDense: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g. 36',
+                ),
+                onChanged: (val) {
+                  _measurements[key] = val;
+                },
               ),
-              onChanged: (val) {
-                _measurements[key] = val;
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () {
+                setState(() {
+                  _measurements.remove(key);
+                  _measurementControllers[key]?.dispose();
+                  _measurementControllers.remove(key);
+                });
               },
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
-            onPressed: () {
-              setState(() {
-                _measurements.remove(key);
-                _measurementControllers[key]?.dispose();
-                _measurementControllers.remove(key);
-              });
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

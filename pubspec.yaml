@@ -83,6 +83,7 @@ flutter:
   
   assets:
     - assets/
+    - assets/guides/
 
 # 🖼️ APP ICONS
 flutter_launcher_icons:
