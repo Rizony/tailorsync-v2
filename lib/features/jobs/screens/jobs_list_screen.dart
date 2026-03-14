@@ -122,13 +122,29 @@ class _JobsList extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: ListTile(
+                  isThreeLine: true,
                   title: Text(job.title, style: Theme.of(context).textTheme.titleMedium),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (job.customerName != null) 
                          Text(job.customerName!, style: Theme.of(context).textTheme.bodyMedium),
-                      Text(DateFormat.yMMMd().format(job.createdAt), style: Theme.of(context).textTheme.bodySmall),
+                      Row(
+                        children: [
+                          Text(DateFormat.yMMMd().format(job.createdAt), style: Theme.of(context).textTheme.bodySmall),
+                          if (statuses.contains(JobModel.statusPending) || 
+                              statuses.contains(JobModel.statusInProgress)) ...[
+                            Text(' • ', style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              'Due: ${DateFormat.MMMd().format(job.dueDate)}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: _isOverdue(job) ? Theme.of(context).colorScheme.error : null,
+                                fontWeight: _isOverdue(job) ? FontWeight.bold : null,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       _buildStatusChip(context, job.status),
                     ],
@@ -137,18 +153,35 @@ class _JobsList extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('${profile?.currencySymbol ?? '₦'}${job.price}', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
-                      if (statuses.contains(JobModel.statusPending) || 
-                          statuses.contains(JobModel.statusInProgress))
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          'Due: ${DateFormat.MMMd().format(job.dueDate)}',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: _isOverdue(job) ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
+                      Text(
+                        '${profile?.currencySymbol ?? '₦'}${job.price}', 
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
+                      if (job.balanceDue > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: Text(
+                            'Bal: ${profile?.currencySymbol ?? '₦'}${job.balanceDue.toStringAsFixed(0)}',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      else if (job.price > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: Text(
+                            'PAID',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   onTap: () {

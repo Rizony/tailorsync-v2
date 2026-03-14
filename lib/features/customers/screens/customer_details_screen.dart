@@ -80,9 +80,8 @@ class CustomerDetailsScreen extends ConsumerWidget {
                         childAspectRatio: 3,
                         children: customer.measurements.entries.map((e) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Text("${e.key}:",
@@ -91,7 +90,12 @@ class CustomerDetailsScreen extends ConsumerWidget {
                                       overflow: TextOverflow.ellipsis),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(e.value.toString()),
+                                Flexible(
+                                  child: Text(
+                                    e.value.toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           );

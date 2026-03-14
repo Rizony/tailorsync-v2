@@ -1,10 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:uuid/uuid.dart';
 import 'package:tailorsync_v2/core/ads/ad_service.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
+import 'package:tailorsync_v2/core/sync/sync_manager.dart';
+import 'package:flutter/material.dart';
 import '../models/customer.dart';
 
 part 'customer_repository.g.dart';
@@ -12,16 +16,43 @@ part 'customer_repository.g.dart';
 @riverpod
 class CustomerRepository extends _$CustomerRepository {
   final _supabase = Supabase.instance.client;
+  late Box<Customer> _customerBox;
+  late Box<SyncAction> _syncBox;
 
   @override
   Future<List<Customer>> build() async {
+    _customerBox = Hive.box<Customer>('customers');
+    _syncBox = Hive.box<SyncAction>('sync_queue');
+    
+    // Return cached data immediately
+    final cached = _customerBox.values.toList();
+    if (cached.isNotEmpty) {
+      // Trigger a background fetch to sync with remote
+      _fetchRemote();
+      return cached;
+    }
+
+    return _fetchRemote();
+  }
+
+  Future<List<Customer>> _fetchRemote() async {
     try {
       final response = await _supabase
           .from('customers')
           .select()
           .order('created_at', ascending: false);
-      return (response as List).map((e) => Customer.fromJson(e)).toList();
+      
+      final customers = (response as List).map((e) => Customer.fromJson(e)).toList();
+      
+      // Update cache
+      await _customerBox.clear();
+      await _customerBox.addAll(customers);
+      
+      state = AsyncValue.data(customers);
+      return customers;
     } catch (e, stack) {
+      // If we have cached data, don't throw error, just keep showing cache
+      if (_customerBox.isNotEmpty) return _customerBox.values.toList();
       throw ErrorHandler.handle(e, stack);
     }
   }
@@ -31,69 +62,88 @@ class CustomerRepository extends _$CustomerRepository {
     final currentCount = state.valueOrNull?.length ?? 0;
 
     // 🛡️ THE GATEKEEPER LOGIC
-    // Updated: Freemium users can add up to 50 customers (20 base + 30 via ads)
-    // Standard/Premium: Unlimited
     if (profile?.subscriptionTier == SubscriptionTier.freemium) {
-      // Check base limit (20 customers without ads)
       if (currentCount >= SubscriptionTier.freemium.baseCustomerLimit) {
-        // Check if user has ad credits to add more (up to 50 max)
         final adCredits = profile?.adCredits ?? 0;
         final totalPossible = SubscriptionTier.freemium.baseCustomerLimit + adCredits;
-        
         if (currentCount >= SubscriptionTier.freemium.customerLimit) {
-          throw Exception("MAX_LIMIT_REACHED"); // Hard limit of 50 reached
+          throw Exception("MAX_LIMIT_REACHED");
         }
-        
         if (currentCount >= totalPossible) {
-          throw Exception("LIMIT_REACHED"); // Need to watch ad to add more
+          throw Exception("LIMIT_REACHED");
         }
       }
     }
 
-    final data = customer.toJson()
-      ..remove('id')
-      ..remove('created_at')
-      ..['user_id'] = _supabase.auth.currentUser!.id; // Ensure user_id is set
+    final id = const Uuid().v4();
+    final newCustomer = customer.copyWith(
+      id: id,
+      userId: _supabase.auth.currentUser!.id,
+      createdAt: DateTime.now(),
+    );
 
-    final response = await _supabase.from('customers').insert(data).select().single();
+    // 1. Save to local cache
+    await _customerBox.put(id, newCustomer);
     
-    ref.invalidateSelf(); // Refresh the list
-    return Customer.fromJson(response);
+    // 2. Push to sync outbox
+    await _pushSyncAction(
+      SyncAction.actionCreate,
+      'customers',
+      newCustomer.toJson(),
+      id,
+    );
+
+    ref.invalidateSelf(); // Update UI
+    return newCustomer;
   }
   
-  /// Handle adding customer after watching ad (grants 1 customer credit)
-  Future<void> addCustomerAfterAd(Customer customer) async {
-    final profile = ref.read(profileNotifierProvider).valueOrNull;
-    final currentCount = state.valueOrNull?.length ?? 0;
-
-    // Check if user can still add (max 50 for freemium)
-    if (profile?.subscriptionTier == SubscriptionTier.freemium && 
-        currentCount >= SubscriptionTier.freemium.customerLimit) {
-      throw Exception("MAX_LIMIT_REACHED");
-    }
-
-    // Add customer
-    final data = customer.toJson()
-      ..remove('id')
-      ..remove('created_at')
-      ..['user_id'] = _supabase.auth.currentUser!.id;
-
-    await _supabase.from('customers').insert(data);
+  Future<void> updateCustomer(Customer customer) async {
+    // 1. Save to local cache
+    await _customerBox.put(customer.id!, customer);
     
-    // Decrement ad credit (1 customer per ad)
-    if (profile?.subscriptionTier == SubscriptionTier.freemium) {
-      await _supabase
-          .from('profiles')
-          .update({'ad_credits': (profile!.adCredits - 1).clamp(0, 30)})
-          .eq('id', profile.id);
-    }
+    // 2. Push to sync outbox
+    await _pushSyncAction(
+      SyncAction.actionUpdate,
+      'customers',
+      customer.toJson(),
+      customer.id!,
+    );
     
-    ref.invalidateSelf(); // Refresh the list
+    ref.invalidateSelf();
   }
-  
+
+  Future<void> deleteCustomer(String id) async {
+    // 1. Remove from local cache
+    await _customerBox.delete(id);
+    
+    // 2. Push to sync outbox
+    await _pushSyncAction(
+      SyncAction.actionDelete,
+      'customers',
+      {'id': id},
+      id,
+    );
+    
+    ref.invalidateSelf();
+  }
+
+  Future<void> _pushSyncAction(String type, String endpoint, Map<String, dynamic> payload, String targetId) async {
+    final action = SyncAction(
+      id: const Uuid().v4(),
+      actionType: type,
+      endpoint: endpoint,
+      payload: payload,
+      createdAt: DateTime.now(),
+    );
+    await _syncBox.add(action);
+    
+    // Trigger SyncManager
+    ref.read(syncManagerProvider).processQueue();
+  }
+
+  /// Keep existing ad-related logic for now
   void handleLimitWithAd(BuildContext context) {
     AdService.showRewardedAd(onRewardEarned: () async {
-      // Grant 1 customer credit (1 customer per ad watch)
       final user = _supabase.auth.currentUser;
       if (user != null) {
         final profile = await _supabase
@@ -103,7 +153,7 @@ class CustomerRepository extends _$CustomerRepository {
             .single();
         
         final currentCredits = profile['ad_credits'] ?? 0;
-        const maxCredits = 30; // Max 30 ad credits (20 base + 30 ads = 50 total)
+        const maxCredits = 30;
         
         if (currentCredits < maxCredits) {
           await _supabase
@@ -120,15 +170,18 @@ class CustomerRepository extends _$CustomerRepository {
       }
     });
   }
+
   Future<Customer?> getCustomer(String id) async {
-    // Try to find in current state first
+    // Check cache first
+    final cached = _customerBox.get(id);
+    if (cached != null) return cached;
+
+    // Fallback to state
     final currentList = state.valueOrNull;
     if (currentList != null) {
       try {
         return currentList.firstWhere((c) => c.id == id);
-      } catch (_) {
-        // Not found in list, fetch from DB
-      }
+      } catch (_) {}
     }
 
     try {
@@ -137,33 +190,11 @@ class CustomerRepository extends _$CustomerRepository {
           .select()
           .eq('id', id)
           .single();
-      return Customer.fromJson(response);
+      final customer = Customer.fromJson(response);
+      await _customerBox.put(id, customer); // Cache it
+      return customer;
     } catch (e) {
-       // Return null if not found or error, or throw? 
-       // Keeping return null for now to match interface, but ideally should throw Not Found
        return null;
-    }
-  }
-
-  Future<void> updateCustomer(Customer customer) async {
-    try {
-      await _supabase
-          .from('customers')
-          .update(customer.toJson()..remove('id')..remove('created_at'))
-          .eq('id', customer.id!);
-      
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      throw ErrorHandler.handle(e, stack);
-    }
-  }
-
-  Future<void> deleteCustomer(String id) async {
-    try {
-      await _supabase.from('customers').delete().eq('id', id);
-      ref.invalidateSelf();
-    } catch (e, stack) {
-       throw ErrorHandler.handle(e, stack);
     }
   }
 }

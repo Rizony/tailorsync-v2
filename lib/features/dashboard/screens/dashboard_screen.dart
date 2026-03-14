@@ -9,6 +9,7 @@ import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
+import 'package:tailorsync_v2/core/providers/navigation_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -191,57 +192,89 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard(context, 'Active Jobs', '${data.activeJobs}', Icons.content_cut, Colors.blue),
-        _buildStatCard(context, 'Pending', '${data.activeJobs}', Icons.assignment_late, Colors.orange), // Redundant?
-        _buildStatCard(context, 'Customers', '${data.totalCustomers}', Icons.people, Colors.purple),
-        _buildStatCard(context, 'Revenue', '$currencySymbol${data.totalRevenue}', Icons.attach_money, Colors.green),
+        _buildStatCard(
+          context, 
+          'Active Jobs', 
+          '${data.activeJobs}', 
+          Icons.content_cut, 
+          Colors.blue,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs,
+        ),
+        _buildStatCard(
+          context, 
+          'Pending', 
+          '${data.activeJobs}', 
+          Icons.assignment_late, 
+          Colors.orange,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs,
+        ),
+        _buildStatCard(
+          context, 
+          'Customers', 
+          '${data.totalCustomers}', 
+          Icons.people, 
+          Colors.purple,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.customers,
+        ),
+        _buildStatCard(
+          context, 
+          'Revenue', 
+          '$currencySymbol${data.totalRevenue}', 
+          Icons.attach_money, 
+          Colors.green,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs, // revenue leads to jobs/orders
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          if (Theme.of(context).brightness == Brightness.light)
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            if (Theme.of(context).brightness == Brightness.light)
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
+          border: Theme.of(context).brightness == Brightness.dark 
+              ? Border.all(color: Colors.white.withValues(alpha: 0.1))
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: color, size: 28),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
-        ],
-        border: Theme.of(context).brightness == Brightness.dark 
-            ? Border.all(color: Colors.white.withValues(alpha: 0.1))
-            : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(icon, color: color, size: 28),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

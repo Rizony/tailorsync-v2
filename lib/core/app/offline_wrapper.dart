@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
+import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 
 class OfflineWrapper extends ConsumerWidget {
   final Widget child;
@@ -10,66 +12,83 @@ class OfflineWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isOffline = ref.watch(isOfflineProvider);
-
-    return Stack(
-      children: [
-        child,
-        if (isOffline)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0, // Positioned at the bottom of the screen (above bottom nav bar if wrapped inside AppShell body)
-            child: Material(
-              color: Theme.of(context).colorScheme.errorContainer,
-              elevation: 4,
-              child: SafeArea(
-                top: false,
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.cloud_off_rounded,
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'You are offline. Showing cached data.',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onErrorContainer,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+    
+    return ValueListenableBuilder(
+      valueListenable: Hive.box<SyncAction>('sync_queue').listenable(),
+      builder: (context, Box<SyncAction> box, _) {
+        final hasPendingSync = box.isNotEmpty;
+        
+        return Stack(
+          children: [
+            child,
+            if (isOffline || hasPendingSync)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Material(
+                  color: isOffline 
+                      ? Theme.of(context).colorScheme.errorContainer 
+                      : Theme.of(context).colorScheme.primaryContainer,
+                  elevation: 4,
+                  child: SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isOffline ? Icons.cloud_off_rounded : Icons.sync_rounded,
+                            color: isOffline 
+                                ? Theme.of(context).colorScheme.onErrorContainer 
+                                : Theme.of(context).colorScheme.onPrimaryContainer,
+                            size: 20,
                           ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              isOffline 
+                                  ? (hasPendingSync ? 'Offline. ${box.length} changes will sync later.' : 'You are offline. Showing cached data.')
+                                  : 'Syncing ${box.length} changes...',
+                              style: TextStyle(
+                                color: isOffline 
+                                    ? Theme.of(context).colorScheme.onErrorContainer 
+                                    : Theme.of(context).colorScheme.onPrimaryContainer,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                            builder: (context) => const _OfflineDetailsSheet(),
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text('WHAT TO DO', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                                ),
+                                builder: (context) => const _OfflineDetailsSheet(),
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: isOffline 
+                                  ? Theme.of(context).colorScheme.onErrorContainer 
+                                  : Theme.of(context).colorScheme.onPrimaryContainer,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text('DETAILS', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -88,25 +107,25 @@ class _OfflineDetailsSheet extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.wifi_off_rounded, size: 28, color: Theme.of(context).colorScheme.error),
+                Icon(Icons.sync_rounded, size: 28, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 12),
                 Text(
-                  'No Internet Connection',
+                  'Offline Sync is Active',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             const Text(
-              'Your app is in limited offline mode. Here is what you can do right now:',
+              'Needlix now works fully offline! Here is what you can do:',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            _buildFeatureRow(context, Icons.check_circle_outline, 'View all your previously loaded jobs & measurements.'),
+            _buildFeatureRow(context, Icons.check_circle, 'Create new jobs and customers while offline.'),
             const SizedBox(height: 8),
-            _buildFeatureRow(context, Icons.check_circle_outline, 'Browse customer profiles that you already opened.'),
+            _buildFeatureRow(context, Icons.check_circle, 'Update measurements and order statuses.'),
             const SizedBox(height: 8),
-            _buildFeatureRow(context, Icons.cancel_outlined, 'Cannot create new jobs, clients, or sync changes.', isNegative: true),
+            _buildFeatureRow(context, Icons.cloud_done, 'All changes automatically sync when you are back online.'),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -121,11 +140,11 @@ class _OfflineDetailsSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureRow(BuildContext context, IconData icon, String text, {bool isNegative = false}) {
+  Widget _buildFeatureRow(BuildContext context, IconData icon, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: isNegative ? Theme.of(context).colorScheme.error : Colors.green),
+        Icon(icon, size: 20, color: Colors.green),
         const SizedBox(width: 12),
         Expanded(
           child: Text(

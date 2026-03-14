@@ -14,6 +14,7 @@ import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:tailorsync_v2/core/notifications/whatsapp_service.dart';
 
 class JobDetailsScreen extends ConsumerStatefulWidget {
   final JobModel job;
@@ -55,44 +56,61 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
 
     await controller.updateStatus(newStatus);
 
-    if (newStatus == JobModel.statusFitting || newStatus == JobModel.statusCompleted) {
-      if (_customer?.phoneNumber != null && mounted) {
-        _promptWhatsAppUpdate(newStatus);
-      }
+    if ((newStatus == JobModel.statusFitting || 
+         newStatus == JobModel.statusCompleted || 
+         newStatus == JobModel.statusInProgress) && 
+        _customer?.phoneNumber != null && mounted) {
+      _promptWhatsAppUpdate(newStatus);
     }
   }
 
   Future<void> _promptWhatsAppUpdate(String status) async {
-    final wantToNotify = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Notify Customer?'),
-        content: Text('Would you like to notify ${_customer!.fullName.split(' ').first} via WhatsApp that this order is now ${status.toUpperCase()}?'),
-        actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), foregroundColor: Colors.white),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                   Icon(Icons.message, size: 18),
-                   SizedBox(width: 8),
-                   Text('Open WhatsApp'),
-                ]
-              ),
-            ),
-        ],
-      )
-    );
+    final wantToNotify = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: const Text('Notify Customer?'),
+              content: Text(
+                  'Would you like to notify ${_customer!.fullName.split(' ').first} using:'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx, null),
+                    child: const Text('Cancel')),
+                TextButton.icon(
+                  onPressed: () => Navigator.pop(ctx, 'sms'),
+                  icon: const Icon(Icons.sms, color: Colors.blue),
+                  label: const Text('SMS'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(ctx, 'whatsapp'),
+                  icon: const Icon(Icons.message, size: 18),
+                  label: const Text('WhatsApp'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white),
+                ),
+              ],
+            ));
 
-    if (wantToNotify == true) {
-        String phone = _customer!.phoneNumber!.replaceAll(RegExp(r'\D'), '');
-        if (phone.startsWith('0')) phone = '234${phone.substring(1)}';
-        
-        final action = status == JobModel.statusFitting ? 'ready for fitting' : 'completed and ready for pickup';
-        final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_job.title}' from MyTailorShop is now $action!");
-        launchUrl(Uri.parse('https://wa.me/$phone?text=$message'), mode: LaunchMode.externalApplication);
+    if (wantToNotify != null && _customer?.phoneNumber != null) {
+      final phoneNumber = _customer!.phoneNumber!;
+      final customerName = _customer!.fullName;
+      final orderTitle = _job.title;
+
+      if (wantToNotify == 'whatsapp') {
+        await WhatsAppService.sendStatusUpdate(
+          phoneNumber: phoneNumber,
+          customerName: customerName,
+          orderTitle: orderTitle,
+          status: status,
+        );
+      } else if (wantToNotify == 'sms') {
+        await WhatsAppService.sendSMSUpdate(
+          phoneNumber: phoneNumber,
+          customerName: customerName,
+          orderTitle: orderTitle,
+          status: status,
+        );
+      }
     }
   }
 
@@ -122,6 +140,59 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               Navigator.pop(context, double.tryParse(controller.text) ?? 0);
             },
             child: const Text('Convert'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showRecordPaymentDialog() async {
+    final amountController = TextEditingController();
+    final noteController = TextEditingController();
+    final symbol = ref.read(profileNotifierProvider).valueOrNull?.currencySymbol ?? '₦';
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Record Payment'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Amount ($symbol)',
+                border: const OutlineInputBorder(),
+                prefixText: '$symbol ',
+              ),
+              autofocus: true,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: noteController,
+              decoration: const InputDecoration(
+                labelText: 'Note (Optional)',
+                hintText: 'e.g. Cash, Part payment',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null && amount > 0) {
+                ref.read(jobControllerProvider(_job.id).notifier).recordPayment(
+                  amount,
+                  note: noteController.text.isEmpty ? null : noteController.text,
+                );
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Record'),
           ),
         ],
       ),
@@ -295,8 +366,54 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             // Due Date
             _buildDetailRow(Icons.calendar_today, 'Due Date', DateFormat.yMMMd().format(_job.dueDate)),
             const SizedBox(height: 12),
-            _buildDetailRow(Icons.attach_money, 'Balance Due', '${profile?.currencySymbol ?? '₦'}${_job.balanceDue}'),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDetailRow(
+                    Icons.account_balance_wallet, 
+                    'Balance Due', 
+                    '${profile?.currencySymbol ?? '₦'}${_job.balanceDue.toStringAsFixed(2)}',
+                    color: _job.balanceDue > 0 ? Colors.red : Colors.green,
+                  ),
+                ),
+                if (_job.balanceDue > 0)
+                  TextButton.icon(
+                    onPressed: _showRecordPaymentDialog,
+                    icon: const Icon(Icons.add_circle_outline, size: 20),
+                    label: const Text('Record Payment'),
+                    style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                  ),
+              ],
+            ),
             const SizedBox(height: 24),
+
+            // Fabric Status
+            const Text('Fabric Tracking', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildFabricSelector(),
+            const SizedBox(height: 24),
+
+            // Payment History
+            if (_job.payments.isNotEmpty) ...[
+              const Text('Payment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: _job.payments.reversed.map((p) => ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                    title: Text('${profile?.currencySymbol ?? '₦'}${p.amount.toStringAsFixed(2)}'),
+                    subtitle: Text(p.note ?? 'Payment recorded'),
+                    trailing: Text(DateFormat.MMMd().format(p.date), style: const TextStyle(fontSize: 11)),
+                  )).toList(),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Images
             if (_job.images.isNotEmpty) ...[
@@ -395,15 +512,81 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        const SizedBox(width: 8),
-        Text('$label:', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        const SizedBox(width: 8),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      ],
+  Widget _buildFabricSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.dry_cleaning, size: 20),
+          const SizedBox(width: 12),
+          const Text('Fabric: ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _job.fabricStatus,
+                isDense: true,
+                isExpanded: true,
+                items: const [
+                  DropdownMenuItem(value: 'not_received', child: Text('Not Received', style: TextStyle(fontSize: 13))),
+                  DropdownMenuItem(value: 'received', child: Text('Received', style: TextStyle(fontSize: 13))),
+                  DropdownMenuItem(value: 'cutoff', child: Text('Cut-off', style: TextStyle(fontSize: 13))),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    ref.read(jobControllerProvider(_job.id).notifier).updateFabricStatus(val);
+                  }
+                },
+              ),
+            ),
+          ),
+          const VerticalDivider(width: 12, thickness: 1),
+          const Text('Src: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Flexible(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                value: _job.fabricSource,
+                isDense: true,
+                isExpanded: true,
+                hint: const Text('Select', style: TextStyle(fontSize: 12)),
+                items: const [
+                  DropdownMenuItem(value: 'customer', child: Text('Cust', style: TextStyle(fontSize: 13))),
+                  DropdownMenuItem(value: 'shop', child: Text('Shop', style: TextStyle(fontSize: 13))),
+                ],
+                onChanged: (val) {
+                  ref.read(jobControllerProvider(_job.id).notifier).updateFabricStatus(_job.fabricStatus, source: val);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 20, color: color ?? Theme.of(context).colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Text('$label:', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value, 
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: color),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
   

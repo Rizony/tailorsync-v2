@@ -35,6 +35,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final List<XFile> _selectedImages = [];
   bool _isLoading = false;
 
+  String _fabricStatus = 'not_received';
+  String? _fabricSource;
+
   // Measurement editing
   Map<String, dynamic> _tempMeasurements = {};
 
@@ -49,6 +52,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       _notesController.text = job.notes ?? '';
       _dueDate = job.dueDate;
       _items.addAll(job.items);
+      _fabricStatus = job.fabricStatus;
+      _fabricSource = job.fabricSource;
       
       // We need to fetch the customer details since JobModel only has customerId
       // For now, we'll try to find it in the repository provider's cache or fetch it
@@ -252,6 +257,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         images: imageUrls,
         notes: _notesController.text,
         createdAt: widget.job?.createdAt ?? DateTime.now(),
+        payments: widget.job == null && deposit > 0 
+            ? [Payment(amount: deposit, date: DateTime.now(), note: 'Initial Deposit')]
+            : (widget.job?.payments ?? []),
+        fabricStatus: _fabricStatus,
+        fabricSource: _fabricSource,
       );
 
       final result = widget.job == null 
@@ -481,6 +491,12 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // --- Fabric Tracking ---
+              const Text('Fabric Tracking', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _buildFabricSelectionSection(),
+              const SizedBox(height: 24),
 
               // --- Images ---
               _buildImagePicker(),
@@ -739,6 +755,67 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFabricSelectionSection() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.dry_cleaning, size: 20),
+              const SizedBox(width: 8),
+              const Text('Status:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _fabricStatus,
+                    items: const [
+                      DropdownMenuItem(value: 'not_received', child: Text('Not Received')),
+                      DropdownMenuItem(value: 'received', child: Text('Received')),
+                      DropdownMenuItem(value: 'cutoff', child: Text('Cut-off')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() => _fabricStatus = val);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Divider(),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 20),
+              const SizedBox(width: 8),
+              const Text('Source:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String?>(
+                    value: _fabricSource,
+                    hint: const Text('Select Provider'),
+                    items: const [
+                      DropdownMenuItem(value: 'customer', child: Text('Customer Provided')),
+                      DropdownMenuItem(value: 'shop', child: Text('From Shop')),
+                    ],
+                    onChanged: (val) => setState(() => _fabricSource = val),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

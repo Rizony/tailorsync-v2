@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../../../../core/ads/ad_service.dart';
 import '../../../../core/auth/providers/profile_provider.dart';
 import '../models/subscription_tier.dart';
@@ -56,58 +56,70 @@ class _DailyAdGateScreenState extends ConsumerState<DailyAdGateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isChecking) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-
-    // Check tier. If not freemium, bypass ads altogether.
-    final tier = ref.watch(profileNotifierProvider).valueOrNull?.subscriptionTier ?? SubscriptionTier.freemium;
-    if (tier != SubscriptionTier.freemium) {
-      return widget.child;
+    if (_isChecking) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final box = Hive.box('settings');
-    final String? lastAdDate = box.get('last_ad_date');
-    final String today = DateTime.now().toIso8601String().split('T')[0];
-    
-    // If ad is already watched, return the actual application shell
-    if (lastAdDate == today) {
-      return widget.child;
-    }
+    final profileAsync = ref.watch(profileNotifierProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.lock_clock, size: 80, color: Color(0xFF0076B6)),
-            const SizedBox(height: 24),
-            const Text(
-              "Ready to Work?",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "Watch one short video to unlock NEEDLIX for the next 24 hours.",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _unlockApp,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0076B6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.all(16),
+    return profileAsync.when(
+      data: (user) {
+        // If not freemium, bypass ads altogether.
+        final tier = user?.subscriptionTier ?? SubscriptionTier.freemium;
+        if (tier != SubscriptionTier.freemium) {
+          return widget.child;
+        }
+
+        final box = Hive.box('settings');
+        final String? lastAdDate = box.get('last_ad_date');
+        final String today = DateTime.now().toIso8601String().split('T')[0];
+
+        // If ad is already watched, return the actual application shell
+        if (lastAdDate == today) {
+          return widget.child;
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_clock, size: 80, color: Color(0xFF0076B6)),
+                const SizedBox(height: 24),
+                const Text(
+                  "Ready to Work?",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                child: const Text("Watch Ad & Unlock"),
-              ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Watch one short video to unlock NEEDLIX for the next 24 hours.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _unlockApp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0076B6),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    child: const Text("Watch Ad & Unlock"),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) =>
+          Scaffold(body: Center(child: Text('Error loading profile: $err'))),
     );
   }
-}
+}

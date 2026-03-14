@@ -34,17 +34,67 @@ class JobController extends _$JobController {
     });
   }
 
-  Future<void> convertQuoteToOrder(double deposit, double total) async {
+  Future<void> recordPayment(double amount, {String? note, String? paymentMethod}) async {
+    final currentJob = state.valueOrNull;
+    if (currentJob == null) return;
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final newPayment = Payment(
+        amount: amount,
+        date: DateTime.now(),
+        note: note,
+        paymentMethod: paymentMethod,
+      );
+
+      final updatedJob = currentJob.copyWith(
+        payments: [...currentJob.payments, newPayment],
+        balanceDue: (currentJob.balanceDue - amount).clamp(0, double.infinity),
+      );
+
+      final result = await ref.read(jobRepositoryProvider).updateJob(updatedJob);
+      return result.fold(
+        (failure) => throw failure,
+        (_) => updatedJob,
+      );
+    });
+  }
+
+  Future<void> updateFabricStatus(String status, {String? source}) async {
     final currentJob = state.valueOrNull;
     if (currentJob == null) return;
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final updatedJob = currentJob.copyWith(
+        fabricStatus: status,
+        fabricSource: source ?? currentJob.fabricSource,
+      );
+      final result = await ref.read(jobRepositoryProvider).updateJob(updatedJob);
+      return result.fold(
+        (failure) => throw failure,
+        (_) => updatedJob,
+      );
+    });
+  }
+
+  Future<void> convertQuoteToOrder(double deposit, double total) async {
+    final currentJob = state.valueOrNull;
+    if (currentJob == null) return;
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final initialPayment = Payment(
+        amount: deposit,
+        date: DateTime.now(),
+        note: 'Initial Deposit (Converted from Quote)',
+      );
+
+      final updatedJob = currentJob.copyWith(
         status: JobModel.statusPending,
-        balanceDue: total - deposit,
-        // In a real app, we might also record the deposit as a transaction here
-        // or trigger another repository call.
+        price: total,
+        balanceDue: (total - deposit).clamp(0, double.infinity),
+        payments: [...currentJob.payments, initialPayment],
       );
       final result = await ref.read(jobRepositoryProvider).updateJob(updatedJob);
       return result.fold(

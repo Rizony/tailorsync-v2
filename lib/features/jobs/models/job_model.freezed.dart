@@ -197,6 +197,221 @@ abstract class _JobItem implements JobItem {
       throw _privateConstructorUsedError;
 }
 
+Payment _$PaymentFromJson(Map<String, dynamic> json) {
+  return _Payment.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Payment {
+  double get amount => throw _privateConstructorUsedError;
+  DateTime get date => throw _privateConstructorUsedError;
+  String? get note => throw _privateConstructorUsedError;
+  @JsonKey(name: 'payment_method')
+  String? get paymentMethod => throw _privateConstructorUsedError;
+
+  /// Serializes this Payment to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of Payment
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaymentCopyWith<Payment> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaymentCopyWith<$Res> {
+  factory $PaymentCopyWith(Payment value, $Res Function(Payment) then) =
+      _$PaymentCopyWithImpl<$Res, Payment>;
+  @useResult
+  $Res call(
+      {double amount,
+      DateTime date,
+      String? note,
+      @JsonKey(name: 'payment_method') String? paymentMethod});
+}
+
+/// @nodoc
+class _$PaymentCopyWithImpl<$Res, $Val extends Payment>
+    implements $PaymentCopyWith<$Res> {
+  _$PaymentCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Payment
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? amount = null,
+    Object? date = null,
+    Object? note = freezed,
+    Object? paymentMethod = freezed,
+  }) {
+    return _then(_value.copyWith(
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
+              as double,
+      date: null == date
+          ? _value.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      paymentMethod: freezed == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$PaymentImplCopyWith<$Res> implements $PaymentCopyWith<$Res> {
+  factory _$$PaymentImplCopyWith(
+          _$PaymentImpl value, $Res Function(_$PaymentImpl) then) =
+      __$$PaymentImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {double amount,
+      DateTime date,
+      String? note,
+      @JsonKey(name: 'payment_method') String? paymentMethod});
+}
+
+/// @nodoc
+class __$$PaymentImplCopyWithImpl<$Res>
+    extends _$PaymentCopyWithImpl<$Res, _$PaymentImpl>
+    implements _$$PaymentImplCopyWith<$Res> {
+  __$$PaymentImplCopyWithImpl(
+      _$PaymentImpl _value, $Res Function(_$PaymentImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Payment
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? amount = null,
+    Object? date = null,
+    Object? note = freezed,
+    Object? paymentMethod = freezed,
+  }) {
+    return _then(_$PaymentImpl(
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
+              as double,
+      date: null == date
+          ? _value.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      paymentMethod: freezed == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PaymentImpl implements _Payment {
+  const _$PaymentImpl(
+      {required this.amount,
+      required this.date,
+      this.note,
+      @JsonKey(name: 'payment_method') this.paymentMethod});
+
+  factory _$PaymentImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PaymentImplFromJson(json);
+
+  @override
+  final double amount;
+  @override
+  final DateTime date;
+  @override
+  final String? note;
+  @override
+  @JsonKey(name: 'payment_method')
+  final String? paymentMethod;
+
+  @override
+  String toString() {
+    return 'Payment(amount: $amount, date: $date, note: $note, paymentMethod: $paymentMethod)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaymentImpl &&
+            (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.date, date) || other.date == date) &&
+            (identical(other.note, note) || other.note == note) &&
+            (identical(other.paymentMethod, paymentMethod) ||
+                other.paymentMethod == paymentMethod));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, amount, date, note, paymentMethod);
+
+  /// Create a copy of Payment
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaymentImplCopyWith<_$PaymentImpl> get copyWith =>
+      __$$PaymentImplCopyWithImpl<_$PaymentImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PaymentImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Payment implements Payment {
+  const factory _Payment(
+          {required final double amount,
+          required final DateTime date,
+          final String? note,
+          @JsonKey(name: 'payment_method') final String? paymentMethod}) =
+      _$PaymentImpl;
+
+  factory _Payment.fromJson(Map<String, dynamic> json) = _$PaymentImpl.fromJson;
+
+  @override
+  double get amount;
+  @override
+  DateTime get date;
+  @override
+  String? get note;
+  @override
+  @JsonKey(name: 'payment_method')
+  String? get paymentMethod;
+
+  /// Create a copy of Payment
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaymentImplCopyWith<_$PaymentImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 JobModel _$JobModelFromJson(Map<String, dynamic> json) {
   return _JobModel.fromJson(json);
 }
@@ -216,8 +431,12 @@ mixin _$JobModel {
   DateTime get dueDate => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   List<String> get images => throw _privateConstructorUsedError;
-  List<JobItem> get items =>
-      throw _privateConstructorUsedError; // Added items list
+  List<JobItem> get items => throw _privateConstructorUsedError;
+  List<Payment> get payments => throw _privateConstructorUsedError;
+  @JsonKey(name: 'fabric_status')
+  String get fabricStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'fabric_source')
+  String? get fabricSource => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -254,6 +473,9 @@ abstract class $JobModelCopyWith<$Res> {
       String status,
       List<String> images,
       List<JobItem> items,
+      List<Payment> payments,
+      @JsonKey(name: 'fabric_status') String fabricStatus,
+      @JsonKey(name: 'fabric_source') String? fabricSource,
       String? notes,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'assigned_to') String? assignedTo,
@@ -287,6 +509,9 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
     Object? status = null,
     Object? images = null,
     Object? items = null,
+    Object? payments = null,
+    Object? fabricStatus = null,
+    Object? fabricSource = freezed,
     Object? notes = freezed,
     Object? createdAt = null,
     Object? assignedTo = freezed,
@@ -334,6 +559,18 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
           ? _value.items
           : items // ignore: cast_nullable_to_non_nullable
               as List<JobItem>,
+      payments: null == payments
+          ? _value.payments
+          : payments // ignore: cast_nullable_to_non_nullable
+              as List<Payment>,
+      fabricStatus: null == fabricStatus
+          ? _value.fabricStatus
+          : fabricStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      fabricSource: freezed == fabricSource
+          ? _value.fabricSource
+          : fabricSource // ignore: cast_nullable_to_non_nullable
+              as String?,
       notes: freezed == notes
           ? _value.notes
           : notes // ignore: cast_nullable_to_non_nullable
@@ -377,6 +614,9 @@ abstract class _$$JobModelImplCopyWith<$Res>
       String status,
       List<String> images,
       List<JobItem> items,
+      List<Payment> payments,
+      @JsonKey(name: 'fabric_status') String fabricStatus,
+      @JsonKey(name: 'fabric_source') String? fabricSource,
       String? notes,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'assigned_to') String? assignedTo,
@@ -408,6 +648,9 @@ class __$$JobModelImplCopyWithImpl<$Res>
     Object? status = null,
     Object? images = null,
     Object? items = null,
+    Object? payments = null,
+    Object? fabricStatus = null,
+    Object? fabricSource = freezed,
     Object? notes = freezed,
     Object? createdAt = null,
     Object? assignedTo = freezed,
@@ -455,6 +698,18 @@ class __$$JobModelImplCopyWithImpl<$Res>
           ? _value._items
           : items // ignore: cast_nullable_to_non_nullable
               as List<JobItem>,
+      payments: null == payments
+          ? _value._payments
+          : payments // ignore: cast_nullable_to_non_nullable
+              as List<Payment>,
+      fabricStatus: null == fabricStatus
+          ? _value.fabricStatus
+          : fabricStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      fabricSource: freezed == fabricSource
+          ? _value.fabricSource
+          : fabricSource // ignore: cast_nullable_to_non_nullable
+              as String?,
       notes: freezed == notes
           ? _value.notes
           : notes // ignore: cast_nullable_to_non_nullable
@@ -493,6 +748,9 @@ class _$JobModelImpl implements _JobModel {
       this.status = 'pending',
       final List<String> images = const [],
       final List<JobItem> items = const [],
+      final List<Payment> payments = const [],
+      @JsonKey(name: 'fabric_status') this.fabricStatus = 'not_received',
+      @JsonKey(name: 'fabric_source') this.fabricSource,
       this.notes,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'assigned_to') this.assignedTo,
@@ -500,7 +758,8 @@ class _$JobModelImpl implements _JobModel {
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
       this.customerName})
       : _images = images,
-        _items = items;
+        _items = items,
+        _payments = payments;
 
   factory _$JobModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$JobModelImplFromJson(json);
@@ -545,7 +804,21 @@ class _$JobModelImpl implements _JobModel {
     return EqualUnmodifiableListView(_items);
   }
 
-// Added items list
+  final List<Payment> _payments;
+  @override
+  @JsonKey()
+  List<Payment> get payments {
+    if (_payments is EqualUnmodifiableListView) return _payments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_payments);
+  }
+
+  @override
+  @JsonKey(name: 'fabric_status')
+  final String fabricStatus;
+  @override
+  @JsonKey(name: 'fabric_source')
+  final String? fabricSource;
   @override
   final String? notes;
   @override
@@ -563,7 +836,7 @@ class _$JobModelImpl implements _JobModel {
 
   @override
   String toString() {
-    return 'JobModel(id: $id, userId: $userId, customerId: $customerId, title: $title, price: $price, balanceDue: $balanceDue, dueDate: $dueDate, status: $status, images: $images, items: $items, notes: $notes, createdAt: $createdAt, assignedTo: $assignedTo, isOutsourced: $isOutsourced, customerName: $customerName)';
+    return 'JobModel(id: $id, userId: $userId, customerId: $customerId, title: $title, price: $price, balanceDue: $balanceDue, dueDate: $dueDate, status: $status, images: $images, items: $items, payments: $payments, fabricStatus: $fabricStatus, fabricSource: $fabricSource, notes: $notes, createdAt: $createdAt, assignedTo: $assignedTo, isOutsourced: $isOutsourced, customerName: $customerName)';
   }
 
   @override
@@ -583,6 +856,11 @@ class _$JobModelImpl implements _JobModel {
             (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality().equals(other._images, _images) &&
             const DeepCollectionEquality().equals(other._items, _items) &&
+            const DeepCollectionEquality().equals(other._payments, _payments) &&
+            (identical(other.fabricStatus, fabricStatus) ||
+                other.fabricStatus == fabricStatus) &&
+            (identical(other.fabricSource, fabricSource) ||
+                other.fabricSource == fabricSource) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -608,6 +886,9 @@ class _$JobModelImpl implements _JobModel {
       status,
       const DeepCollectionEquality().hash(_images),
       const DeepCollectionEquality().hash(_items),
+      const DeepCollectionEquality().hash(_payments),
+      fabricStatus,
+      fabricSource,
       notes,
       createdAt,
       assignedTo,
@@ -642,6 +923,9 @@ abstract class _JobModel implements JobModel {
       final String status,
       final List<String> images,
       final List<JobItem> items,
+      final List<Payment> payments,
+      @JsonKey(name: 'fabric_status') final String fabricStatus,
+      @JsonKey(name: 'fabric_source') final String? fabricSource,
       final String? notes,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
       @JsonKey(name: 'assigned_to') final String? assignedTo,
@@ -675,7 +959,15 @@ abstract class _JobModel implements JobModel {
   @override
   List<String> get images;
   @override
-  List<JobItem> get items; // Added items list
+  List<JobItem> get items;
+  @override
+  List<Payment> get payments;
+  @override
+  @JsonKey(name: 'fabric_status')
+  String get fabricStatus;
+  @override
+  @JsonKey(name: 'fabric_source')
+  String? get fabricSource;
   @override
   String? get notes;
   @override

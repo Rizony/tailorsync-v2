@@ -50,5 +50,14 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Registration for Phenotype to avoid FILE backing errors in GMS components -->
+        <service
+            android:name="com.google.android.gms.phenotype.service.PhenotypeService"
+            android:exported="false"
+            android:process=":phenotype">
+            <intent-filter>
+                <action android:name="com.google.android.gms.phenotype.service.START" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

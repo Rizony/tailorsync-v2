@@ -20,6 +20,22 @@ Map<String, dynamic> _$$JobItemImplToJson(_$JobItemImpl instance) =>
       'price': instance.price,
     };
 
+_$PaymentImpl _$$PaymentImplFromJson(Map<String, dynamic> json) =>
+    _$PaymentImpl(
+      amount: (json['amount'] as num).toDouble(),
+      date: DateTime.parse(json['date'] as String),
+      note: json['note'] as String?,
+      paymentMethod: json['payment_method'] as String?,
+    );
+
+Map<String, dynamic> _$$PaymentImplToJson(_$PaymentImpl instance) =>
+    <String, dynamic>{
+      'amount': instance.amount,
+      'date': instance.date.toIso8601String(),
+      'note': instance.note,
+      'payment_method': instance.paymentMethod,
+    };
+
 _$JobModelImpl _$$JobModelImplFromJson(Map<String, dynamic> json) =>
     _$JobModelImpl(
       id: json['id'] as String,
@@ -38,6 +54,12 @@ _$JobModelImpl _$$JobModelImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => JobItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      payments: (json['payments'] as List<dynamic>?)
+              ?.map((e) => Payment.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      fabricStatus: json['fabric_status'] as String? ?? 'not_received',
+      fabricSource: json['fabric_source'] as String?,
       notes: json['notes'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       assignedTo: json['assigned_to'] as String?,
@@ -57,6 +79,9 @@ Map<String, dynamic> _$$JobModelImplToJson(_$JobModelImpl instance) =>
       'status': instance.status,
       'images': instance.images,
       'items': instance.items,
+      'payments': instance.payments,
+      'fabric_status': instance.fabricStatus,
+      'fabric_source': instance.fabricSource,
       'notes': instance.notes,
       'created_at': instance.createdAt.toIso8601String(),
       'assigned_to': instance.assignedTo,
