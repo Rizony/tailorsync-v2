@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Star, Scissors, CheckCircle2, Calendar, MessageSquare, Send, ShieldCheck, Mail, Phone, Briefcase } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Star, Scissors, CheckCircle2, MessageSquare, Send, ShieldCheck, Briefcase } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
