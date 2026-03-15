@@ -59,13 +59,12 @@ class ProfileNotifier extends _$ProfileNotifier {
     await _supabase.from('profiles').update({
       'shop_name': updatedUser.shopName,
       'brand_name': updatedUser.brandName,
-      // 'logo_url' handled by separate storage upload logic usually, 
-      // but here we just save the URL string if passed.
-      'logo_url': updatedUser.logoUrl, 
+      'logo_url': updatedUser.logoUrl,
       'signature_url': updatedUser.signatureUrl,
       'accent_color': updatedUser.accentColor,
       'default_tax_rate': updatedUser.defaultTaxRate,
       'invoice_notes': updatedUser.invoiceNotes,
+      'terms_and_conditions': updatedUser.termsAndConditions,
       'shop_address': updatedUser.shopAddress,
       'phone_number': updatedUser.phoneNumber,
       'email': updatedUser.email,
@@ -73,6 +72,17 @@ class ProfileNotifier extends _$ProfileNotifier {
       'social_media_handle': updatedUser.socialMediaHandle,
       'currency_code': updatedUser.currencyCode,
       'currency_symbol': updatedUser.currencySymbol,
+      // Withdrawal settings
+      'bank_name': updatedUser.bankName,
+      'account_number': updatedUser.accountNumber,
+      'account_name': updatedUser.accountName,
+      'withdrawal_pin': updatedUser.withdrawalPin,
+      // Marketplace profile fields
+      'is_available': updatedUser.isAvailable,
+      'public_profile_enabled': updatedUser.publicProfileEnabled,
+      'years_of_experience': updatedUser.yearsOfExperience,
+      'bio': updatedUser.bio,
+      'specialties': updatedUser.specialties,
     }).eq('id', user.id);
     
     // Update local state
