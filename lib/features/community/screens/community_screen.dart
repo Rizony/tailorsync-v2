@@ -8,6 +8,7 @@ import 'package:tailorsync_v2/features/community/providers/community_provider.da
 import 'package:tailorsync_v2/features/community/models/community_post.dart';
 import 'package:tailorsync_v2/features/community/screens/create_post_screen.dart';
 import 'package:tailorsync_v2/features/community/screens/post_details_screen.dart';
+import 'package:tailorsync_v2/features/community/screens/tailor_profile_screen.dart';
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
@@ -189,22 +190,51 @@ class _PostCard extends StatelessWidget {
               // Header
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                    child: Text(
-                      post.authorName != null && post.authorName!.isNotEmpty ? post.authorName![0].toUpperCase() : '?',
-                      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TailorProfileScreen(
+                            userId: post.userId,
+                            userName: post.authorName ?? 'Unknown Tailor',
+                          ),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      backgroundImage: post.authorLogoUrl != null ? NetworkImage(post.authorLogoUrl!) : null,
+                      child: post.authorLogoUrl == null
+                          ? Text(
+                              post.authorName != null && post.authorName!.isNotEmpty ? post.authorName![0].toUpperCase() : '?',
+                              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text(DateFormat.yMMMd().format(post.createdAt), style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                      ],
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TailorProfileScreen(
+                              userId: post.userId,
+                              userName: post.authorName ?? 'Unknown Tailor',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text(DateFormat.yMMMd().format(post.createdAt), style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        ],
+                      ),
                     ),
                   ),
                   if (isJob)

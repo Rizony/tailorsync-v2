@@ -7,6 +7,7 @@ import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ShopSettingsScreen extends ConsumerStatefulWidget {
   const ShopSettingsScreen({super.key});
@@ -644,6 +645,27 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                         onChanged: (val) => setState(() => _publicProfileEnabled = val),
                         contentPadding: EdgeInsets.zero,
                       ),
+                      if (_publicProfileEnabled) ...[
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            final userId = Supabase.instance.client.auth.currentUser?.id;
+                            if (userId != null) {
+                              final link = 'https://needlix.com/tailor/$userId';
+                              SharePlus.instance.share(ShareParams(
+                                text: 'Check out my tailoring profile on Needlix! 🧵\n$link',
+                                subject: 'My Professional Profile',
+                              ));
+                            }
+                          },
+                          icon: const Icon(Icons.share, size: 18),
+                          label: const Text('Share My Public Profile Link'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 44),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ],
                       const Divider(),
                       SwitchListTile(
                         title: const Text('Accepting Job Requests', style: TextStyle(fontWeight: FontWeight.bold)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/features/community/providers/community_provider.dart';
 import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
@@ -104,117 +105,219 @@ class _TailorProfileScreenState extends ConsumerState<TailorProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final ratingsAsync = ref.watch(userRatingsProvider(widget.userId));
+    final profileAsync = ref.watch(publicProfileProvider(widget.userId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tailor Profile'),
+        title: Text('${widget.userName}\'s Profile'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: ratingsAsync.when(
-        data: (ratings) {
-          final totalReviews = ratings.length;
-          final averageRating = totalReviews > 0 
-              ? ratings.fold<int>(0, (sum, r) => sum + r.rating) / totalReviews 
-              : 0.0;
+      body: profileAsync.when(
+        data: (profile) {
+          return ratingsAsync.when(
+            data: (ratings) {
+              final totalReviews = ratings.length;
+              final averageRating = totalReviews > 0 
+                  ? ratings.fold<int>(0, (sum, r) => sum + r.rating) / totalReviews 
+                  : 0.0;
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                // --- PROFILE HEADER ---
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                  ),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 48,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        child: Text(
-                          widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : '?',
-                          style: const TextStyle(fontSize: 36, color: Colors.white),
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- PROFILE HEADER ---
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(32),
+                          bottomRight: Radius.circular(32),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(widget.userName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      // Stars
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
                         children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 28),
-                          const SizedBox(width: 4),
-                          Text(
-                            averageRating > 0 ? averageRating.toStringAsFixed(1) : 'No Ratings',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                            backgroundImage: profile?.logoUrl != null ? NetworkImage(profile!.logoUrl!) : null,
+                            child: profile?.logoUrl == null
+                                ? Text(
+                                    widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : '?',
+                                    style: TextStyle(fontSize: 48, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                                  )
+                                : null,
                           ),
-                          if (totalReviews > 0)
-                            Text('  ($totalReviews reviews)', style: const TextStyle(color: Colors.grey, fontSize: 14)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      if (!_isSelf)
-                        ElevatedButton.icon(
-                          onPressed: _showRatingDialog,
-                          icon: const Icon(Icons.star_rate),
-                          label: const Text('Leave a Review'),
-                        ),
-                    ],
-                  ),
-                ),
-                
-                // --- REVIEWS LIST ---
-                if (totalReviews == 0)
-                   Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Text('No reviews yet for ${widget.userName}.'),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: ratings.length,
-                    itemBuilder: (context, index) {
-                      final r = ratings[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          const SizedBox(height: 16),
+                          Text(profile?.shopName ?? widget.userName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          if (profile?.shopName != null && profile!.shopName != widget.userName)
+                            Text(widget.userName, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                          const SizedBox(height: 12),
+                          // Stats & Rating
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(r.raterName ?? 'Unknown User', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Text(DateFormat.yMMMd().format(r.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                                ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      averageRating > 0 ? averageRating.toStringAsFixed(1) : 'No Ratings',
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: List.generate(5, (i) => Icon(
-                                  i < r.rating ? Icons.star : Icons.star_border,
-                                  color: Colors.amber,
-                                  size: 16,
-                                )),
-                              ),
-                              if (r.review != null && r.review!.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                Text(r.review!, style: const TextStyle(fontSize: 14)),
-                              ],
+                              const SizedBox(width: 12),
+                              if (profile?.yearsOfExperience != null && profile!.yearsOfExperience > 0)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${profile.yearsOfExperience} yrs exp',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                                  ),
+                                ),
                             ],
                           ),
+                          const SizedBox(height: 24),
+                          if (!_isSelf)
+                            SizedBox(
+                              width: 200,
+                              child: ElevatedButton.icon(
+                                onPressed: _showRatingDialog,
+                                icon: const Icon(Icons.star_rate),
+                                label: const Text('Rate this Tailor'),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // --- ABOUT / BIO ---
+                    if (profile?.bio != null && profile!.bio!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('About', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text(profile.bio!, style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black87)),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-              ],
-            ),
+                      ),
+
+                    // --- SPECIALTIES ---
+                    if (profile?.specialties != null && profile!.specialties.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Specialties', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: profile.specialties.map((s) => Chip(
+                                label: Text(s, style: const TextStyle(fontSize: 12)),
+                                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                                side: BorderSide.none,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              )).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    
+                    // --- REVIEWS LIST ---
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+                      child: Text('Reviews ($totalReviews)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    
+                    if (totalReviews == 0)
+                       Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text('No reviews yet for ${widget.userName}.', style: const TextStyle(color: Colors.grey)),
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: ratings.length,
+                        itemBuilder: (context, index) {
+                          final r = ratings[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            elevation: 0,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 12,
+                                        backgroundImage: r.raterLogoUrl != null ? NetworkImage(r.raterLogoUrl!) : null,
+                                        child: r.raterLogoUrl == null ? Text(r.raterName?.substring(0, 1).toUpperCase() ?? '?', style: const TextStyle(fontSize: 10)) : null,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(child: Text(r.raterName ?? 'Unknown User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                                      Text(DateFormat.yMMMd().format(r.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: List.generate(5, (i) => Icon(
+                                      i < r.rating ? Icons.star : Icons.star_border,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    )),
+                                  ),
+                                  if (r.review != null && r.review!.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(r.review!, style: const TextStyle(fontSize: 14, height: 1.4)),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, s) => Center(child: Text('Error loading reviews: $e')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Error: $e')),
+        error: (e, s) => Center(child: Text('Error loading profile: $e')),
       ),
     );
   }

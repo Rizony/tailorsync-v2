@@ -17,6 +17,8 @@ class CommunityApplication with _$CommunityApplication {
     @JsonKey(includeFromJson: false, includeToJson: false)
     String? applicantName,
     @JsonKey(includeFromJson: false, includeToJson: false)
+    String? applicantLogoUrl,
+    @JsonKey(includeFromJson: false, includeToJson: false)
     double? applicantRating,
   }) = _CommunityApplication;
 

@@ -31,6 +31,8 @@ mixin _$CommunityComment {
       throw _privateConstructorUsedError; // Optional joined data
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get authorName => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get authorLogoUrl => throw _privateConstructorUsedError;
 
   /// Serializes this CommunityComment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -54,8 +56,9 @@ abstract class $CommunityCommentCopyWith<$Res> {
       @JsonKey(name: 'user_id') String userId,
       String content,
       @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(includeFromJson: false, includeToJson: false) String? authorName,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      String? authorName});
+      String? authorLogoUrl});
 }
 
 /// @nodoc
@@ -79,6 +82,7 @@ class _$CommunityCommentCopyWithImpl<$Res, $Val extends CommunityComment>
     Object? content = null,
     Object? createdAt = null,
     Object? authorName = freezed,
+    Object? authorLogoUrl = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -105,6 +109,10 @@ class _$CommunityCommentCopyWithImpl<$Res, $Val extends CommunityComment>
           ? _value.authorName
           : authorName // ignore: cast_nullable_to_non_nullable
               as String?,
+      authorLogoUrl: freezed == authorLogoUrl
+          ? _value.authorLogoUrl
+          : authorLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -123,8 +131,9 @@ abstract class _$$CommunityCommentImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String userId,
       String content,
       @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(includeFromJson: false, includeToJson: false) String? authorName,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      String? authorName});
+      String? authorLogoUrl});
 }
 
 /// @nodoc
@@ -146,6 +155,7 @@ class __$$CommunityCommentImplCopyWithImpl<$Res>
     Object? content = null,
     Object? createdAt = null,
     Object? authorName = freezed,
+    Object? authorLogoUrl = freezed,
   }) {
     return _then(_$CommunityCommentImpl(
       id: null == id
@@ -172,6 +182,10 @@ class __$$CommunityCommentImplCopyWithImpl<$Res>
           ? _value.authorName
           : authorName // ignore: cast_nullable_to_non_nullable
               as String?,
+      authorLogoUrl: freezed == authorLogoUrl
+          ? _value.authorLogoUrl
+          : authorLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -185,7 +199,9 @@ class _$CommunityCommentImpl implements _CommunityComment {
       @JsonKey(name: 'user_id') required this.userId,
       required this.content,
       @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(includeFromJson: false, includeToJson: false) this.authorName});
+      @JsonKey(includeFromJson: false, includeToJson: false) this.authorName,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.authorLogoUrl});
 
   factory _$CommunityCommentImpl.fromJson(Map<String, dynamic> json) =>
       _$$CommunityCommentImplFromJson(json);
@@ -207,10 +223,13 @@ class _$CommunityCommentImpl implements _CommunityComment {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String? authorName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? authorLogoUrl;
 
   @override
   String toString() {
-    return 'CommunityComment(id: $id, postId: $postId, userId: $userId, content: $content, createdAt: $createdAt, authorName: $authorName)';
+    return 'CommunityComment(id: $id, postId: $postId, userId: $userId, content: $content, createdAt: $createdAt, authorName: $authorName, authorLogoUrl: $authorLogoUrl)';
   }
 
   @override
@@ -225,13 +244,15 @@ class _$CommunityCommentImpl implements _CommunityComment {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.authorName, authorName) ||
-                other.authorName == authorName));
+                other.authorName == authorName) &&
+            (identical(other.authorLogoUrl, authorLogoUrl) ||
+                other.authorLogoUrl == authorLogoUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, postId, userId, content, createdAt, authorName);
+  int get hashCode => Object.hash(runtimeType, id, postId, userId, content,
+      createdAt, authorName, authorLogoUrl);
 
   /// Create a copy of CommunityComment
   /// with the given fields replaced by the non-null parameter values.
@@ -258,7 +279,9 @@ abstract class _CommunityComment implements CommunityComment {
       required final String content,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      final String? authorName}) = _$CommunityCommentImpl;
+      final String? authorName,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final String? authorLogoUrl}) = _$CommunityCommentImpl;
 
   factory _CommunityComment.fromJson(Map<String, dynamic> json) =
       _$CommunityCommentImpl.fromJson;
@@ -279,6 +302,9 @@ abstract class _CommunityComment implements CommunityComment {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get authorName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get authorLogoUrl;
 
   /// Create a copy of CommunityComment
   /// with the given fields replaced by the non-null parameter values.

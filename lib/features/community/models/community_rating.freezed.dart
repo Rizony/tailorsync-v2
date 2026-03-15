@@ -34,6 +34,8 @@ mixin _$CommunityRating {
       throw _privateConstructorUsedError; // Optional joined data
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get raterName => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get raterLogoUrl => throw _privateConstructorUsedError;
 
   /// Serializes this CommunityRating to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,8 +61,9 @@ abstract class $CommunityRatingCopyWith<$Res> {
       int rating,
       String? review,
       @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(includeFromJson: false, includeToJson: false) String? raterName,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      String? raterName});
+      String? raterLogoUrl});
 }
 
 /// @nodoc
@@ -86,6 +89,7 @@ class _$CommunityRatingCopyWithImpl<$Res, $Val extends CommunityRating>
     Object? review = freezed,
     Object? createdAt = null,
     Object? raterName = freezed,
+    Object? raterLogoUrl = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -120,6 +124,10 @@ class _$CommunityRatingCopyWithImpl<$Res, $Val extends CommunityRating>
           ? _value.raterName
           : raterName // ignore: cast_nullable_to_non_nullable
               as String?,
+      raterLogoUrl: freezed == raterLogoUrl
+          ? _value.raterLogoUrl
+          : raterLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -140,8 +148,9 @@ abstract class _$$CommunityRatingImplCopyWith<$Res>
       int rating,
       String? review,
       @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(includeFromJson: false, includeToJson: false) String? raterName,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      String? raterName});
+      String? raterLogoUrl});
 }
 
 /// @nodoc
@@ -165,6 +174,7 @@ class __$$CommunityRatingImplCopyWithImpl<$Res>
     Object? review = freezed,
     Object? createdAt = null,
     Object? raterName = freezed,
+    Object? raterLogoUrl = freezed,
   }) {
     return _then(_$CommunityRatingImpl(
       id: null == id
@@ -199,6 +209,10 @@ class __$$CommunityRatingImplCopyWithImpl<$Res>
           ? _value.raterName
           : raterName // ignore: cast_nullable_to_non_nullable
               as String?,
+      raterLogoUrl: freezed == raterLogoUrl
+          ? _value.raterLogoUrl
+          : raterLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -214,7 +228,9 @@ class _$CommunityRatingImpl implements _CommunityRating {
       required this.rating,
       this.review,
       @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(includeFromJson: false, includeToJson: false) this.raterName});
+      @JsonKey(includeFromJson: false, includeToJson: false) this.raterName,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.raterLogoUrl});
 
   factory _$CommunityRatingImpl.fromJson(Map<String, dynamic> json) =>
       _$$CommunityRatingImplFromJson(json);
@@ -242,10 +258,13 @@ class _$CommunityRatingImpl implements _CommunityRating {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String? raterName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? raterLogoUrl;
 
   @override
   String toString() {
-    return 'CommunityRating(id: $id, raterId: $raterId, rateeId: $rateeId, postId: $postId, rating: $rating, review: $review, createdAt: $createdAt, raterName: $raterName)';
+    return 'CommunityRating(id: $id, raterId: $raterId, rateeId: $rateeId, postId: $postId, rating: $rating, review: $review, createdAt: $createdAt, raterName: $raterName, raterLogoUrl: $raterLogoUrl)';
   }
 
   @override
@@ -262,13 +281,15 @@ class _$CommunityRatingImpl implements _CommunityRating {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.raterName, raterName) ||
-                other.raterName == raterName));
+                other.raterName == raterName) &&
+            (identical(other.raterLogoUrl, raterLogoUrl) ||
+                other.raterLogoUrl == raterLogoUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, raterId, rateeId, postId,
-      rating, review, createdAt, raterName);
+      rating, review, createdAt, raterName, raterLogoUrl);
 
   /// Create a copy of CommunityRating
   /// with the given fields replaced by the non-null parameter values.
@@ -297,7 +318,9 @@ abstract class _CommunityRating implements CommunityRating {
       final String? review,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      final String? raterName}) = _$CommunityRatingImpl;
+      final String? raterName,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final String? raterLogoUrl}) = _$CommunityRatingImpl;
 
   factory _CommunityRating.fromJson(Map<String, dynamic> json) =
       _$CommunityRatingImpl.fromJson;
@@ -323,6 +346,9 @@ abstract class _CommunityRating implements CommunityRating {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get raterName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get raterLogoUrl;
 
   /// Create a copy of CommunityRating
   /// with the given fields replaced by the non-null parameter values.

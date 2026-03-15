@@ -19,6 +19,8 @@ class CommunityPost with _$CommunityPost {
     @JsonKey(includeFromJson: false, includeToJson: false)
     String? authorName,
     @JsonKey(includeFromJson: false, includeToJson: false)
+    String? authorLogoUrl,
+    @JsonKey(includeFromJson: false, includeToJson: false)
     double? authorRating,
   }) = _CommunityPost;
 

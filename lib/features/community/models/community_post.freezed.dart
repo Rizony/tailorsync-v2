@@ -37,6 +37,8 @@ mixin _$CommunityPost {
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get authorName => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get authorLogoUrl => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   double? get authorRating => throw _privateConstructorUsedError;
 
   /// Serializes this CommunityPost to a JSON map.
@@ -66,6 +68,8 @@ abstract class $CommunityPostCopyWith<$Res> {
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false) String? authorName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      String? authorLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       double? authorRating});
 }
 
@@ -93,6 +97,7 @@ class _$CommunityPostCopyWithImpl<$Res, $Val extends CommunityPost>
     Object? status = null,
     Object? createdAt = null,
     Object? authorName = freezed,
+    Object? authorLogoUrl = freezed,
     Object? authorRating = freezed,
   }) {
     return _then(_value.copyWith(
@@ -132,6 +137,10 @@ class _$CommunityPostCopyWithImpl<$Res, $Val extends CommunityPost>
           ? _value.authorName
           : authorName // ignore: cast_nullable_to_non_nullable
               as String?,
+      authorLogoUrl: freezed == authorLogoUrl
+          ? _value.authorLogoUrl
+          : authorLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       authorRating: freezed == authorRating
           ? _value.authorRating
           : authorRating // ignore: cast_nullable_to_non_nullable
@@ -159,6 +168,8 @@ abstract class _$$CommunityPostImplCopyWith<$Res>
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false) String? authorName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      String? authorLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       double? authorRating});
 }
 
@@ -184,6 +195,7 @@ class __$$CommunityPostImplCopyWithImpl<$Res>
     Object? status = null,
     Object? createdAt = null,
     Object? authorName = freezed,
+    Object? authorLogoUrl = freezed,
     Object? authorRating = freezed,
   }) {
     return _then(_$CommunityPostImpl(
@@ -223,6 +235,10 @@ class __$$CommunityPostImplCopyWithImpl<$Res>
           ? _value.authorName
           : authorName // ignore: cast_nullable_to_non_nullable
               as String?,
+      authorLogoUrl: freezed == authorLogoUrl
+          ? _value.authorLogoUrl
+          : authorLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       authorRating: freezed == authorRating
           ? _value.authorRating
           : authorRating // ignore: cast_nullable_to_non_nullable
@@ -244,6 +260,7 @@ class _$CommunityPostImpl implements _CommunityPost {
       this.status = 'open',
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false) this.authorName,
+      @JsonKey(includeFromJson: false, includeToJson: false) this.authorLogoUrl,
       @JsonKey(includeFromJson: false, includeToJson: false)
       this.authorRating});
 
@@ -279,11 +296,14 @@ class _$CommunityPostImpl implements _CommunityPost {
   final String? authorName;
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? authorLogoUrl;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final double? authorRating;
 
   @override
   String toString() {
-    return 'CommunityPost(id: $id, userId: $userId, postType: $postType, title: $title, content: $content, budget: $budget, status: $status, createdAt: $createdAt, authorName: $authorName, authorRating: $authorRating)';
+    return 'CommunityPost(id: $id, userId: $userId, postType: $postType, title: $title, content: $content, budget: $budget, status: $status, createdAt: $createdAt, authorName: $authorName, authorLogoUrl: $authorLogoUrl, authorRating: $authorRating)';
   }
 
   @override
@@ -303,14 +323,27 @@ class _$CommunityPostImpl implements _CommunityPost {
                 other.createdAt == createdAt) &&
             (identical(other.authorName, authorName) ||
                 other.authorName == authorName) &&
+            (identical(other.authorLogoUrl, authorLogoUrl) ||
+                other.authorLogoUrl == authorLogoUrl) &&
             (identical(other.authorRating, authorRating) ||
                 other.authorRating == authorRating));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, userId, postType, title,
-      content, budget, status, createdAt, authorName, authorRating);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      userId,
+      postType,
+      title,
+      content,
+      budget,
+      status,
+      createdAt,
+      authorName,
+      authorLogoUrl,
+      authorRating);
 
   /// Create a copy of CommunityPost
   /// with the given fields replaced by the non-null parameter values.
@@ -341,6 +374,8 @@ abstract class _CommunityPost implements CommunityPost {
       @JsonKey(includeFromJson: false, includeToJson: false)
       final String? authorName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      final String? authorLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       final double? authorRating}) = _$CommunityPostImpl;
 
   factory _CommunityPost.fromJson(Map<String, dynamic> json) =
@@ -368,6 +403,9 @@ abstract class _CommunityPost implements CommunityPost {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get authorName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get authorLogoUrl;
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   double? get authorRating;

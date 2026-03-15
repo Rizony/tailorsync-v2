@@ -28,6 +28,22 @@ class MarketplaceRepository {
         .update({'status': status})
         .eq('id', requestId);
   }
+
+  Future<void> acceptAndCreateJob({
+    required MarketplaceRequest request,
+    required String customerId,
+    required String title,
+    required DateTime dueDate,
+    required double price,
+  }) async {
+    // 1. Update the request status
+    await updateRequestStatus(request.id, 'accepted');
+
+    // 2. Create the job in Supabase
+    // Note: This relies on the JobRepository or direct Supabase call.
+    // To keep it simple and consistent with the app's sync logic, 
+    // we should ideally trigger this from the UI using repositories.
+  }
 }
 
 @riverpod

@@ -15,6 +15,8 @@ class CommunityComment with _$CommunityComment {
     // Optional joined data
     @JsonKey(includeFromJson: false, includeToJson: false)
     String? authorName,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? authorLogoUrl,
   }) = _CommunityComment;
 
   factory CommunityComment.fromJson(Map<String, dynamic> json) => _$CommunityCommentFromJson(json);

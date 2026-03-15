@@ -17,6 +17,8 @@ class CommunityRating with _$CommunityRating {
     // Optional joined data
     @JsonKey(includeFromJson: false, includeToJson: false)
     String? raterName,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? raterLogoUrl,
   }) = _CommunityRating;
 
   factory CommunityRating.fromJson(Map<String, dynamic> json) => _$CommunityRatingFromJson(json);

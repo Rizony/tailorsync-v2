@@ -60,6 +60,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       'shop_name': updatedUser.shopName,
       'brand_name': updatedUser.brandName,
       'logo_url': updatedUser.logoUrl,
+      'photo_url': updatedUser.logoUrl, // 👈 Added for website marketplace compatibility
       'signature_url': updatedUser.signatureUrl,
       'accent_color': updatedUser.accentColor,
       'default_tax_rate': updatedUser.defaultTaxRate,
@@ -97,5 +98,20 @@ class ProfileNotifier extends _$ProfileNotifier {
     
     // If freemium, check if they have count < 20 OR have ad credits
     return currentCount < 20 || user.adCredits > 0;
+  }
+}
+
+@riverpod
+Future<AppUser?> publicProfile(PublicProfileRef ref, String userId) async {
+  final supabase = Supabase.instance.client;
+  try {
+    final data = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .single();
+    return AppUser.fromJson(data);
+  } catch (e) {
+    return null;
   }
 }

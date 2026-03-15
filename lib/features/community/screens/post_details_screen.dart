@@ -6,6 +6,7 @@ import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/features/community/models/community_post.dart';
 import 'package:tailorsync_v2/features/community/providers/community_provider.dart';
 import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
+import 'package:tailorsync_v2/features/community/screens/tailor_profile_screen.dart';
 
 class PostDetailsScreen extends ConsumerStatefulWidget {
   final CommunityPost post;
@@ -110,6 +111,18 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
     }
   }
 
+  void _updateApplicationStatus(String applicationId, String status) async {
+    try {
+      await ref.read(communityRepositoryProvider).updateApplicationStatus(applicationId, status);
+      if (!mounted) return;
+      showSuccessSnackBar(context, 'Application $status!');
+      ref.invalidate(postApplicationsProvider(_post.id));
+    } catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, 'Failed to update status: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,21 +140,50 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                   // --- POST HEADER ---
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                        child: Text(
-                          _post.authorName != null && _post.authorName!.isNotEmpty ? _post.authorName![0].toUpperCase() : '?',
-                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TailorProfileScreen(
+                                userId: _post.userId,
+                                userName: _post.authorName ?? 'Unknown Tailor',
+                              ),
+                            ),
+                          );
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                          backgroundImage: _post.authorLogoUrl != null ? NetworkImage(_post.authorLogoUrl!) : null,
+                          child: _post.authorLogoUrl == null
+                              ? Text(
+                                  _post.authorName != null && _post.authorName!.isNotEmpty ? _post.authorName![0].toUpperCase() : '?',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                                )
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(_post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text(DateFormat.yMMMd().format(_post.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                          ],
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TailorProfileScreen(
+                                  userId: _post.userId,
+                                  userName: _post.authorName ?? 'Unknown Tailor',
+                                ),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(DateFormat.yMMMd().format(_post.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -263,18 +305,63 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: CircleAvatar(child: Text(app.applicantName?.substring(0, 1).toUpperCase() ?? '?')),
+                    leading: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TailorProfileScreen(
+                              userId: app.applicantId,
+                              userName: app.applicantName ?? 'Unknown Tailor',
+                            ),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: app.applicantLogoUrl != null ? NetworkImage(app.applicantLogoUrl!) : null,
+                        child: app.applicantLogoUrl == null ? Text(app.applicantName?.substring(0, 1).toUpperCase() ?? '?') : null,
+                      ),
+                    ),
                     title: Text(app.applicantName ?? 'Unknown Tailor'),
-                    subtitle: Text(app.coverLetter, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IconButton(icon: const Icon(Icons.check_circle_outline, color: Colors.green), onPressed: () {}), // Accept logic
-                        IconButton(icon: const Icon(Icons.cancel_outlined, color: Colors.red), onPressed: () {}), // Reject logic
+                        Text(app.coverLetter, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        if (app.status != 'pending')
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text('Status: ${app.status.toUpperCase()}', style: TextStyle(
+                              color: app.status == 'accepted' ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            )),
+                          ),
                       ],
                     ),
+                    trailing: app.status == 'pending' ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.check_circle_outline, color: Colors.green),
+                          onPressed: () => _updateApplicationStatus(app.id, 'accepted'),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+                          onPressed: () => _updateApplicationStatus(app.id, 'rejected'),
+                        ),
+                      ],
+                    ) : null,
                     onTap: () {
-                      // View full application letter
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text('Application from ${app.applicantName}'),
+                          content: Text(app.coverLetter),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+                          ],
+                        ),
+                      );
                     },
                   ),
                 );
@@ -306,10 +393,26 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    child: Text(comment.authorName?.substring(0, 1).toUpperCase() ?? '?', style: const TextStyle(fontSize: 12)),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TailorProfileScreen(
+                            userId: comment.userId,
+                            userName: comment.authorName ?? 'Unknown Tailor',
+                          ),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      backgroundImage: comment.authorLogoUrl != null ? NetworkImage(comment.authorLogoUrl!) : null,
+                      child: comment.authorLogoUrl == null
+                          ? Text(comment.authorName?.substring(0, 1).toUpperCase() ?? '?', style: const TextStyle(fontSize: 12))
+                          : null,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -325,7 +428,20 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(comment.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => TailorProfileScreen(
+                                        userId: comment.userId,
+                                        userName: comment.authorName ?? 'Unknown Tailor',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(comment.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                              ),
                               Text(DateFormat.yMd().add_jm().format(comment.createdAt), style: const TextStyle(fontSize: 10, color: Colors.grey)),
                             ],
                           ),

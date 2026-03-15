@@ -28,7 +28,6 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
   bool _isVerifying = false;
   bool _launchedPaystack = false; // true while browser is open
 
-  String? _pendingPaymentMethod;
   PlanPricing? _pendingPlan;
 
   @override
@@ -60,7 +59,6 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
   Future<void> _pay(PlanPricing plan, String method) async {
     setState(() {
       _pendingPlan = plan;
-      _pendingPaymentMethod = method;
       _isProcessing = true;
     });
 
@@ -150,7 +148,6 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
             _pendingUserId = null;
             _pendingPlanId = null;
             _pendingPlan = null;
-            _pendingPaymentMethod = null;
           });
           final newTierStr = data['tier']?.toString().toLowerCase() ?? 'freemium';
           final newTier = SubscriptionTier.values.firstWhere(

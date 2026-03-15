@@ -35,6 +35,8 @@ mixin _$CommunityApplication {
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get applicantName => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get applicantLogoUrl => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   double? get applicantRating => throw _privateConstructorUsedError;
 
   /// Serializes this CommunityApplication to a JSON map.
@@ -63,6 +65,8 @@ abstract class $CommunityApplicationCopyWith<$Res> {
       @JsonKey(includeFromJson: false, includeToJson: false)
       String? applicantName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      String? applicantLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       double? applicantRating});
 }
 
@@ -89,6 +93,7 @@ class _$CommunityApplicationCopyWithImpl<$Res,
     Object? status = null,
     Object? createdAt = null,
     Object? applicantName = freezed,
+    Object? applicantLogoUrl = freezed,
     Object? applicantRating = freezed,
   }) {
     return _then(_value.copyWith(
@@ -120,6 +125,10 @@ class _$CommunityApplicationCopyWithImpl<$Res,
           ? _value.applicantName
           : applicantName // ignore: cast_nullable_to_non_nullable
               as String?,
+      applicantLogoUrl: freezed == applicantLogoUrl
+          ? _value.applicantLogoUrl
+          : applicantLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       applicantRating: freezed == applicantRating
           ? _value.applicantRating
           : applicantRating // ignore: cast_nullable_to_non_nullable
@@ -146,6 +155,8 @@ abstract class _$$CommunityApplicationImplCopyWith<$Res>
       @JsonKey(includeFromJson: false, includeToJson: false)
       String? applicantName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      String? applicantLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       double? applicantRating});
 }
 
@@ -169,6 +180,7 @@ class __$$CommunityApplicationImplCopyWithImpl<$Res>
     Object? status = null,
     Object? createdAt = null,
     Object? applicantName = freezed,
+    Object? applicantLogoUrl = freezed,
     Object? applicantRating = freezed,
   }) {
     return _then(_$CommunityApplicationImpl(
@@ -200,6 +212,10 @@ class __$$CommunityApplicationImplCopyWithImpl<$Res>
           ? _value.applicantName
           : applicantName // ignore: cast_nullable_to_non_nullable
               as String?,
+      applicantLogoUrl: freezed == applicantLogoUrl
+          ? _value.applicantLogoUrl
+          : applicantLogoUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       applicantRating: freezed == applicantRating
           ? _value.applicantRating
           : applicantRating // ignore: cast_nullable_to_non_nullable
@@ -219,6 +235,8 @@ class _$CommunityApplicationImpl implements _CommunityApplication {
       this.status = 'pending',
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false) this.applicantName,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.applicantLogoUrl,
       @JsonKey(includeFromJson: false, includeToJson: false)
       this.applicantRating});
 
@@ -249,11 +267,14 @@ class _$CommunityApplicationImpl implements _CommunityApplication {
   final String? applicantName;
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? applicantLogoUrl;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final double? applicantRating;
 
   @override
   String toString() {
-    return 'CommunityApplication(id: $id, postId: $postId, applicantId: $applicantId, coverLetter: $coverLetter, status: $status, createdAt: $createdAt, applicantName: $applicantName, applicantRating: $applicantRating)';
+    return 'CommunityApplication(id: $id, postId: $postId, applicantId: $applicantId, coverLetter: $coverLetter, status: $status, createdAt: $createdAt, applicantName: $applicantName, applicantLogoUrl: $applicantLogoUrl, applicantRating: $applicantRating)';
   }
 
   @override
@@ -272,14 +293,25 @@ class _$CommunityApplicationImpl implements _CommunityApplication {
                 other.createdAt == createdAt) &&
             (identical(other.applicantName, applicantName) ||
                 other.applicantName == applicantName) &&
+            (identical(other.applicantLogoUrl, applicantLogoUrl) ||
+                other.applicantLogoUrl == applicantLogoUrl) &&
             (identical(other.applicantRating, applicantRating) ||
                 other.applicantRating == applicantRating));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, postId, applicantId,
-      coverLetter, status, createdAt, applicantName, applicantRating);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      postId,
+      applicantId,
+      coverLetter,
+      status,
+      createdAt,
+      applicantName,
+      applicantLogoUrl,
+      applicantRating);
 
   /// Create a copy of CommunityApplication
   /// with the given fields replaced by the non-null parameter values.
@@ -310,6 +342,8 @@ abstract class _CommunityApplication implements CommunityApplication {
       @JsonKey(includeFromJson: false, includeToJson: false)
       final String? applicantName,
       @JsonKey(includeFromJson: false, includeToJson: false)
+      final String? applicantLogoUrl,
+      @JsonKey(includeFromJson: false, includeToJson: false)
       final double? applicantRating}) = _$CommunityApplicationImpl;
 
   factory _CommunityApplication.fromJson(Map<String, dynamic> json) =
@@ -334,6 +368,9 @@ abstract class _CommunityApplication implements CommunityApplication {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? get applicantName;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get applicantLogoUrl;
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   double? get applicantRating;

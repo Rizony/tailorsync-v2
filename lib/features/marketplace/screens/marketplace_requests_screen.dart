@@ -4,6 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../repositories/marketplace_repository.dart';
 import '../models/marketplace_request.dart';
+import '../../customers/repositories/customer_repository.dart';
+import '../../customers/models/customer.dart';
+import '../../jobs/repositories/job_repository.dart';
+import '../../jobs/models/job_model.dart';
+import 'package:uuid/uuid.dart';
 
 class MarketplaceRequestsScreen extends ConsumerWidget {
   const MarketplaceRequestsScreen({super.key});
@@ -106,7 +111,7 @@ class _RequestCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => _updateStatus(ref, 'rejected'),
+                      onPressed: () => _updateStatus(context, ref, 'rejected'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
@@ -117,7 +122,7 @@ class _RequestCard extends ConsumerWidget {
                   const SizedBox(width: 12.0),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _updateStatus(ref, 'accepted'),
+                      onPressed: () => _updateStatus(context, ref, 'accepted'),
                       child: const Text('Accept Request'),
                     ),
                   ),
@@ -130,9 +135,83 @@ class _RequestCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _updateStatus(WidgetRef ref, String status) async {
-    await ref.read(marketplaceRepositoryProvider).updateRequestStatus(request.id, status);
+  Future<void> _updateStatus(BuildContext context, WidgetRef ref, String status) async {
+    if (status == 'accepted') {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Accept Request?'),
+          content: Text('This will create a new job for ${request.customerName}.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Accept & Create Job'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return;
+
+      // 1. Check for existing customer
+      final customers = ref.read(customerRepositoryProvider).value ?? [];
+      Customer? existingCustomer = customers.cast<Customer?>().firstWhere(
+        (c) => c?.email == request.customerEmail || (c?.phoneNumber != null && c?.phoneNumber == request.customerPhone),
+        orElse: () => null,
+      );
+
+      String customerId;
+      if (existingCustomer == null) {
+        // Create new customer
+        final newCustomer = await ref.read(customerRepositoryProvider.notifier).addCustomer(
+          Customer(
+            fullName: request.customerName,
+            email: request.customerEmail,
+            phoneNumber: request.customerPhone,
+          ),
+        );
+        customerId = newCustomer.id!;
+      } else {
+        customerId = existingCustomer.id!;
+      }
+
+      // 2. Create the job
+      final job = JobModel(
+        id: const Uuid().v4(),
+        userId: '', // Repository handles this
+        customerId: customerId,
+        title: request.description.length > 30 
+            ? '${request.description.substring(0, 27)}...' 
+            : request.description,
+        dueDate: DateTime.now().add(const Duration(days: 7)), // Default 1 week
+        createdAt: DateTime.now(),
+        notes: 'Marketplace Request: ${request.description}',
+      );
+
+      await ref.read(jobRepositoryProvider).createJob(job);
+      
+      // 3. Update request status
+      await ref.read(marketplaceRepositoryProvider).acceptAndCreateJob(
+        request: request,
+        customerId: customerId,
+        title: job.title,
+        dueDate: job.dueDate,
+        price: 0,
+      );
+    } else {
+      await ref.read(marketplaceRepositoryProvider).updateRequestStatus(request.id, status);
+    }
+    
     ref.invalidate(marketplaceRequestsProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and job created' : 'rejected'}.')),
+      );
+    }
   }
 }
 
@@ -161,9 +240,9 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         status.toUpperCase(),
