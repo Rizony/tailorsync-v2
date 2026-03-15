@@ -73,7 +73,20 @@ mixin _$AppUser {
   @JsonKey(name: 'account_name')
   String? get accountName => throw _privateConstructorUsedError;
   @JsonKey(name: 'withdrawal_pin')
-  String? get withdrawalPin => throw _privateConstructorUsedError;
+  String? get withdrawalPin =>
+      throw _privateConstructorUsedError; // Marketplace Profile
+  @JsonKey(name: 'is_available')
+  bool get isAvailable => throw _privateConstructorUsedError;
+  @JsonKey(name: 'bio')
+  String? get bio => throw _privateConstructorUsedError;
+  @JsonKey(name: 'specialties')
+  List<String> get specialties => throw _privateConstructorUsedError;
+  @JsonKey(name: 'rating')
+  double get rating => throw _privateConstructorUsedError;
+  @JsonKey(name: 'public_profile_enabled')
+  bool get publicProfileEnabled => throw _privateConstructorUsedError;
+  @JsonKey(name: 'years_of_experience')
+  int get yearsOfExperience => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -115,7 +128,13 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'bank_name') String? bankName,
       @JsonKey(name: 'account_number') String? accountNumber,
       @JsonKey(name: 'account_name') String? accountName,
-      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin});
+      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
+      @JsonKey(name: 'is_available') bool isAvailable,
+      @JsonKey(name: 'bio') String? bio,
+      @JsonKey(name: 'specialties') List<String> specialties,
+      @JsonKey(name: 'rating') double rating,
+      @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
+      @JsonKey(name: 'years_of_experience') int yearsOfExperience});
 }
 
 /// @nodoc
@@ -159,6 +178,12 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? accountNumber = freezed,
     Object? accountName = freezed,
     Object? withdrawalPin = freezed,
+    Object? isAvailable = null,
+    Object? bio = freezed,
+    Object? specialties = null,
+    Object? rating = null,
+    Object? publicProfileEnabled = null,
+    Object? yearsOfExperience = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -265,6 +290,30 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.withdrawalPin
           : withdrawalPin // ignore: cast_nullable_to_non_nullable
               as String?,
+      isAvailable: null == isAvailable
+          ? _value.isAvailable
+          : isAvailable // ignore: cast_nullable_to_non_nullable
+              as bool,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
+      specialties: null == specialties
+          ? _value.specialties
+          : specialties // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      rating: null == rating
+          ? _value.rating
+          : rating // ignore: cast_nullable_to_non_nullable
+              as double,
+      publicProfileEnabled: null == publicProfileEnabled
+          ? _value.publicProfileEnabled
+          : publicProfileEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      yearsOfExperience: null == yearsOfExperience
+          ? _value.yearsOfExperience
+          : yearsOfExperience // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -302,7 +351,13 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'bank_name') String? bankName,
       @JsonKey(name: 'account_number') String? accountNumber,
       @JsonKey(name: 'account_name') String? accountName,
-      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin});
+      @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
+      @JsonKey(name: 'is_available') bool isAvailable,
+      @JsonKey(name: 'bio') String? bio,
+      @JsonKey(name: 'specialties') List<String> specialties,
+      @JsonKey(name: 'rating') double rating,
+      @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
+      @JsonKey(name: 'years_of_experience') int yearsOfExperience});
 }
 
 /// @nodoc
@@ -344,6 +399,12 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? accountNumber = freezed,
     Object? accountName = freezed,
     Object? withdrawalPin = freezed,
+    Object? isAvailable = null,
+    Object? bio = freezed,
+    Object? specialties = null,
+    Object? rating = null,
+    Object? publicProfileEnabled = null,
+    Object? yearsOfExperience = null,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -450,6 +511,30 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.withdrawalPin
           : withdrawalPin // ignore: cast_nullable_to_non_nullable
               as String?,
+      isAvailable: null == isAvailable
+          ? _value.isAvailable
+          : isAvailable // ignore: cast_nullable_to_non_nullable
+              as bool,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
+      specialties: null == specialties
+          ? _value._specialties
+          : specialties // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      rating: null == rating
+          ? _value.rating
+          : rating // ignore: cast_nullable_to_non_nullable
+              as double,
+      publicProfileEnabled: null == publicProfileEnabled
+          ? _value.publicProfileEnabled
+          : publicProfileEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      yearsOfExperience: null == yearsOfExperience
+          ? _value.yearsOfExperience
+          : yearsOfExperience // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -484,7 +569,15 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'bank_name') this.bankName,
       @JsonKey(name: 'account_number') this.accountNumber,
       @JsonKey(name: 'account_name') this.accountName,
-      @JsonKey(name: 'withdrawal_pin') this.withdrawalPin});
+      @JsonKey(name: 'withdrawal_pin') this.withdrawalPin,
+      @JsonKey(name: 'is_available') this.isAvailable = true,
+      @JsonKey(name: 'bio') this.bio,
+      @JsonKey(name: 'specialties') final List<String> specialties = const [],
+      @JsonKey(name: 'rating') this.rating = 5.0,
+      @JsonKey(name: 'public_profile_enabled')
+      this.publicProfileEnabled = false,
+      @JsonKey(name: 'years_of_experience') this.yearsOfExperience = 0})
+      : _specialties = specialties;
 
   factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppUserImplFromJson(json);
@@ -571,10 +664,35 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey(name: 'withdrawal_pin')
   final String? withdrawalPin;
+// Marketplace Profile
+  @override
+  @JsonKey(name: 'is_available')
+  final bool isAvailable;
+  @override
+  @JsonKey(name: 'bio')
+  final String? bio;
+  final List<String> _specialties;
+  @override
+  @JsonKey(name: 'specialties')
+  List<String> get specialties {
+    if (_specialties is EqualUnmodifiableListView) return _specialties;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_specialties);
+  }
+
+  @override
+  @JsonKey(name: 'rating')
+  final double rating;
+  @override
+  @JsonKey(name: 'public_profile_enabled')
+  final bool publicProfileEnabled;
+  @override
+  @JsonKey(name: 'years_of_experience')
+  final int yearsOfExperience;
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience)';
   }
 
   @override
@@ -629,7 +747,17 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.accountName, accountName) ||
                 other.accountName == accountName) &&
             (identical(other.withdrawalPin, withdrawalPin) ||
-                other.withdrawalPin == withdrawalPin));
+                other.withdrawalPin == withdrawalPin) &&
+            (identical(other.isAvailable, isAvailable) ||
+                other.isAvailable == isAvailable) &&
+            (identical(other.bio, bio) || other.bio == bio) &&
+            const DeepCollectionEquality()
+                .equals(other._specialties, _specialties) &&
+            (identical(other.rating, rating) || other.rating == rating) &&
+            (identical(other.publicProfileEnabled, publicProfileEnabled) ||
+                other.publicProfileEnabled == publicProfileEnabled) &&
+            (identical(other.yearsOfExperience, yearsOfExperience) ||
+                other.yearsOfExperience == yearsOfExperience));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -661,7 +789,13 @@ class _$AppUserImpl implements _AppUser {
         bankName,
         accountNumber,
         accountName,
-        withdrawalPin
+        withdrawalPin,
+        isAvailable,
+        bio,
+        const DeepCollectionEquality().hash(_specialties),
+        rating,
+        publicProfileEnabled,
+        yearsOfExperience
       ]);
 
   /// Create a copy of AppUser
@@ -708,8 +842,14 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'bank_name') final String? bankName,
       @JsonKey(name: 'account_number') final String? accountNumber,
       @JsonKey(name: 'account_name') final String? accountName,
-      @JsonKey(name: 'withdrawal_pin')
-      final String? withdrawalPin}) = _$AppUserImpl;
+      @JsonKey(name: 'withdrawal_pin') final String? withdrawalPin,
+      @JsonKey(name: 'is_available') final bool isAvailable,
+      @JsonKey(name: 'bio') final String? bio,
+      @JsonKey(name: 'specialties') final List<String> specialties,
+      @JsonKey(name: 'rating') final double rating,
+      @JsonKey(name: 'public_profile_enabled') final bool publicProfileEnabled,
+      @JsonKey(name: 'years_of_experience')
+      final int yearsOfExperience}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
@@ -788,7 +928,25 @@ abstract class _AppUser implements AppUser {
   String? get accountName;
   @override
   @JsonKey(name: 'withdrawal_pin')
-  String? get withdrawalPin;
+  String? get withdrawalPin; // Marketplace Profile
+  @override
+  @JsonKey(name: 'is_available')
+  bool get isAvailable;
+  @override
+  @JsonKey(name: 'bio')
+  String? get bio;
+  @override
+  @JsonKey(name: 'specialties')
+  List<String> get specialties;
+  @override
+  @JsonKey(name: 'rating')
+  double get rating;
+  @override
+  @JsonKey(name: 'public_profile_enabled')
+  bool get publicProfileEnabled;
+  @override
+  @JsonKey(name: 'years_of_experience')
+  int get yearsOfExperience;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

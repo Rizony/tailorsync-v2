@@ -1,0 +1,219 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Search, MapPin, Star, Scissors, ArrowRight, Filter, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+
+interface TailorProfile {
+  id: string;
+  full_name: string;
+  shop_name: string;
+  brand_name: string;
+  shop_address: string;
+  subscription_tier: string;
+  bio: string;
+  specialties: string[];
+  rating: number;
+  is_available: boolean;
+  logo_url: string;
+}
+
+export default function MarketplacePage() {
+  const [tailors, setTailors] = useState<TailorProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetchTailors();
+  }, []);
+
+  async function fetchTailors() {
+    try {
+      setLoading(true);
+      // Fetch public profiles
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("public_profile_enabled", true)
+        .order("subscription_tier", { ascending: false }) // This won't work perfectly for enums, but we can sort in JS
+        .order("rating", { ascending: false });
+
+      if (error) throw error;
+
+      // Custom sort: Premium > Standard > Freemium
+      const sorted = (data as TailorProfile[]).sort((a, b) => {
+        const tiers = { premium: 3, standard: 2, freemium: 1 };
+        const tierA = tiers[a.subscription_tier as keyof typeof tiers] || 0;
+        const tierB = tiers[b.subscription_tier as keyof typeof tiers] || 0;
+        return tierB - tierA;
+      });
+
+      setTailors(sorted);
+    } catch (err) {
+      console.error("Error fetching tailors:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filteredTailors = tailors.filter((t) => 
+    t.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.specialties?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Navigation */}
+       <nav className="fixed left-0 right-0 top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Needlix Logo" width={140} height={40} className="h-8 w-auto object-contain" />
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="text-sm font-semibold text-slate-600 hover:text-[#0076B6]">Home</Link>
+            <a href="#download" className="rounded-full bg-[#0076B6] px-5 py-2 text-sm font-semibold text-white hover:bg-[#00AEEF]">Get App</a>
+          </div>
+        </div>
+      </nav>
+
+      <main className="pt-32 pb-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-12">
+            <h1 className="text-4xl font-extrabold text-[#0A1128] mb-4">Find Your Perfect Designer</h1>
+            <p className="text-lg text-slate-600 max-w-2xl">
+              Browse top-rated tailors and fashion designers in the Needlix community. Quality craftsmanship, delivered to your door.
+            </p>
+          </div>
+
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col md:flex-row gap-4 mb-12">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by brand name, specialty, or location..."
+                className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button className="flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition-all">
+              <Filter className="h-5 w-5" />
+              <span>Filters</span>
+            </button>
+          </div>
+
+          {/* Listings */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="h-[400px] rounded-3xl bg-slate-200 animate-pulse" />
+              ))}
+            </div>
+          ) : filteredTailors.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredTailors.map((tailor) => (
+                <TailorCard key={tailor.id} tailor={tailor} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+              <Scissors className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-slate-900">No tailors found</h3>
+              <p className="text-slate-500">Try adjusting your search or filters.</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function TailorCard({ tailor }: { tailor: TailorProfile }) {
+  const isPremium = tailor.subscription_tier === "premium";
+  const isStandard = tailor.subscription_tier === "standard";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group relative flex flex-col bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all overflow-hidden"
+    >
+      {/* Tier Badge */}
+      <div className="absolute top-4 right-4 z-10">
+        {isPremium ? (
+          <div className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-bold text-white shadow-lg">
+            <Star className="h-3 w-3 fill-current" />
+            PREMIUM
+          </div>
+        ) : isStandard ? (
+          <div className="flex items-center gap-1 rounded-full bg-[#0076B6] px-3 py-1 text-[10px] font-bold text-white shadow-lg">
+            <CheckCircle2 className="h-3 w-3" />
+            STANDARD
+          </div>
+        ) : null}
+      </div>
+
+      {/* Cover/Header */}
+      <div className="h-32 bg-gradient-to-r from-[#0076B6] to-[#00AEEF] relative">
+        <div className="absolute -bottom-10 left-6 h-20 w-20 rounded-2xl border-4 border-white bg-slate-100 shadow-md flex items-center justify-center overflow-hidden">
+          {tailor.logo_url ? (
+            <Image src={tailor.logo_url} alt={tailor.brand_name} width={80} height={80} className="object-cover" />
+          ) : (
+            <Scissors className="h-8 w-8 text-slate-300" />
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="pt-12 px-6 pb-6 flex-1 flex flex-col">
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-[#0A1128] group-hover:text-[#0076B6] transition-colors">
+            {tailor.brand_name || tailor.shop_name || "Fashion House"}
+          </h3>
+          <p className="text-sm text-slate-500 font-medium">{tailor.full_name}</p>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <MapPin className="h-4 w-4 text-slate-400" />
+            <span className="line-clamp-1">{tailor.shop_address || "Lagos, Nigeria"}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <div className="flex items-center">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} className={`h-3.5 w-3.5 ${s <= (tailor.rating || 5) ? 'text-yellow-400 fill-current' : 'text-slate-200'}`} />
+              ))}
+            </div>
+            <span className="font-bold text-slate-900">{tailor.rating || 5.0}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          {(tailor.specialties?.length ? tailor.specialties : ["Bespoke", "Traditional", "Suits"]).slice(0, 3).map((s) => (
+            <span key={s} className="px-3 py-1 rounded-lg bg-slate-50 text-[11px] font-bold text-slate-500 border border-slate-100">
+              {s}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-auto pt-4 border-t border-slate-50">
+          <Link 
+            href={`/tailor/${tailor.id}`}
+            className="flex items-center justify-between group/btn text-[#0076B6] font-bold text-sm"
+          >
+            <span>View Profile</span>
+            <div className="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center group-hover/btn:bg-[#0076B6] group-hover/btn:text-white transition-all">
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

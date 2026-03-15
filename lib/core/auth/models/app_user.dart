@@ -41,6 +41,14 @@ class AppUser with _$AppUser {
     @JsonKey(name: 'account_number') String? accountNumber,
     @JsonKey(name: 'account_name') String? accountName,
     @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
+    
+    // Marketplace Profile
+    @JsonKey(name: 'is_available') @Default(true) bool isAvailable,
+    @JsonKey(name: 'bio') String? bio,
+    @JsonKey(name: 'specialties') @Default([]) List<String> specialties,
+    @JsonKey(name: 'rating') @Default(5.0) double rating,
+    @JsonKey(name: 'public_profile_enabled') @Default(false) bool publicProfileEnabled,
+    @JsonKey(name: 'years_of_experience') @Default(0) int yearsOfExperience,
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);

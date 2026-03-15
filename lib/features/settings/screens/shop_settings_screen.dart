@@ -22,6 +22,8 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   late TextEditingController _taxController;
   late TextEditingController _notesController;
   late TextEditingController _termsController;
+  late TextEditingController _bioController;
+  late TextEditingController _specialtiesController;
   
   // Branding Contact Info
   late TextEditingController _addressController;
@@ -63,8 +65,11 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   File? _signatureFile;
   String? _signatureUrl;
 
+  bool _isAvailable = true;
+  bool _publicProfileEnabled = false;
+  int _yearsOfExperience = 0;
   bool _isLoading = false;
-  bool _initialized = false; // Tracks whether controllers have been populated
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -85,6 +90,8 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _accountNumberController = TextEditingController();
     _accountNameController = TextEditingController();
     _withdrawalPinController = TextEditingController();
+    _bioController = TextEditingController();
+    _specialtiesController = TextEditingController();
   }
 
   void _populateControllers(dynamic user) {
@@ -113,6 +120,11 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     }
     _logoUrl = user.logoUrl;
     _signatureUrl = user.signatureUrl;
+    _isAvailable = user.isAvailable;
+    _publicProfileEnabled = user.publicProfileEnabled;
+    _yearsOfExperience = user.yearsOfExperience;
+    _bioController.text = user.bio ?? '';
+    _specialtiesController.text = (user.specialties as List).join(', ');
     setState(() {});
   }
 
@@ -147,6 +159,8 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _accountNumberController.dispose();
     _accountNameController.dispose();
     _withdrawalPinController.dispose();
+    _bioController.dispose();
+    _specialtiesController.dispose();
     super.dispose();
   }
 
@@ -251,6 +265,11 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
           
           currencyCode: _selectedCurrencyCode,
           currencySymbol: _currencies[_selectedCurrencyCode] ?? '₦',
+          isAvailable: _isAvailable,
+          publicProfileEnabled: _publicProfileEnabled,
+          yearsOfExperience: _yearsOfExperience,
+          bio: _bioController.text,
+          specialties: _specialtiesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         );
         
         await ref.read(profileNotifierProvider.notifier).updateProfile(updatedUser);
@@ -599,6 +618,77 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                         keyboardType: TextInputType.number,
                         obscureText: true,
                         maxLength: 4,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // --- 5. Marketplace Profile Card ---
+              const Padding(
+                padding: EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('MARKETPLACE PROFILE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SwitchListTile(
+                        title: const Text('Enable Public Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text('List your shop on the Needlix web marketplace'),
+                        value: _publicProfileEnabled,
+                        onChanged: (val) => setState(() => _publicProfileEnabled = val),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      const Divider(),
+                      SwitchListTile(
+                        title: const Text('Accepting Job Requests', style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text('Allow customers to send you inquiries'),
+                        value: _isAvailable,
+                        onChanged: (val) => setState(() => _isAvailable = val),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _bioController,
+                        decoration: const InputDecoration(
+                          labelText: 'Professional Bio', 
+                          border: OutlineInputBorder(),
+                          hintText: 'Tell customers about your craftsmanship...',
+                          alignLabelWithHint: true,
+                        ),
+                        maxLines: 4,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _specialtiesController,
+                        decoration: const InputDecoration(
+                          labelText: 'Specialties (Comma separated)', 
+                          border: OutlineInputBorder(),
+                          hintText: 'e.g. Suits, Traditional, Wedding...',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Text('Years of Experience:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Slider(
+                              value: _yearsOfExperience.toDouble(),
+                              min: 0,
+                              max: 30,
+                              divisions: 30,
+                              label: _yearsOfExperience.toString(),
+                              onChanged: (val) => setState(() => _yearsOfExperience = val.toInt()),
+                            ),
+                          ),
+                          Text('$_yearsOfExperience', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
                       ),
                     ],
                   ),

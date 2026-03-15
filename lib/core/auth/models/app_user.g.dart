@@ -36,6 +36,15 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       accountNumber: json['account_number'] as String?,
       accountName: json['account_name'] as String?,
       withdrawalPin: json['withdrawal_pin'] as String?,
+      isAvailable: json['is_available'] as bool? ?? true,
+      bio: json['bio'] as String?,
+      specialties: (json['specialties'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
+      publicProfileEnabled: json['public_profile_enabled'] as bool? ?? false,
+      yearsOfExperience: (json['years_of_experience'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
@@ -67,6 +76,12 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'account_number': instance.accountNumber,
       'account_name': instance.accountName,
       'withdrawal_pin': instance.withdrawalPin,
+      'is_available': instance.isAvailable,
+      'bio': instance.bio,
+      'specialties': instance.specialties,
+      'rating': instance.rating,
+      'public_profile_enabled': instance.publicProfileEnabled,
+      'years_of_experience': instance.yearsOfExperience,
     };
 
 const _$SubscriptionTierEnumMap = {
