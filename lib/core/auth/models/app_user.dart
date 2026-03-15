@@ -18,7 +18,7 @@ class AppUser with _$AppUser {
     
     // Shop Settings
     @JsonKey(name: 'brand_name') String? brandName,
-    @JsonKey(name: 'logo_url') String? logoUrl,
+    @JsonKey(name: 'logo_url', readValue: _readLogoUrl) String? logoUrl,
     @JsonKey(name: 'signature_url') String? signatureUrl,
     @JsonKey(name: 'accent_color') String? accentColor,
     @JsonKey(name: 'default_tax_rate') @Default(0.0) double defaultTaxRate,
@@ -52,4 +52,14 @@ class AppUser with _$AppUser {
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
+}
+
+Object? _readLogoUrl(Map map, String key) {
+  final logoUrl = map['logo_url'] as String?;
+  if (logoUrl != null && logoUrl.isNotEmpty) return logoUrl;
+  
+  final photoUrl = map['photo_url'] as String?;
+  if (photoUrl != null && photoUrl.isNotEmpty) return photoUrl;
+  
+  return map['avatar_url'];
 }

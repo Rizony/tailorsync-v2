@@ -19,7 +19,7 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       walletBalance: (json['walletBalance'] as num?)?.toDouble() ?? 0.0,
       adCredits: (json['adCredits'] as num?)?.toInt() ?? 0,
       brandName: json['brand_name'] as String?,
-      logoUrl: json['logo_url'] as String?,
+      logoUrl: _readLogoUrl(json, 'logo_url') as String?,
       signatureUrl: json['signature_url'] as String?,
       accentColor: json['accent_color'] as String?,
       defaultTaxRate: (json['default_tax_rate'] as num?)?.toDouble() ?? 0.0,

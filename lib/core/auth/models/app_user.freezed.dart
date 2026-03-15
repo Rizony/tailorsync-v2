@@ -37,7 +37,7 @@ mixin _$AppUser {
 // Shop Settings
   @JsonKey(name: 'brand_name')
   String? get brandName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'logo_url')
+  @JsonKey(name: 'logo_url', readValue: _readLogoUrl)
   String? get logoUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'signature_url')
   String? get signatureUrl => throw _privateConstructorUsedError;
@@ -112,7 +112,7 @@ abstract class $AppUserCopyWith<$Res> {
       double walletBalance,
       int adCredits,
       @JsonKey(name: 'brand_name') String? brandName,
-      @JsonKey(name: 'logo_url') String? logoUrl,
+      @JsonKey(name: 'logo_url', readValue: _readLogoUrl) String? logoUrl,
       @JsonKey(name: 'signature_url') String? signatureUrl,
       @JsonKey(name: 'accent_color') String? accentColor,
       @JsonKey(name: 'default_tax_rate') double defaultTaxRate,
@@ -335,7 +335,7 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       double walletBalance,
       int adCredits,
       @JsonKey(name: 'brand_name') String? brandName,
-      @JsonKey(name: 'logo_url') String? logoUrl,
+      @JsonKey(name: 'logo_url', readValue: _readLogoUrl) String? logoUrl,
       @JsonKey(name: 'signature_url') String? signatureUrl,
       @JsonKey(name: 'accent_color') String? accentColor,
       @JsonKey(name: 'default_tax_rate') double defaultTaxRate,
@@ -553,7 +553,7 @@ class _$AppUserImpl implements _AppUser {
       this.walletBalance = 0.0,
       this.adCredits = 0,
       @JsonKey(name: 'brand_name') this.brandName,
-      @JsonKey(name: 'logo_url') this.logoUrl,
+      @JsonKey(name: 'logo_url', readValue: _readLogoUrl) this.logoUrl,
       @JsonKey(name: 'signature_url') this.signatureUrl,
       @JsonKey(name: 'accent_color') this.accentColor,
       @JsonKey(name: 'default_tax_rate') this.defaultTaxRate = 0.0,
@@ -611,7 +611,7 @@ class _$AppUserImpl implements _AppUser {
   @JsonKey(name: 'brand_name')
   final String? brandName;
   @override
-  @JsonKey(name: 'logo_url')
+  @JsonKey(name: 'logo_url', readValue: _readLogoUrl)
   final String? logoUrl;
   @override
   @JsonKey(name: 'signature_url')
@@ -826,7 +826,7 @@ abstract class _AppUser implements AppUser {
       final double walletBalance,
       final int adCredits,
       @JsonKey(name: 'brand_name') final String? brandName,
-      @JsonKey(name: 'logo_url') final String? logoUrl,
+      @JsonKey(name: 'logo_url', readValue: _readLogoUrl) final String? logoUrl,
       @JsonKey(name: 'signature_url') final String? signatureUrl,
       @JsonKey(name: 'accent_color') final String? accentColor,
       @JsonKey(name: 'default_tax_rate') final double defaultTaxRate,
@@ -879,7 +879,7 @@ abstract class _AppUser implements AppUser {
   @JsonKey(name: 'brand_name')
   String? get brandName;
   @override
-  @JsonKey(name: 'logo_url')
+  @JsonKey(name: 'logo_url', readValue: _readLogoUrl)
   String? get logoUrl;
   @override
   @JsonKey(name: 'signature_url')

@@ -142,8 +142,10 @@ class _TailorProfileScreenState extends ConsumerState<TailorProfileScreen> {
                           CircleAvatar(
                             radius: 60,
                             backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                            backgroundImage: profile?.logoUrl != null ? NetworkImage(profile!.logoUrl!) : null,
-                            child: profile?.logoUrl == null
+                            backgroundImage: (profile?.logoUrl != null && profile!.logoUrl!.isNotEmpty) 
+                                ? NetworkImage(profile.logoUrl!) 
+                                : null,
+                            child: (profile?.logoUrl == null || profile!.logoUrl!.isEmpty)
                                 ? Text(
                                     widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : '?',
                                     style: TextStyle(fontSize: 48, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
