@@ -1,11 +1,18 @@
-enum SubscriptionTier {
-  freemium(name: 'Freemium', monthlyPrice: 0),
-  standard(name: 'Standard', monthlyPrice: 3000),
-  premium(name: 'Premium', monthlyPrice: 5000);
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String name;
+enum SubscriptionTier {
+  @JsonValue('freemium')
+  freemium(label: 'Freemium', monthlyPrice: 0),
+  
+  @JsonValue('standard')
+  standard(label: 'Standard', monthlyPrice: 3000),
+  
+  @JsonValue('premium')
+  premium(label: 'Premium', monthlyPrice: 5000);
+
+  final String label;
   final int monthlyPrice;
-  const SubscriptionTier({required this.name, required this.monthlyPrice});
+  const SubscriptionTier({required this.label, required this.monthlyPrice});
 
   // Business Logic Helpers
   bool get hasAds => this == SubscriptionTier.freemium;

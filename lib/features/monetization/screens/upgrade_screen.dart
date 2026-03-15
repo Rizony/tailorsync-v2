@@ -57,15 +57,12 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
     }
   }
 
-  Future<void> _pay(PlanPricing plan) async {
-    if (_pendingPaymentMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please choose a payment method first')),
-      );
-      return;
-    }
-
-    setState(() => _isProcessing = true);
+  Future<void> _pay(PlanPricing plan, String method) async {
+    setState(() {
+      _pendingPlan = plan;
+      _pendingPaymentMethod = method;
+      _isProcessing = true;
+    });
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
@@ -77,7 +74,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
       final amount =
           _isAnnual ? plan.yearlyNaira : plan.monthlyNaira;
 
-      if (_pendingPaymentMethod == 'flutterwave') {
+      if (method == 'flutterwave') {
         final success = await FlutterwavePaymentWidget.processPayment(
           context: context,
           planId: planId,
@@ -221,7 +218,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
       displayFeatures = displayFeatures.take(5).toList()..add('And much more...');
     }
 
-    final tierName = newTier.name.toUpperCase();
+    final tierName = newTier.label.toUpperCase();
     
     showDialog(
       context: context,
@@ -380,22 +377,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
                     const SizedBox(height: 16),
                   ],
 
-                  // ── Payment method (shown after selecting a plan) ─
-                  if (_pendingPlan != null) ...[
-                    _PaymentSection(
-                      planName: _pendingPlan!.title,
-                      selected: _pendingPaymentMethod,
-                      onMethodSelected: (m) =>
-                          setState(() => _pendingPaymentMethod = m),
-                      onConfirm: () => _pay(_pendingPlan!),
-                      isProcessing: _isProcessing,
-                      onCancel: () => setState(() {
-                        _pendingPlan = null;
-                        _pendingPaymentMethod = null;
-                      }),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  // ── Payment method is now shown in a ModalBottomSheet ──
 
                   // ── Full Feature Comparison ───────────────────
                   _ComparisonToggle(
@@ -420,12 +402,19 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
   }
 
   void _showPaymentPicker(PlanPricing plan) {
-    setState(() {
-      _pendingPlan = plan;
-      _pendingPaymentMethod = null;
-    });
-    // Scroll down a tiny bit so the payment section is visible
-    Future.delayed(const Duration(milliseconds: 100));
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _PaymentPickerSheet(
+        plan: plan,
+        isAnnual: _isAnnual,
+        onPay: (method) {
+          Navigator.pop(context);
+          _pay(plan, method);
+        },
+      ),
+    );
   }
 }
 
@@ -514,102 +503,107 @@ class _Tab extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Payment Method Section
-// ─────────────────────────────────────────────
-class _PaymentSection extends StatelessWidget {
-  const _PaymentSection({
-    required this.planName,
-    required this.selected,
-    required this.onMethodSelected,
-    required this.onConfirm,
-    required this.isProcessing,
-    required this.onCancel,
+class _PaymentPickerSheet extends StatefulWidget {
+  const _PaymentPickerSheet({
+    required this.plan,
+    required this.isAnnual,
+    required this.onPay,
   });
 
-  final String planName;
-  final String? selected;
-  final ValueChanged<String> onMethodSelected;
-  final VoidCallback onConfirm;
-  final bool isProcessing;
-  final VoidCallback onCancel;
+  final PlanPricing plan;
+  final bool isAnnual;
+  final Function(String method) onPay;
+
+  @override
+  State<_PaymentPickerSheet> createState() => _PaymentPickerSheetState();
+}
+
+class _PaymentPickerSheetState extends State<_PaymentPickerSheet> {
+  String? _selectedMethod;
 
   @override
   Widget build(BuildContext context) {
+    final amountLabel = widget.isAnnual ? widget.plan.yearlyLabel() : widget.plan.monthlyLabel();
+
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue.shade200),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.payment, color: Color(0xFF1E78D2)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Pay for $planName Plan',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
-                ),
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
               ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                onPressed: onCancel,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          Text(
+            'Subscribe to ${widget.plan.title}',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Total amount breakdown: $amountLabel',
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+          ),
+          const SizedBox(height: 28),
+
+          const Text(
+            'SELECT PAYMENT METHOD',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          _MethodTile(
+            label: 'Paystack',
+            subtitle: 'Secure card & bank transfer',
+            icon: Icons.account_balance_wallet_outlined,
+            selected: _selectedMethod == 'paystack',
+            onTap: () => setState(() => _selectedMethod = 'paystack'),
           ),
           const SizedBox(height: 12),
-          const Text('Select payment method:',
-              style: TextStyle(fontSize: 13, color: Colors.grey)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _MethodTile(
-                  label: 'Flutterwave',
-                  icon: Icons.bolt,
-                  selected: selected == 'flutterwave',
-                  onTap: () => onMethodSelected('flutterwave'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _MethodTile(
-                  label: 'Paystack',
-                  icon: Icons.account_balance_wallet_outlined,
-                  selected: selected == 'paystack',
-                  onTap: () => onMethodSelected('paystack'),
-                ),
-              ),
-            ],
+          _MethodTile(
+            label: 'Flutterwave',
+            subtitle: 'Online payment gateway',
+            icon: Icons.bolt,
+            selected: _selectedMethod == 'flutterwave',
+            onTap: () => setState(() => _selectedMethod = 'flutterwave'),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: selected != null && !isProcessing ? onConfirm : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E78D2),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: isProcessing
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Proceed to Payment',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+
+          const SizedBox(height: 32),
+
+          ElevatedButton(
+            onPressed: _selectedMethod != null ? () => widget.onPay(_selectedMethod!) : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E78D2),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Confirm and Pay',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
         ],
@@ -619,12 +613,16 @@ class _PaymentSection extends StatelessWidget {
 }
 
 class _MethodTile extends StatelessWidget {
-  const _MethodTile(
-      {required this.label,
-      required this.icon,
-      required this.selected,
-      required this.onTap});
+  const _MethodTile({
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
   final String label;
+  final String subtitle;
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
@@ -634,36 +632,57 @@ class _MethodTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: selected
-              ? const Color(0xFF1E78D2).withValues(alpha: 0.1)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: selected ? const Color(0xFF1E78D2).withValues(alpha: 0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color(0xFF1E78D2) : Colors.grey.shade300,
+            color: selected ? const Color(0xFF1E78D2) : Colors.grey.shade200,
             width: selected ? 2 : 1,
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon,
-                size: 18,
-                color: selected ? const Color(0xFF1E78D2) : Colors.grey),
-            const SizedBox(width: 6),
-            Text(label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                  color: selected ? const Color(0xFF1E78D2) : Colors.grey[700],
-                )),
-            if (selected) ...[
-              const SizedBox(width: 4),
-              const Icon(Icons.check_circle,
-                  size: 14, color: Color(0xFF1E78D2)),
-            ],
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFF1E78D2).withValues(alpha: 0.1) : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: selected ? const Color(0xFF1E78D2) : Colors.grey[600],
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: selected ? const Color(0xFF1E78D2) : Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (selected)
+              const Icon(Icons.check_circle, color: Color(0xFF1E78D2), size: 24)
+            else
+              Icon(Icons.circle_outlined, color: Colors.grey.shade300, size: 24),
           ],
         ),
       ),

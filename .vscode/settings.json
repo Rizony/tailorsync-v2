@@ -1,0 +1,10 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "/usr/local/opt/openjdk@17",
+            "default": true
+        }
+    ],
+    "java.jdk.plugin.path": "/usr/local/opt/openjdk@17"
+}

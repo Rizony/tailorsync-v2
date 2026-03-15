@@ -6,7 +6,7 @@ part of 'job_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$jobRepositoryHash() => r'd51732ebd2f2d8b1e9d2ae4488ba478995f2b986';
+String _$jobRepositoryHash() => r'4889ef2dc0434cca42c8c85c0341b85996cb14ce';
 
 /// See also [jobRepository].
 @ProviderFor(jobRepository)

@@ -20,18 +20,26 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Customer {
+  @HiveField(0)
   String? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'full_name')
+  @HiveField(1)
   String get fullName => throw _privateConstructorUsedError;
   @JsonKey(name: 'phone_number')
+  @HiveField(2)
   String? get phoneNumber => throw _privateConstructorUsedError;
+  @HiveField(3)
   String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: 'photo_url')
+  @HiveField(4)
   String? get photoUrl => throw _privateConstructorUsedError;
+  @HiveField(5)
   Map<String, dynamic> get measurements => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
+  @HiveField(6)
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
+  @HiveField(7)
   String? get userId => throw _privateConstructorUsedError;
 
   /// Serializes this Customer to a JSON map.
@@ -50,14 +58,14 @@ abstract class $CustomerCopyWith<$Res> {
       _$CustomerCopyWithImpl<$Res, Customer>;
   @useResult
   $Res call(
-      {String? id,
-      @JsonKey(name: 'full_name') String fullName,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      String? email,
-      @JsonKey(name: 'photo_url') String? photoUrl,
-      Map<String, dynamic> measurements,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'user_id') String? userId});
+      {@HiveField(0) String? id,
+      @JsonKey(name: 'full_name') @HiveField(1) String fullName,
+      @JsonKey(name: 'phone_number') @HiveField(2) String? phoneNumber,
+      @HiveField(3) String? email,
+      @JsonKey(name: 'photo_url') @HiveField(4) String? photoUrl,
+      @HiveField(5) Map<String, dynamic> measurements,
+      @JsonKey(name: 'created_at') @HiveField(6) DateTime? createdAt,
+      @JsonKey(name: 'user_id') @HiveField(7) String? userId});
 }
 
 /// @nodoc
@@ -130,14 +138,14 @@ abstract class _$$CustomerImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? id,
-      @JsonKey(name: 'full_name') String fullName,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      String? email,
-      @JsonKey(name: 'photo_url') String? photoUrl,
-      Map<String, dynamic> measurements,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'user_id') String? userId});
+      {@HiveField(0) String? id,
+      @JsonKey(name: 'full_name') @HiveField(1) String fullName,
+      @JsonKey(name: 'phone_number') @HiveField(2) String? phoneNumber,
+      @HiveField(3) String? email,
+      @JsonKey(name: 'photo_url') @HiveField(4) String? photoUrl,
+      @HiveField(5) Map<String, dynamic> measurements,
+      @JsonKey(name: 'created_at') @HiveField(6) DateTime? createdAt,
+      @JsonKey(name: 'user_id') @HiveField(7) String? userId});
 }
 
 /// @nodoc
@@ -203,35 +211,41 @@ class __$$CustomerImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CustomerImpl implements _Customer {
   const _$CustomerImpl(
-      {this.id,
-      @JsonKey(name: 'full_name') required this.fullName,
-      @JsonKey(name: 'phone_number') this.phoneNumber,
-      this.email,
-      @JsonKey(name: 'photo_url') this.photoUrl,
-      final Map<String, dynamic> measurements = const {},
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'user_id') this.userId})
+      {@HiveField(0) this.id,
+      @JsonKey(name: 'full_name') @HiveField(1) required this.fullName,
+      @JsonKey(name: 'phone_number') @HiveField(2) this.phoneNumber,
+      @HiveField(3) this.email,
+      @JsonKey(name: 'photo_url') @HiveField(4) this.photoUrl,
+      @HiveField(5) final Map<String, dynamic> measurements = const {},
+      @JsonKey(name: 'created_at') @HiveField(6) this.createdAt,
+      @JsonKey(name: 'user_id') @HiveField(7) this.userId})
       : _measurements = measurements;
 
   factory _$CustomerImpl.fromJson(Map<String, dynamic> json) =>
       _$$CustomerImplFromJson(json);
 
   @override
+  @HiveField(0)
   final String? id;
   @override
   @JsonKey(name: 'full_name')
+  @HiveField(1)
   final String fullName;
   @override
   @JsonKey(name: 'phone_number')
+  @HiveField(2)
   final String? phoneNumber;
   @override
+  @HiveField(3)
   final String? email;
   @override
   @JsonKey(name: 'photo_url')
+  @HiveField(4)
   final String? photoUrl;
   final Map<String, dynamic> _measurements;
   @override
   @JsonKey()
+  @HiveField(5)
   Map<String, dynamic> get measurements {
     if (_measurements is EqualUnmodifiableMapView) return _measurements;
     // ignore: implicit_dynamic_type
@@ -240,9 +254,11 @@ class _$CustomerImpl implements _Customer {
 
   @override
   @JsonKey(name: 'created_at')
+  @HiveField(6)
   final DateTime? createdAt;
   @override
   @JsonKey(name: 'user_id')
+  @HiveField(7)
   final String? userId;
 
   @override
@@ -301,38 +317,48 @@ class _$CustomerImpl implements _Customer {
 
 abstract class _Customer implements Customer {
   const factory _Customer(
-      {final String? id,
-      @JsonKey(name: 'full_name') required final String fullName,
-      @JsonKey(name: 'phone_number') final String? phoneNumber,
-      final String? email,
-      @JsonKey(name: 'photo_url') final String? photoUrl,
-      final Map<String, dynamic> measurements,
-      @JsonKey(name: 'created_at') final DateTime? createdAt,
-      @JsonKey(name: 'user_id') final String? userId}) = _$CustomerImpl;
+      {@HiveField(0) final String? id,
+      @JsonKey(name: 'full_name') @HiveField(1) required final String fullName,
+      @JsonKey(name: 'phone_number') @HiveField(2) final String? phoneNumber,
+      @HiveField(3) final String? email,
+      @JsonKey(name: 'photo_url') @HiveField(4) final String? photoUrl,
+      @HiveField(5) final Map<String, dynamic> measurements,
+      @JsonKey(name: 'created_at') @HiveField(6) final DateTime? createdAt,
+      @JsonKey(name: 'user_id')
+      @HiveField(7)
+      final String? userId}) = _$CustomerImpl;
 
   factory _Customer.fromJson(Map<String, dynamic> json) =
       _$CustomerImpl.fromJson;
 
   @override
+  @HiveField(0)
   String? get id;
   @override
   @JsonKey(name: 'full_name')
+  @HiveField(1)
   String get fullName;
   @override
   @JsonKey(name: 'phone_number')
+  @HiveField(2)
   String? get phoneNumber;
   @override
+  @HiveField(3)
   String? get email;
   @override
   @JsonKey(name: 'photo_url')
+  @HiveField(4)
   String? get photoUrl;
   @override
+  @HiveField(5)
   Map<String, dynamic> get measurements;
   @override
   @JsonKey(name: 'created_at')
+  @HiveField(6)
   DateTime? get createdAt;
   @override
   @JsonKey(name: 'user_id')
+  @HiveField(7)
   String? get userId;
 
   /// Create a copy of Customer

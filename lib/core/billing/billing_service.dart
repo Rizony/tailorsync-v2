@@ -234,7 +234,7 @@ class BillingService {
           .eq('id', user.id)
           .single();
 
-      final tier = response['subscription_tier'] ?? 'freemium';
+      final tierStr = response['subscription_tier']?.toString().toLowerCase() ?? 'freemium';
       final expiresAt = response['subscription_expires_at'];
 
       // Check if subscription has expired
@@ -250,7 +250,7 @@ class BillingService {
         }
       }
 
-      return tier;
+      return tierStr;
     } catch (e) {
       debugPrint("Error checking subscription status: $e");
       return "freemium";

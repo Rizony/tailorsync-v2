@@ -20,8 +20,11 @@ JobItem _$JobItemFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$JobItem {
+  @HiveField(0)
   String get name => throw _privateConstructorUsedError;
+  @HiveField(1)
   int get quantity => throw _privateConstructorUsedError;
+  @HiveField(2)
   double get price => throw _privateConstructorUsedError;
 
   /// Serializes this JobItem to a JSON map.
@@ -38,7 +41,10 @@ abstract class $JobItemCopyWith<$Res> {
   factory $JobItemCopyWith(JobItem value, $Res Function(JobItem) then) =
       _$JobItemCopyWithImpl<$Res, JobItem>;
   @useResult
-  $Res call({String name, int quantity, double price});
+  $Res call(
+      {@HiveField(0) String name,
+      @HiveField(1) int quantity,
+      @HiveField(2) double price});
 }
 
 /// @nodoc
@@ -84,7 +90,10 @@ abstract class _$$JobItemImplCopyWith<$Res> implements $JobItemCopyWith<$Res> {
       __$$JobItemImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String name, int quantity, double price});
+  $Res call(
+      {@HiveField(0) String name,
+      @HiveField(1) int quantity,
+      @HiveField(2) double price});
 }
 
 /// @nodoc
@@ -124,18 +133,24 @@ class __$$JobItemImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$JobItemImpl implements _JobItem {
-  const _$JobItemImpl({required this.name, this.quantity = 1, this.price = 0});
+  const _$JobItemImpl(
+      {@HiveField(0) required this.name,
+      @HiveField(1) this.quantity = 1,
+      @HiveField(2) this.price = 0});
 
   factory _$JobItemImpl.fromJson(Map<String, dynamic> json) =>
       _$$JobItemImplFromJson(json);
 
   @override
+  @HiveField(0)
   final String name;
   @override
   @JsonKey()
+  @HiveField(1)
   final int quantity;
   @override
   @JsonKey()
+  @HiveField(2)
   final double price;
 
   @override
@@ -176,17 +191,20 @@ class _$JobItemImpl implements _JobItem {
 
 abstract class _JobItem implements JobItem {
   const factory _JobItem(
-      {required final String name,
-      final int quantity,
-      final double price}) = _$JobItemImpl;
+      {@HiveField(0) required final String name,
+      @HiveField(1) final int quantity,
+      @HiveField(2) final double price}) = _$JobItemImpl;
 
   factory _JobItem.fromJson(Map<String, dynamic> json) = _$JobItemImpl.fromJson;
 
   @override
+  @HiveField(0)
   String get name;
   @override
+  @HiveField(1)
   int get quantity;
   @override
+  @HiveField(2)
   double get price;
 
   /// Create a copy of JobItem
@@ -203,10 +221,14 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Payment {
+  @HiveField(0)
   double get amount => throw _privateConstructorUsedError;
+  @HiveField(1)
   DateTime get date => throw _privateConstructorUsedError;
+  @HiveField(2)
   String? get note => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_method')
+  @HiveField(3)
   String? get paymentMethod => throw _privateConstructorUsedError;
 
   /// Serializes this Payment to a JSON map.
@@ -224,10 +246,10 @@ abstract class $PaymentCopyWith<$Res> {
       _$PaymentCopyWithImpl<$Res, Payment>;
   @useResult
   $Res call(
-      {double amount,
-      DateTime date,
-      String? note,
-      @JsonKey(name: 'payment_method') String? paymentMethod});
+      {@HiveField(0) double amount,
+      @HiveField(1) DateTime date,
+      @HiveField(2) String? note,
+      @JsonKey(name: 'payment_method') @HiveField(3) String? paymentMethod});
 }
 
 /// @nodoc
@@ -279,10 +301,10 @@ abstract class _$$PaymentImplCopyWith<$Res> implements $PaymentCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {double amount,
-      DateTime date,
-      String? note,
-      @JsonKey(name: 'payment_method') String? paymentMethod});
+      {@HiveField(0) double amount,
+      @HiveField(1) DateTime date,
+      @HiveField(2) String? note,
+      @JsonKey(name: 'payment_method') @HiveField(3) String? paymentMethod});
 }
 
 /// @nodoc
@@ -328,22 +350,26 @@ class __$$PaymentImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PaymentImpl implements _Payment {
   const _$PaymentImpl(
-      {required this.amount,
-      required this.date,
-      this.note,
-      @JsonKey(name: 'payment_method') this.paymentMethod});
+      {@HiveField(0) required this.amount,
+      @HiveField(1) required this.date,
+      @HiveField(2) this.note,
+      @JsonKey(name: 'payment_method') @HiveField(3) this.paymentMethod});
 
   factory _$PaymentImpl.fromJson(Map<String, dynamic> json) =>
       _$$PaymentImplFromJson(json);
 
   @override
+  @HiveField(0)
   final double amount;
   @override
+  @HiveField(1)
   final DateTime date;
   @override
+  @HiveField(2)
   final String? note;
   @override
   @JsonKey(name: 'payment_method')
+  @HiveField(3)
   final String? paymentMethod;
 
   @override
@@ -386,22 +412,27 @@ class _$PaymentImpl implements _Payment {
 
 abstract class _Payment implements Payment {
   const factory _Payment(
-          {required final double amount,
-          required final DateTime date,
-          final String? note,
-          @JsonKey(name: 'payment_method') final String? paymentMethod}) =
-      _$PaymentImpl;
+      {@HiveField(0) required final double amount,
+      @HiveField(1) required final DateTime date,
+      @HiveField(2) final String? note,
+      @JsonKey(name: 'payment_method')
+      @HiveField(3)
+      final String? paymentMethod}) = _$PaymentImpl;
 
   factory _Payment.fromJson(Map<String, dynamic> json) = _$PaymentImpl.fromJson;
 
   @override
+  @HiveField(0)
   double get amount;
   @override
+  @HiveField(1)
   DateTime get date;
   @override
+  @HiveField(2)
   String? get note;
   @override
   @JsonKey(name: 'payment_method')
+  @HiveField(3)
   String? get paymentMethod;
 
   /// Create a copy of Payment
@@ -418,33 +449,51 @@ JobModel _$JobModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$JobModel {
+  @HiveField(0)
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
+  @HiveField(1)
   String get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer_id')
+  @HiveField(2)
   String get customerId => throw _privateConstructorUsedError;
+  @HiveField(3)
   String get title => throw _privateConstructorUsedError;
+  @HiveField(4)
   double get price => throw _privateConstructorUsedError;
   @JsonKey(name: 'balance_due')
+  @HiveField(5)
   double get balanceDue => throw _privateConstructorUsedError;
   @JsonKey(name: 'due_date')
+  @HiveField(6)
   DateTime get dueDate => throw _privateConstructorUsedError;
+  @HiveField(7)
   String get status => throw _privateConstructorUsedError;
+  @HiveField(8)
   List<String> get images => throw _privateConstructorUsedError;
+  @HiveField(9)
   List<JobItem> get items => throw _privateConstructorUsedError;
+  @HiveField(10)
   List<Payment> get payments => throw _privateConstructorUsedError;
   @JsonKey(name: 'fabric_status')
+  @HiveField(11)
   String get fabricStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'fabric_source')
+  @HiveField(12)
   String? get fabricSource => throw _privateConstructorUsedError;
+  @HiveField(13)
   String? get notes => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
+  @HiveField(14)
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'assigned_to')
+  @HiveField(15)
   String? get assignedTo => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_outsourced')
+  @HiveField(16)
   bool get isOutsourced => throw _privateConstructorUsedError;
   @JsonKey(readValue: _readCustomerName, includeToJson: false)
+  @HiveField(17)
   String? get customerName => throw _privateConstructorUsedError;
 
   /// Serializes this JobModel to a JSON map.
@@ -463,24 +512,25 @@ abstract class $JobModelCopyWith<$Res> {
       _$JobModelCopyWithImpl<$Res, JobModel>;
   @useResult
   $Res call(
-      {String id,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'customer_id') String customerId,
-      String title,
-      double price,
-      @JsonKey(name: 'balance_due') double balanceDue,
-      @JsonKey(name: 'due_date') DateTime dueDate,
-      String status,
-      List<String> images,
-      List<JobItem> items,
-      List<Payment> payments,
-      @JsonKey(name: 'fabric_status') String fabricStatus,
-      @JsonKey(name: 'fabric_source') String? fabricSource,
-      String? notes,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'assigned_to') String? assignedTo,
-      @JsonKey(name: 'is_outsourced') bool isOutsourced,
+      {@HiveField(0) String id,
+      @JsonKey(name: 'user_id') @HiveField(1) String userId,
+      @JsonKey(name: 'customer_id') @HiveField(2) String customerId,
+      @HiveField(3) String title,
+      @HiveField(4) double price,
+      @JsonKey(name: 'balance_due') @HiveField(5) double balanceDue,
+      @JsonKey(name: 'due_date') @HiveField(6) DateTime dueDate,
+      @HiveField(7) String status,
+      @HiveField(8) List<String> images,
+      @HiveField(9) List<JobItem> items,
+      @HiveField(10) List<Payment> payments,
+      @JsonKey(name: 'fabric_status') @HiveField(11) String fabricStatus,
+      @JsonKey(name: 'fabric_source') @HiveField(12) String? fabricSource,
+      @HiveField(13) String? notes,
+      @JsonKey(name: 'created_at') @HiveField(14) DateTime createdAt,
+      @JsonKey(name: 'assigned_to') @HiveField(15) String? assignedTo,
+      @JsonKey(name: 'is_outsourced') @HiveField(16) bool isOutsourced,
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
+      @HiveField(17)
       String? customerName});
 }
 
@@ -604,24 +654,25 @@ abstract class _$$JobModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'customer_id') String customerId,
-      String title,
-      double price,
-      @JsonKey(name: 'balance_due') double balanceDue,
-      @JsonKey(name: 'due_date') DateTime dueDate,
-      String status,
-      List<String> images,
-      List<JobItem> items,
-      List<Payment> payments,
-      @JsonKey(name: 'fabric_status') String fabricStatus,
-      @JsonKey(name: 'fabric_source') String? fabricSource,
-      String? notes,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'assigned_to') String? assignedTo,
-      @JsonKey(name: 'is_outsourced') bool isOutsourced,
+      {@HiveField(0) String id,
+      @JsonKey(name: 'user_id') @HiveField(1) String userId,
+      @JsonKey(name: 'customer_id') @HiveField(2) String customerId,
+      @HiveField(3) String title,
+      @HiveField(4) double price,
+      @JsonKey(name: 'balance_due') @HiveField(5) double balanceDue,
+      @JsonKey(name: 'due_date') @HiveField(6) DateTime dueDate,
+      @HiveField(7) String status,
+      @HiveField(8) List<String> images,
+      @HiveField(9) List<JobItem> items,
+      @HiveField(10) List<Payment> payments,
+      @JsonKey(name: 'fabric_status') @HiveField(11) String fabricStatus,
+      @JsonKey(name: 'fabric_source') @HiveField(12) String? fabricSource,
+      @HiveField(13) String? notes,
+      @JsonKey(name: 'created_at') @HiveField(14) DateTime createdAt,
+      @JsonKey(name: 'assigned_to') @HiveField(15) String? assignedTo,
+      @JsonKey(name: 'is_outsourced') @HiveField(16) bool isOutsourced,
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
+      @HiveField(17)
       String? customerName});
 }
 
@@ -738,24 +789,27 @@ class __$$JobModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$JobModelImpl implements _JobModel {
   const _$JobModelImpl(
-      {required this.id,
-      @JsonKey(name: 'user_id') required this.userId,
-      @JsonKey(name: 'customer_id') required this.customerId,
-      required this.title,
-      this.price = 0,
-      @JsonKey(name: 'balance_due') this.balanceDue = 0,
-      @JsonKey(name: 'due_date') required this.dueDate,
-      this.status = 'pending',
-      final List<String> images = const [],
-      final List<JobItem> items = const [],
-      final List<Payment> payments = const [],
-      @JsonKey(name: 'fabric_status') this.fabricStatus = 'not_received',
-      @JsonKey(name: 'fabric_source') this.fabricSource,
-      this.notes,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'assigned_to') this.assignedTo,
-      @JsonKey(name: 'is_outsourced') this.isOutsourced = false,
+      {@HiveField(0) required this.id,
+      @JsonKey(name: 'user_id') @HiveField(1) required this.userId,
+      @JsonKey(name: 'customer_id') @HiveField(2) required this.customerId,
+      @HiveField(3) required this.title,
+      @HiveField(4) this.price = 0,
+      @JsonKey(name: 'balance_due') @HiveField(5) this.balanceDue = 0,
+      @JsonKey(name: 'due_date') @HiveField(6) required this.dueDate,
+      @HiveField(7) this.status = 'pending',
+      @HiveField(8) final List<String> images = const [],
+      @HiveField(9) final List<JobItem> items = const [],
+      @HiveField(10) final List<Payment> payments = const [],
+      @JsonKey(name: 'fabric_status')
+      @HiveField(11)
+      this.fabricStatus = 'not_received',
+      @JsonKey(name: 'fabric_source') @HiveField(12) this.fabricSource,
+      @HiveField(13) this.notes,
+      @JsonKey(name: 'created_at') @HiveField(14) required this.createdAt,
+      @JsonKey(name: 'assigned_to') @HiveField(15) this.assignedTo,
+      @JsonKey(name: 'is_outsourced') @HiveField(16) this.isOutsourced = false,
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
+      @HiveField(17)
       this.customerName})
       : _images = images,
         _items = items,
@@ -765,30 +819,39 @@ class _$JobModelImpl implements _JobModel {
       _$$JobModelImplFromJson(json);
 
   @override
+  @HiveField(0)
   final String id;
   @override
   @JsonKey(name: 'user_id')
+  @HiveField(1)
   final String userId;
   @override
   @JsonKey(name: 'customer_id')
+  @HiveField(2)
   final String customerId;
   @override
+  @HiveField(3)
   final String title;
   @override
   @JsonKey()
+  @HiveField(4)
   final double price;
   @override
   @JsonKey(name: 'balance_due')
+  @HiveField(5)
   final double balanceDue;
   @override
   @JsonKey(name: 'due_date')
+  @HiveField(6)
   final DateTime dueDate;
   @override
   @JsonKey()
+  @HiveField(7)
   final String status;
   final List<String> _images;
   @override
   @JsonKey()
+  @HiveField(8)
   List<String> get images {
     if (_images is EqualUnmodifiableListView) return _images;
     // ignore: implicit_dynamic_type
@@ -798,6 +861,7 @@ class _$JobModelImpl implements _JobModel {
   final List<JobItem> _items;
   @override
   @JsonKey()
+  @HiveField(9)
   List<JobItem> get items {
     if (_items is EqualUnmodifiableListView) return _items;
     // ignore: implicit_dynamic_type
@@ -807,6 +871,7 @@ class _$JobModelImpl implements _JobModel {
   final List<Payment> _payments;
   @override
   @JsonKey()
+  @HiveField(10)
   List<Payment> get payments {
     if (_payments is EqualUnmodifiableListView) return _payments;
     // ignore: implicit_dynamic_type
@@ -815,23 +880,30 @@ class _$JobModelImpl implements _JobModel {
 
   @override
   @JsonKey(name: 'fabric_status')
+  @HiveField(11)
   final String fabricStatus;
   @override
   @JsonKey(name: 'fabric_source')
+  @HiveField(12)
   final String? fabricSource;
   @override
+  @HiveField(13)
   final String? notes;
   @override
   @JsonKey(name: 'created_at')
+  @HiveField(14)
   final DateTime createdAt;
   @override
   @JsonKey(name: 'assigned_to')
+  @HiveField(15)
   final String? assignedTo;
   @override
   @JsonKey(name: 'is_outsourced')
+  @HiveField(16)
   final bool isOutsourced;
   @override
   @JsonKey(readValue: _readCustomerName, includeToJson: false)
+  @HiveField(17)
   final String? customerName;
 
   @override
@@ -913,74 +985,97 @@ class _$JobModelImpl implements _JobModel {
 
 abstract class _JobModel implements JobModel {
   const factory _JobModel(
-      {required final String id,
-      @JsonKey(name: 'user_id') required final String userId,
-      @JsonKey(name: 'customer_id') required final String customerId,
-      required final String title,
-      final double price,
-      @JsonKey(name: 'balance_due') final double balanceDue,
-      @JsonKey(name: 'due_date') required final DateTime dueDate,
-      final String status,
-      final List<String> images,
-      final List<JobItem> items,
-      final List<Payment> payments,
-      @JsonKey(name: 'fabric_status') final String fabricStatus,
-      @JsonKey(name: 'fabric_source') final String? fabricSource,
-      final String? notes,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'assigned_to') final String? assignedTo,
-      @JsonKey(name: 'is_outsourced') final bool isOutsourced,
+      {@HiveField(0) required final String id,
+      @JsonKey(name: 'user_id') @HiveField(1) required final String userId,
+      @JsonKey(name: 'customer_id')
+      @HiveField(2)
+      required final String customerId,
+      @HiveField(3) required final String title,
+      @HiveField(4) final double price,
+      @JsonKey(name: 'balance_due') @HiveField(5) final double balanceDue,
+      @JsonKey(name: 'due_date') @HiveField(6) required final DateTime dueDate,
+      @HiveField(7) final String status,
+      @HiveField(8) final List<String> images,
+      @HiveField(9) final List<JobItem> items,
+      @HiveField(10) final List<Payment> payments,
+      @JsonKey(name: 'fabric_status') @HiveField(11) final String fabricStatus,
+      @JsonKey(name: 'fabric_source') @HiveField(12) final String? fabricSource,
+      @HiveField(13) final String? notes,
+      @JsonKey(name: 'created_at')
+      @HiveField(14)
+      required final DateTime createdAt,
+      @JsonKey(name: 'assigned_to') @HiveField(15) final String? assignedTo,
+      @JsonKey(name: 'is_outsourced') @HiveField(16) final bool isOutsourced,
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
+      @HiveField(17)
       final String? customerName}) = _$JobModelImpl;
 
   factory _JobModel.fromJson(Map<String, dynamic> json) =
       _$JobModelImpl.fromJson;
 
   @override
+  @HiveField(0)
   String get id;
   @override
   @JsonKey(name: 'user_id')
+  @HiveField(1)
   String get userId;
   @override
   @JsonKey(name: 'customer_id')
+  @HiveField(2)
   String get customerId;
   @override
+  @HiveField(3)
   String get title;
   @override
+  @HiveField(4)
   double get price;
   @override
   @JsonKey(name: 'balance_due')
+  @HiveField(5)
   double get balanceDue;
   @override
   @JsonKey(name: 'due_date')
+  @HiveField(6)
   DateTime get dueDate;
   @override
+  @HiveField(7)
   String get status;
   @override
+  @HiveField(8)
   List<String> get images;
   @override
+  @HiveField(9)
   List<JobItem> get items;
   @override
+  @HiveField(10)
   List<Payment> get payments;
   @override
   @JsonKey(name: 'fabric_status')
+  @HiveField(11)
   String get fabricStatus;
   @override
   @JsonKey(name: 'fabric_source')
+  @HiveField(12)
   String? get fabricSource;
   @override
+  @HiveField(13)
   String? get notes;
   @override
   @JsonKey(name: 'created_at')
+  @HiveField(14)
   DateTime get createdAt;
   @override
   @JsonKey(name: 'assigned_to')
+  @HiveField(15)
   String? get assignedTo;
   @override
   @JsonKey(name: 'is_outsourced')
+  @HiveField(16)
   bool get isOutsourced;
   @override
   @JsonKey(readValue: _readCustomerName, includeToJson: false)
+  @HiveField(17)
   String? get customerName;
 
   /// Create a copy of JobModel

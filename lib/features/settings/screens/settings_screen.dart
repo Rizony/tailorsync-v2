@@ -117,7 +117,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.star_rounded, color: Colors.amber),
                   title: const Text('My Subscription', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: Text('Current Plan: ${userProfile?.subscriptionTier.name.toUpperCase() ?? 'FREEMIUM'}'),
+                  subtitle: Text('Current Plan: ${userProfile?.subscriptionTier.label.toUpperCase() ?? 'FREEMIUM'}'),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
