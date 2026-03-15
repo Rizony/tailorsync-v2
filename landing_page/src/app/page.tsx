@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, ChevronRight, Play, Scissors, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight, Play, Scissors, Search, ShieldCheck, Star, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,6 +27,10 @@ export default function LandingPage() {
             </Link>
             <Link href="#community" className="hidden text-sm font-semibold text-slate-600 transition-colors hover:text-[#0076B6] sm:block">
               Community
+            </Link>
+            <Link href="/marketplace" className="hidden text-sm font-semibold text-[#0076B6] transition-colors hover:text-[#00AEEF] sm:flex items-center gap-1.5">
+              <Search className="h-4 w-4" />
+              Find a Tailor
             </Link>
             <a
               href="#download"
@@ -60,7 +64,7 @@ export default function LandingPage() {
                 </div>
 
                 <h1 className="text-5xl font-extrabold tracking-tight text-[#0A1128] sm:text-7xl lg:text-7xl mb-8 leading-[1.1]">
-                  Connect & <br />
+                  Connect &amp; <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0076B6] to-[#00AEEF]">Create.</span>
                 </h1>
 
@@ -75,13 +79,13 @@ export default function LandingPage() {
                   >
                     Download Now Free
                   </a>
-                  <a
-                    href="#how-it-works"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-lg font-bold text-slate-900 border border-slate-200 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300"
+                  <Link
+                    href="/marketplace"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-lg font-bold text-slate-900 border border-slate-200 shadow-sm transition-all hover:bg-slate-50 hover:border-[#0076B6] hover:text-[#0076B6]"
                   >
-                    <Play className="h-5 w-5 text-[#00AEEF] fill-current" />
-                    See How it Works
-                  </a>
+                    <Search className="h-5 w-5 text-[#00AEEF]" />
+                    Find a Tailor
+                  </Link>
                 </div>
 
                 <div className="mt-12 flex items-center gap-4 text-sm text-slate-500 font-medium">
@@ -133,7 +137,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 bg-gradient-to-b from-[#0076B6] to-[#00AEEF]">
                       <div className="p-6 pt-16 text-white pb-32">
                         <h3 className="text-2xl font-bold mb-1">Hi, Designer!</h3>
-                        <p className="text-cyan-100/80 mb-6 text-sm">Here's your shop overview</p>
+                        <p className="text-cyan-100/80 mb-6 text-sm">Here&apos;s your shop overview</p>
 
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mb-6">
                           <p className="text-white/70 text-sm mb-1">Wallet Balance</p>
@@ -159,6 +163,102 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Marketplace Section */}
+        <section id="marketplace" className="relative overflow-hidden py-24 sm:py-32 bg-gradient-to-b from-white to-slate-50">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="grid gap-12 lg:grid-cols-2 items-center">
+              {/* Left: Text */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 mb-6">
+                  <Search className="h-4 w-4 text-orange-500" />
+                  <span className="text-sm font-semibold text-orange-600">Tailor Marketplace — New!</span>
+                </div>
+                <h2 className="text-4xl font-extrabold tracking-tight text-[#0A1128] sm:text-5xl mb-6 leading-tight">
+                  Find the Perfect Tailor,<br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0076B6] to-[#00AEEF]">Near You.</span>
+                </h2>
+                <p className="text-lg text-slate-600 leading-relaxed mb-8">
+                  Browse verified, professional tailors and fashion designers. Filter by specialty, check real ratings, and send a job request directly — all from your browser. No app needed.
+                </p>
+
+                <div className="space-y-4 mb-10">
+                  {[
+                    { text: 'Search by specialty (suits, ankara, wedding, etc.)', icon: CheckCircle2 },
+                    { text: 'View real tailor profiles with bio & availability', icon: CheckCircle2 },
+                    { text: 'Send job requests — tailors respond via the app', icon: CheckCircle2 },
+                    { text: 'Premium & verified designers listed first', icon: Star },
+                  ].map((item) => (
+                    <div key={item.text} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5 text-[#00AEEF] flex-shrink-0" />
+                      <span className="text-slate-700 font-medium">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Link
+                  href="/marketplace"
+                  className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-[#0076B6] px-8 py-4 text-lg font-bold text-white shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:bg-[#00AEEF] hover:shadow-2xl hover:shadow-[#00AEEF]/30"
+                >
+                  Browse the Marketplace
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
+
+              {/* Right: Preview Cards */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="space-y-4"
+              >
+                {[
+                  { name: "Adire Design Studio", specialty: "Ankara & Traditional Wear", rating: "4.9", tier: "premium", available: true },
+                  { name: "Classic Cuts Atelier", specialty: "Corporate Suits & Menswear", rating: "4.7", tier: "standard", available: true },
+                  { name: "Belle Couture", specialty: "Bridal & Evening Gowns", rating: "4.8", tier: "premium", available: false },
+                ].map((tailor) => (
+                  <div key={tailor.name} className="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4 hover:shadow-lg transition-all hover:-translate-y-0.5">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#0076B6] to-[#00AEEF] flex items-center justify-center flex-shrink-0 shadow-md">
+                      <Scissors className="h-7 w-7 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-bold text-slate-900 truncate">{tailor.name}</p>
+                        {tailor.tier === "premium" && (
+                          <span className="flex-shrink-0 flex items-center gap-0.5 rounded-full bg-orange-500 px-2 py-0.5 text-[9px] font-bold text-white">
+                            <Star className="h-2.5 w-2.5 fill-current" /> PREMIUM
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500 truncate">{tailor.specialty}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                          <Star className="h-3 w-3 fill-current" /> {tailor.rating}
+                        </span>
+                        <span className={`text-xs font-bold ${tailor.available ? 'text-green-600' : 'text-slate-400'}`}>
+                          {tailor.available ? '● Accepting Orders' : '○ Fully Booked'}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-slate-300 flex-shrink-0" />
+                  </div>
+                ))}
+
+                <div className="text-center pt-2">
+                  <Link href="/marketplace" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF] transition-colors inline-flex items-center gap-1">
+                    View all tailors <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </motion.div>
             </div>
@@ -258,8 +358,13 @@ export default function LandingPage() {
               className="h-8 md:h-10 w-auto object-contain"
             />
           </div>
+          <div className="flex items-center gap-6 text-sm text-slate-500">
+            <Link href="/marketplace" className="hover:text-[#0076B6] font-medium transition-colors">Marketplace</Link>
+            <Link href="#features" className="hover:text-[#0076B6] font-medium transition-colors">Features</Link>
+            <Link href="#download" className="hover:text-[#0076B6] font-medium transition-colors">Download</Link>
+          </div>
           <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} TailorSync App. All rights reserved.
+            &copy; {new Date().getFullYear()} Needlix App. All rights reserved.
           </p>
         </div>
       </footer>
