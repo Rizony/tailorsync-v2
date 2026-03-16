@@ -9,6 +9,8 @@ import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
 import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
 import 'package:tailorsync_v2/core/widgets/subscription_banner.dart';
 import 'package:tailorsync_v2/core/providers/navigation_provider.dart';
+import 'package:tailorsync_v2/features/marketplace/services/marketplace_notification_service.dart';
+import 'package:tailorsync_v2/features/marketplace/repositories/marketplace_repository.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -30,6 +32,9 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
+    
+    // Initialize marketplace alerts
+    ref.watch(marketplaceNotificationServiceProvider);
 
     return Scaffold(
       body: OfflineWrapper(child: _screens[currentIndex]),
@@ -49,7 +54,16 @@ class _AppShellState extends ConsumerState<AppShell> {
                 label: 'Orders',
               ),
               const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
-              const BottomNavigationBarItem(icon: Icon(Icons.forum), label: 'Community'),
+              BottomNavigationBarItem(
+                icon: Badge(
+                  label: ref.watch(pendingMarketplaceRequestsCountProvider) > 0 
+                      ? Text(ref.watch(pendingMarketplaceRequestsCountProvider).toString()) 
+                      : null,
+                  isLabelVisible: ref.watch(pendingMarketplaceRequestsCountProvider) > 0,
+                  child: const Icon(Icons.forum),
+                ), 
+                label: 'Community',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(key: TutorialService.settingsTabKey, Icons.settings),
                 label: 'Settings',

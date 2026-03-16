@@ -29,6 +29,18 @@ class MarketplaceRepository {
         .eq('id', requestId);
   }
 
+  Stream<List<MarketplaceRequest>> watchRequests() {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return Stream.value([]);
+
+    return _client
+        .from('marketplace_requests')
+        .stream(primaryKey: ['id'])
+        .eq('tailor_id', userId)
+        .order('created_at', ascending: false)
+        .map((data) => data.map((e) => MarketplaceRequest.fromJson(e)).toList());
+  }
+
   Future<void> acceptAndCreateJob({
     required MarketplaceRequest request,
     required String customerId,
@@ -38,11 +50,6 @@ class MarketplaceRepository {
   }) async {
     // 1. Update the request status
     await updateRequestStatus(request.id, 'accepted');
-
-    // 2. Create the job in Supabase
-    // Note: This relies on the JobRepository or direct Supabase call.
-    // To keep it simple and consistent with the app's sync logic, 
-    // we should ideally trigger this from the UI using repositories.
   }
 }
 
@@ -52,6 +59,21 @@ MarketplaceRepository marketplaceRepository(MarketplaceRepositoryRef ref) {
 }
 
 @riverpod
+Stream<List<MarketplaceRequest>> marketplaceRequestsStream(MarketplaceRequestsStreamRef ref) {
+  return ref.watch(marketplaceRepositoryProvider).watchRequests();
+}
+
+@riverpod
 Future<List<MarketplaceRequest>> marketplaceRequests(MarketplaceRequestsRef ref) {
   return ref.watch(marketplaceRepositoryProvider).getRequests();
+}
+
+@riverpod
+int pendingMarketplaceRequestsCount(PendingMarketplaceRequestsCountRef ref) {
+  final requestsAsync = ref.watch(marketplaceRequestsStreamProvider);
+  return requestsAsync.when(
+    data: (requests) => requests.where((r) => r.status == 'pending').length,
+    loading: () => 0,
+    error: (_, __) => 0,
+  );
 }
