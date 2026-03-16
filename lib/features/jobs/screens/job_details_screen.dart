@@ -15,6 +15,8 @@ import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
 import 'package:tailorsync_v2/core/notifications/whatsapp_service.dart';
+import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
+import 'package:tailorsync_v2/features/community/models/community_post.dart';
 
 class JobDetailsScreen extends ConsumerStatefulWidget {
   final JobModel job;
@@ -95,6 +97,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
       final phoneNumber = _customer!.phoneNumber!;
       final customerName = _customer!.fullName;
       final orderTitle = _job.title;
+      final profile = ref.read(profileNotifierProvider).valueOrNull;
 
       if (wantToNotify == 'whatsapp') {
         await WhatsAppService.sendStatusUpdate(
@@ -102,6 +105,10 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           customerName: customerName,
           orderTitle: orderTitle,
           status: status,
+          shopName: profile?.shopName,
+          balanceDue: _job.balanceDue.toStringAsFixed(2),
+          currency: profile?.currencySymbol,
+          dueDate: _job.dueDate,
         );
       } else if (wantToNotify == 'sms') {
         await WhatsAppService.sendSMSUpdate(
@@ -109,6 +116,10 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           customerName: customerName,
           orderTitle: orderTitle,
           status: status,
+          shopName: profile?.shopName,
+          balanceDue: _job.balanceDue.toStringAsFixed(2),
+          currency: profile?.currencySymbol,
+          dueDate: _job.dueDate,
         );
       }
     }
@@ -276,6 +287,12 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               child: isLoading 
                   ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)) 
                   : const Text('Convert to Order'),
+            ),
+          if (_job.status == JobModel.statusCompleted || _job.status == JobModel.statusDelivered)
+            IconButton(
+              icon: const Icon(Icons.share_outlined, color: Colors.blue),
+              tooltip: 'Share to Showroom',
+              onPressed: () => _shareToShowroom(),
             ),
         ],
       ),
@@ -616,5 +633,52 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
         style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: isSmall ? 10 : 12),
       ),
     );
+  }
+
+  Future<void> _shareToShowroom() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Share to Showroom?'),
+        content: const Text('This will post your completed order to the community showroom for others to see your craft!'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Share Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final profile = ref.read(profileNotifierProvider).valueOrNull;
+      if (profile == null) return;
+
+      final post = CommunityPost(
+        id: '', // Handled by repository
+        userId: profile.id,
+        postType: 'discussion',
+        title: 'Showcase: ${_job.title}',
+        content: 'Check out my latest completed work! 🧵✨\n\n'
+                '${_job.notes ?? "Just finished this beautiful piece."}',
+        createdAt: DateTime.now(),
+      );
+
+      try {
+        await ref.read(communityRepositoryProvider).createPost(post);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Posted to Showroom successfully!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error sharing: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
   }
 }

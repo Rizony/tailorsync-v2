@@ -10,46 +10,82 @@ class WhatsAppService {
     required String customerName,
     required String orderTitle,
     required String status,
+    String? shopName,
+    String? balanceDue,
+    String? currency,
+    DateTime? dueDate,
   }) async {
-    final message = _generateMessage(customerName, orderTitle, status);
+    final message = _generateMessage(
+      name: customerName, 
+      order: orderTitle, 
+      status: status,
+      shopName: shopName,
+      balance: balanceDue,
+      currency: currency,
+      dueDate: dueDate,
+    );
     final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
     
-    // Use the wa.me link for better compatibility
     final url = Uri.parse('https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}');
     
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        debugPrint('Could not launch WhatsApp URL: $url');
       }
     } catch (e) {
       debugPrint('Error launching WhatsApp: $e');
     }
   }
 
-  /// Opens the default SMS app with a pre-filled message.
   static Future<void> sendSMSUpdate({
     required String phoneNumber,
     required String customerName,
     required String orderTitle,
     required String status,
+    String? shopName,
+    String? balanceDue,
+    String? currency,
+    DateTime? dueDate,
   }) async {
-    final message = _generateMessage(customerName, orderTitle, status);
+    final message = _generateMessage(
+      name: customerName, 
+      order: orderTitle, 
+      status: status,
+      shopName: shopName,
+      balance: balanceDue,
+      currency: currency,
+      dueDate: dueDate,
+    );
     final url = Uri.parse('sms:$phoneNumber?body=${Uri.encodeComponent(message)}');
     
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
-      } else {
-        debugPrint('Could not launch SMS URL: $url');
       }
     } catch (e) {
       debugPrint('Error launching SMS: $e');
     }
   }
 
-  static String _generateMessage(String name, String order, String status) {
-    return 'Hello $name, this is an update regarding your order "$order" at TailorSync. Your order status is now: ${status.toUpperCase()}. Thank you for choosing us!';
+  static String _generateMessage({
+    required String name, 
+    required String order, 
+    required String status,
+    String? shopName,
+    String? balance,
+    String? currency,
+    DateTime? dueDate,
+  }) {
+    final shop = shopName ?? 'TailorSync';
+    final dueStr = dueDate != null ? ' Expected delivery: ${dueDate.day}/${dueDate.month}/${dueDate.year}.' : '';
+    final balanceStr = (balance != null && balance != '0' && balance != '0.0') 
+        ? ' Outstanding balance: ${currency ?? '₦'}$balance.' 
+        : '';
+
+    return '*$shop Update* 🧵\n\n'
+           'Hello $name!\n'
+           'Your order "*$order*" status has been updated to: *${status.toUpperCase()}*.\n'
+           '$dueStr$balanceStr\n\n'
+           'Thank you for your business!';
   }
 }

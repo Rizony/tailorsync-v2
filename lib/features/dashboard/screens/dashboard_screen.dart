@@ -348,94 +348,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 120,
+          height: 140,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: jobs.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) => const SizedBox(width: 14),
             itemBuilder: (context, index) {
-              final job = jobs[index];
-              final hoursLeft = job.dueDate.difference(DateTime.now()).inHours;
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => JobDetailsScreen(job: job),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 240,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.orange.withValues(alpha: 0.1)
-                      : Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              job.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              '${hoursLeft}h',
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'Due: ${DateFormat.jm().format(job.dueDate)} - ${DateFormat.yMMMd().format(job.dueDate)}',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '$currencySymbol${job.balanceDue} due',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(job.status).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              job.status.toUpperCase(),
-                              style: TextStyle(
-                                color: _getStatusColor(job.status),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              return _UrgentJobCard(job: jobs[index], currencySymbol: currencySymbol);
             },
           ),
         ),
@@ -628,6 +547,146 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const Icon(Icons.chevron_right, color: Colors.white),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _UrgentJobCard extends StatefulWidget {
+  final JobModel job;
+  final String currencySymbol;
+
+  const _UrgentJobCard({required this.job, required this.currencySymbol});
+
+  @override
+  State<_UrgentJobCard> createState() => _UrgentJobCardState();
+}
+
+class _UrgentJobCardState extends State<_UrgentJobCard> {
+  late DateTime _now;
+  late Stream<DateTime> _timerStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _timerStream = Stream.periodic(const Duration(seconds: 30), (_) => DateTime.now());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DateTime>(
+      stream: _timerStream,
+      builder: (context, snapshot) {
+        final now = snapshot.data ?? _now;
+        final difference = widget.job.dueDate.difference(now);
+        final hoursLeft = difference.inHours;
+        final minutesLeft = difference.inMinutes % 60;
+        
+        final isVeryUrgent = hoursLeft < 12;
+        final baseColor = isVeryUrgent ? Colors.red : Colors.orange;
+
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => JobDetailsScreen(job: widget.job),
+              ),
+            );
+          },
+          child: Container(
+            width: 260,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? baseColor.withValues(alpha: 0.15)
+                  : baseColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: baseColor.withValues(alpha: 0.3), width: 1.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.job.title,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 16, 
+                            color: baseColor.shade700
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildCountdownBadge(hoursLeft, minutesLeft, baseColor),
+                  ],
+                ),
+                Text(
+                  'Due: ${DateFormat.jm().format(widget.job.dueDate)}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${widget.currencySymbol}${widget.job.balanceDue} due',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                          )
+                        ]
+                      ),
+                      child: Text(
+                        widget.job.status.toUpperCase(),
+                        style: TextStyle(
+                          color: baseColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
+
+  Widget _buildCountdownBadge(int hours, int minutes, MaterialColor color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.timer_outlined, color: Colors.white, size: 14),
+          const SizedBox(width: 4),
+          Text(
+            '${hours}h ${minutes}m',
+            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
