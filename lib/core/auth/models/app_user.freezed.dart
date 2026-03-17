@@ -87,6 +87,8 @@ mixin _$AppUser {
   bool get publicProfileEnabled => throw _privateConstructorUsedError;
   @JsonKey(name: 'years_of_experience')
   int get yearsOfExperience => throw _privateConstructorUsedError;
+  @JsonKey(name: 'portfolio_urls')
+  List<String> get portfolioUrls => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -134,7 +136,8 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'specialties') List<String> specialties,
       @JsonKey(name: 'rating') double rating,
       @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
-      @JsonKey(name: 'years_of_experience') int yearsOfExperience});
+      @JsonKey(name: 'years_of_experience') int yearsOfExperience,
+      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls});
 }
 
 /// @nodoc
@@ -184,6 +187,7 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? rating = null,
     Object? publicProfileEnabled = null,
     Object? yearsOfExperience = null,
+    Object? portfolioUrls = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -314,6 +318,10 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.yearsOfExperience
           : yearsOfExperience // ignore: cast_nullable_to_non_nullable
               as int,
+      portfolioUrls: null == portfolioUrls
+          ? _value.portfolioUrls
+          : portfolioUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ) as $Val);
   }
 }
@@ -357,7 +365,8 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'specialties') List<String> specialties,
       @JsonKey(name: 'rating') double rating,
       @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
-      @JsonKey(name: 'years_of_experience') int yearsOfExperience});
+      @JsonKey(name: 'years_of_experience') int yearsOfExperience,
+      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls});
 }
 
 /// @nodoc
@@ -405,6 +414,7 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? rating = null,
     Object? publicProfileEnabled = null,
     Object? yearsOfExperience = null,
+    Object? portfolioUrls = null,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -535,6 +545,10 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.yearsOfExperience
           : yearsOfExperience // ignore: cast_nullable_to_non_nullable
               as int,
+      portfolioUrls: null == portfolioUrls
+          ? _value._portfolioUrls
+          : portfolioUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }
@@ -576,8 +590,11 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'rating') this.rating = 5.0,
       @JsonKey(name: 'public_profile_enabled')
       this.publicProfileEnabled = false,
-      @JsonKey(name: 'years_of_experience') this.yearsOfExperience = 0})
-      : _specialties = specialties;
+      @JsonKey(name: 'years_of_experience') this.yearsOfExperience = 0,
+      @JsonKey(name: 'portfolio_urls')
+      final List<String> portfolioUrls = const []})
+      : _specialties = specialties,
+        _portfolioUrls = portfolioUrls;
 
   factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppUserImplFromJson(json);
@@ -689,10 +706,18 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey(name: 'years_of_experience')
   final int yearsOfExperience;
+  final List<String> _portfolioUrls;
+  @override
+  @JsonKey(name: 'portfolio_urls')
+  List<String> get portfolioUrls {
+    if (_portfolioUrls is EqualUnmodifiableListView) return _portfolioUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_portfolioUrls);
+  }
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls)';
   }
 
   @override
@@ -757,7 +782,9 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.publicProfileEnabled, publicProfileEnabled) ||
                 other.publicProfileEnabled == publicProfileEnabled) &&
             (identical(other.yearsOfExperience, yearsOfExperience) ||
-                other.yearsOfExperience == yearsOfExperience));
+                other.yearsOfExperience == yearsOfExperience) &&
+            const DeepCollectionEquality()
+                .equals(other._portfolioUrls, _portfolioUrls));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -795,7 +822,8 @@ class _$AppUserImpl implements _AppUser {
         const DeepCollectionEquality().hash(_specialties),
         rating,
         publicProfileEnabled,
-        yearsOfExperience
+        yearsOfExperience,
+        const DeepCollectionEquality().hash(_portfolioUrls)
       ]);
 
   /// Create a copy of AppUser
@@ -848,8 +876,9 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'specialties') final List<String> specialties,
       @JsonKey(name: 'rating') final double rating,
       @JsonKey(name: 'public_profile_enabled') final bool publicProfileEnabled,
-      @JsonKey(name: 'years_of_experience')
-      final int yearsOfExperience}) = _$AppUserImpl;
+      @JsonKey(name: 'years_of_experience') final int yearsOfExperience,
+      @JsonKey(name: 'portfolio_urls')
+      final List<String> portfolioUrls}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
@@ -947,6 +976,9 @@ abstract class _AppUser implements AppUser {
   @override
   @JsonKey(name: 'years_of_experience')
   int get yearsOfExperience;
+  @override
+  @JsonKey(name: 'portfolio_urls')
+  List<String> get portfolioUrls;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

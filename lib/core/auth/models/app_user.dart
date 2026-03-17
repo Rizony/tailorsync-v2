@@ -49,6 +49,7 @@ class AppUser with _$AppUser {
     @JsonKey(name: 'rating') @Default(5.0) double rating,
     @JsonKey(name: 'public_profile_enabled') @Default(false) bool publicProfileEnabled,
     @JsonKey(name: 'years_of_experience') @Default(0) int yearsOfExperience,
+    @JsonKey(name: 'portfolio_urls') @Default([]) List<String> portfolioUrls,
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);

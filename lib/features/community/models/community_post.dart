@@ -8,9 +8,10 @@ class CommunityPost with _$CommunityPost {
   const factory CommunityPost({
     required String id,
     @JsonKey(name: 'user_id') required String userId,
-    @JsonKey(name: 'post_type') required String postType, // 'discussion', 'job_offer', 'collaboration'
+    @JsonKey(name: 'post_type') required String postType, // 'discussion', 'job_offer', 'collaboration', 'showroom'
     required String title,
     required String content,
+    @Default([]) @JsonKey(name: 'image_urls') List<String> imageUrls,
     @Default(0.0) double budget,
     @Default('open') String status, // 'open', 'completed', 'closed'
     @JsonKey(name: 'created_at') required DateTime createdAt,

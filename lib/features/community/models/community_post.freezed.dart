@@ -25,9 +25,11 @@ mixin _$CommunityPost {
   String get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'post_type')
   String get postType =>
-      throw _privateConstructorUsedError; // 'discussion', 'job_offer', 'collaboration'
+      throw _privateConstructorUsedError; // 'discussion', 'job_offer', 'collaboration', 'showroom'
   String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image_urls')
+  List<String> get imageUrls => throw _privateConstructorUsedError;
   double get budget => throw _privateConstructorUsedError;
   String get status =>
       throw _privateConstructorUsedError; // 'open', 'completed', 'closed'
@@ -63,6 +65,7 @@ abstract class $CommunityPostCopyWith<$Res> {
       @JsonKey(name: 'post_type') String postType,
       String title,
       String content,
+      @JsonKey(name: 'image_urls') List<String> imageUrls,
       double budget,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
@@ -93,6 +96,7 @@ class _$CommunityPostCopyWithImpl<$Res, $Val extends CommunityPost>
     Object? postType = null,
     Object? title = null,
     Object? content = null,
+    Object? imageUrls = null,
     Object? budget = null,
     Object? status = null,
     Object? createdAt = null,
@@ -121,6 +125,10 @@ class _$CommunityPostCopyWithImpl<$Res, $Val extends CommunityPost>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
+      imageUrls: null == imageUrls
+          ? _value.imageUrls
+          : imageUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       budget: null == budget
           ? _value.budget
           : budget // ignore: cast_nullable_to_non_nullable
@@ -163,6 +171,7 @@ abstract class _$$CommunityPostImplCopyWith<$Res>
       @JsonKey(name: 'post_type') String postType,
       String title,
       String content,
+      @JsonKey(name: 'image_urls') List<String> imageUrls,
       double budget,
       String status,
       @JsonKey(name: 'created_at') DateTime createdAt,
@@ -191,6 +200,7 @@ class __$$CommunityPostImplCopyWithImpl<$Res>
     Object? postType = null,
     Object? title = null,
     Object? content = null,
+    Object? imageUrls = null,
     Object? budget = null,
     Object? status = null,
     Object? createdAt = null,
@@ -219,6 +229,10 @@ class __$$CommunityPostImplCopyWithImpl<$Res>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
+      imageUrls: null == imageUrls
+          ? _value._imageUrls
+          : imageUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       budget: null == budget
           ? _value.budget
           : budget // ignore: cast_nullable_to_non_nullable
@@ -256,13 +270,14 @@ class _$CommunityPostImpl implements _CommunityPost {
       @JsonKey(name: 'post_type') required this.postType,
       required this.title,
       required this.content,
+      @JsonKey(name: 'image_urls') final List<String> imageUrls = const [],
       this.budget = 0.0,
       this.status = 'open',
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(includeFromJson: false, includeToJson: false) this.authorName,
       @JsonKey(includeFromJson: false, includeToJson: false) this.authorLogoUrl,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      this.authorRating});
+      @JsonKey(includeFromJson: false, includeToJson: false) this.authorRating})
+      : _imageUrls = imageUrls;
 
   factory _$CommunityPostImpl.fromJson(Map<String, dynamic> json) =>
       _$$CommunityPostImplFromJson(json);
@@ -275,11 +290,20 @@ class _$CommunityPostImpl implements _CommunityPost {
   @override
   @JsonKey(name: 'post_type')
   final String postType;
-// 'discussion', 'job_offer', 'collaboration'
+// 'discussion', 'job_offer', 'collaboration', 'showroom'
   @override
   final String title;
   @override
   final String content;
+  final List<String> _imageUrls;
+  @override
+  @JsonKey(name: 'image_urls')
+  List<String> get imageUrls {
+    if (_imageUrls is EqualUnmodifiableListView) return _imageUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_imageUrls);
+  }
+
   @override
   @JsonKey()
   final double budget;
@@ -303,7 +327,7 @@ class _$CommunityPostImpl implements _CommunityPost {
 
   @override
   String toString() {
-    return 'CommunityPost(id: $id, userId: $userId, postType: $postType, title: $title, content: $content, budget: $budget, status: $status, createdAt: $createdAt, authorName: $authorName, authorLogoUrl: $authorLogoUrl, authorRating: $authorRating)';
+    return 'CommunityPost(id: $id, userId: $userId, postType: $postType, title: $title, content: $content, imageUrls: $imageUrls, budget: $budget, status: $status, createdAt: $createdAt, authorName: $authorName, authorLogoUrl: $authorLogoUrl, authorRating: $authorRating)';
   }
 
   @override
@@ -317,6 +341,8 @@ class _$CommunityPostImpl implements _CommunityPost {
                 other.postType == postType) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
+            const DeepCollectionEquality()
+                .equals(other._imageUrls, _imageUrls) &&
             (identical(other.budget, budget) || other.budget == budget) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
@@ -338,6 +364,7 @@ class _$CommunityPostImpl implements _CommunityPost {
       postType,
       title,
       content,
+      const DeepCollectionEquality().hash(_imageUrls),
       budget,
       status,
       createdAt,
@@ -368,6 +395,7 @@ abstract class _CommunityPost implements CommunityPost {
       @JsonKey(name: 'post_type') required final String postType,
       required final String title,
       required final String content,
+      @JsonKey(name: 'image_urls') final List<String> imageUrls,
       final double budget,
       final String status,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
@@ -388,11 +416,14 @@ abstract class _CommunityPost implements CommunityPost {
   String get userId;
   @override
   @JsonKey(name: 'post_type')
-  String get postType; // 'discussion', 'job_offer', 'collaboration'
+  String get postType; // 'discussion', 'job_offer', 'collaboration', 'showroom'
   @override
   String get title;
   @override
   String get content;
+  @override
+  @JsonKey(name: 'image_urls')
+  List<String> get imageUrls;
   @override
   double get budget;
   @override

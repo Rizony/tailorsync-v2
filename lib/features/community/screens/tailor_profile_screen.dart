@@ -249,6 +249,55 @@ class _TailorProfileScreenState extends ConsumerState<TailorProfileScreen> {
                       ),
                     
                     const SizedBox(height: 24),
+                    const SizedBox(height: 24),
+                    
+                    // --- PORTFOLIO / SHOWROOM ---
+                    if (profile?.portfolioUrls != null && profile!.portfolioUrls.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Text('Portfolio / Showroom', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              itemCount: profile.portfolioUrls.length,
+                              itemBuilder: (context, i) {
+                                return Container(
+                                  width: 250,
+                                  margin: const EdgeInsets.only(right: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                    image: DecorationImage(
+                                      image: NetworkImage(profile.portfolioUrls[i]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Text('Tap to view full work in Marketplace', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                          ),
+                        ],
+                      ),
+
+                    const SizedBox(height: 24),
                     const Divider(),
                     
                     // --- REVIEWS LIST ---

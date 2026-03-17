@@ -19,6 +19,10 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    // Legacy hacks removed. Fixes are now handled in local plugin vends.
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

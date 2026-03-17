@@ -18,7 +18,7 @@ class CommunityScreen extends ConsumerStatefulWidget {
 }
 
 class _CommunityScreenState extends ConsumerState<CommunityScreen> {
-  String _filterType = 'all'; // 'all', 'discussions', 'jobs'
+  String _filterType = 'all'; // 'all', 'discussions', 'jobs', 'marketplace'
 
   @override
   Widget build(BuildContext context) {
@@ -38,26 +38,35 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           preferredSize: const Size.fromHeight(50),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                _FilterChip(
-                  label: 'All',
-                  isSelected: _filterType == 'all',
-                  onTap: () => setState(() => _filterType = 'all'),
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Discussions',
-                  isSelected: _filterType == 'discussions',
-                  onTap: () => setState(() => _filterType = 'discussions'),
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Job Offers',
-                  isSelected: _filterType == 'jobs',
-                  onTap: () => setState(() => _filterType = 'jobs'),
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _FilterChip(
+                    label: 'All',
+                    isSelected: _filterType == 'all',
+                    onTap: () => setState(() => _filterType = 'all'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Discussions',
+                    isSelected: _filterType == 'discussions',
+                    onTap: () => setState(() => _filterType = 'discussions'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Job Offers',
+                    isSelected: _filterType == 'jobs',
+                    onTap: () => setState(() => _filterType = 'jobs'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Marketplace',
+                    isSelected: _filterType == 'marketplace',
+                    onTap: () => setState(() => _filterType = 'marketplace'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -247,6 +256,16 @@ class _PostCard extends StatelessWidget {
                       ),
                       child: const Text('JOB OFFER', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
+                  if (post.postType == 'showroom')
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.blue),
+                      ),
+                      child: const Text('MARKETPLACE', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -260,6 +279,30 @@ class _PostCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
+              
+              if (post.imageUrls.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: post.imageUrls.length,
+                    itemBuilder: (context, i) {
+                      return Container(
+                        width: 200,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: NetworkImage(post.imageUrls[i]),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
               
               const SizedBox(height: 12),
               

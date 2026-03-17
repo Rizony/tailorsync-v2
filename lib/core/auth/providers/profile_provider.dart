@@ -60,7 +60,6 @@ class ProfileNotifier extends _$ProfileNotifier {
       'shop_name': updatedUser.shopName,
       'brand_name': updatedUser.brandName,
       'logo_url': updatedUser.logoUrl,
-      'photo_url': updatedUser.logoUrl, // 👈 Added for website marketplace compatibility
       'signature_url': updatedUser.signatureUrl,
       'accent_color': updatedUser.accentColor,
       'default_tax_rate': updatedUser.defaultTaxRate,
@@ -84,6 +83,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       'years_of_experience': updatedUser.yearsOfExperience,
       'bio': updatedUser.bio,
       'specialties': updatedUser.specialties,
+      'portfolio_urls': updatedUser.portfolioUrls,
     }).eq('id', user.id);
     
     // Update local state

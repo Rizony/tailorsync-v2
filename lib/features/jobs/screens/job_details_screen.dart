@@ -658,15 +658,33 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
       final post = CommunityPost(
         id: '', // Handled by repository
         userId: profile.id,
-        postType: 'discussion',
+        postType: 'showroom',
         title: 'Showcase: ${_job.title}',
         content: 'Check out my latest completed work! 🧵✨\n\n'
                 '${_job.notes ?? "Just finished this beautiful piece."}',
+        imageUrls: _job.images,
         createdAt: DateTime.now(),
       );
 
       try {
         await ref.read(communityRepositoryProvider).createPost(post);
+        
+        // Also add to user's portfolio if not already there
+        if (_job.images.isNotEmpty) {
+          final newPortfolio = List<String>.from(profile.portfolioUrls);
+          bool modified = false;
+          for (final img in _job.images) {
+            if (!newPortfolio.contains(img)) {
+              newPortfolio.add(img);
+              modified = true;
+            }
+          }
+          if (modified) {
+            await ref.read(profileNotifierProvider.notifier).updateProfile(
+              profile.copyWith(portfolioUrls: newPortfolio)
+            );
+          }
+        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Posted to Showroom successfully!')),

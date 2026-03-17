@@ -23,6 +23,8 @@
 .pub-cache/
 .pub/
 build/
+.flutter-plugins
+.flutter-plugins-dependencies
 
 # Android
 android/local.properties
@@ -42,3 +44,9 @@ ios/Runner/GeneratedPluginRegistrant.m
 
 # Web
 .project
+
+# Local build/debug artifacts (keep out of git)
+build_log.txt
+build_trace*.txt
+build_*error*.txt
+gradle_error.txt

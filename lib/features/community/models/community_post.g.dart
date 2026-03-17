@@ -13,6 +13,10 @@ _$CommunityPostImpl _$$CommunityPostImplFromJson(Map<String, dynamic> json) =>
       postType: json['post_type'] as String,
       title: json['title'] as String,
       content: json['content'] as String,
+      imageUrls: (json['image_urls'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       budget: (json['budget'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] as String? ?? 'open',
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -25,6 +29,7 @@ Map<String, dynamic> _$$CommunityPostImplToJson(_$CommunityPostImpl instance) =>
       'post_type': instance.postType,
       'title': instance.title,
       'content': instance.content,
+      'image_urls': instance.imageUrls,
       'budget': instance.budget,
       'status': instance.status,
       'created_at': instance.createdAt.toIso8601String(),

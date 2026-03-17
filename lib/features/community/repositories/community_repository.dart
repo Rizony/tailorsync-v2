@@ -18,7 +18,7 @@ class CommunityRepository {
   Future<List<CommunityPost>> fetchPosts({String? filterType}) async {
     var query = _supabase.from('community_posts').select('''
       *,
-      profiles:user_id(full_name, shop_name, logo_url, photo_url, avatar_url)
+      profiles:user_id(full_name, shop_name, logo_url)
     ''');
 
     if (filterType != null && filterType != 'all') {
@@ -26,6 +26,8 @@ class CommunityRepository {
         query = query.eq('post_type', 'job_offer');
       } else if (filterType == 'discussions') {
         query = query.eq('post_type', 'discussion');
+      } else if (filterType == 'marketplace') {
+        query = query.eq('post_type', 'showroom');
       }
     }
 
@@ -38,7 +40,7 @@ class CommunityRepository {
           ? (meta['shop_name'] ?? meta['full_name']) as String? 
           : null;
       final String? logoUrl = meta is Map<String, dynamic> 
-          ? (meta['logo_url'] ?? meta['photo_url'] ?? meta['avatar_url']) as String? 
+          ? meta['logo_url'] as String? 
           : null;
       return post.copyWith(authorName: name, authorLogoUrl: logoUrl);
     }).toList();
@@ -65,7 +67,7 @@ class CommunityRepository {
   Future<List<CommunityApplication>> fetchApplications(String postId) async {
     final data = await _supabase.from('community_applications').select('''
       *,
-      profiles:applicant_id(full_name, shop_name, logo_url, photo_url, avatar_url)
+      profiles:applicant_id(full_name, shop_name, logo_url)
     ''').eq('post_id', postId).order('created_at', ascending: true) as List<dynamic>;
 
     return data.map((json) {
@@ -75,7 +77,7 @@ class CommunityRepository {
           ? (meta['shop_name'] ?? meta['full_name']) as String? 
           : null;
       final String? logoUrl = meta is Map<String, dynamic> 
-          ? (meta['logo_url'] ?? meta['photo_url'] ?? meta['avatar_url']) as String? 
+          ? meta['logo_url'] as String? 
           : null;
       return app.copyWith(applicantName: name, applicantLogoUrl: logoUrl);
     }).toList();
@@ -101,7 +103,7 @@ class CommunityRepository {
   Future<List<CommunityComment>> fetchComments(String postId) async {
     final data = await _supabase.from('community_comments').select('''
       *,
-      profiles:user_id(full_name, shop_name, logo_url, photo_url, avatar_url)
+      profiles:user_id(full_name, shop_name, logo_url)
     ''').eq('post_id', postId).order('created_at', ascending: true) as List<dynamic>;
 
     return data.map((json) {
@@ -111,7 +113,7 @@ class CommunityRepository {
           ? (meta['shop_name'] ?? meta['full_name']) as String? 
           : null;
       final String? logoUrl = meta is Map<String, dynamic> 
-          ? (meta['logo_url'] ?? meta['photo_url'] ?? meta['avatar_url']) as String? 
+          ? meta['logo_url'] as String? 
           : null;
       return comment.copyWith(authorName: name, authorLogoUrl: logoUrl);
     }).toList();
@@ -154,7 +156,7 @@ class CommunityRepository {
   Future<List<CommunityRating>> fetchUserRatings(String userId) async {
     final data = await _supabase.from('community_ratings').select('''
         *,
-        profiles:rater_id(full_name, shop_name, logo_url, photo_url, avatar_url)
+        profiles:rater_id(full_name, shop_name, logo_url)
       ''').eq('ratee_id', userId).order('created_at', ascending: false) as List<dynamic>;
 
     return data.map((json) {
@@ -164,7 +166,7 @@ class CommunityRepository {
           ? (meta['shop_name'] ?? meta['full_name']) as String? 
           : null;
       final String? logoUrl = meta is Map<String, dynamic> 
-          ? (meta['logo_url'] ?? meta['photo_url'] ?? meta['avatar_url']) as String? 
+          ? meta['logo_url'] as String? 
           : null;
       return rating.copyWith(raterName: name, raterLogoUrl: logoUrl);
     }).toList();

@@ -77,6 +77,8 @@ dev_dependencies:
 dependency_overrides:
   sign_in_with_apple: ^6.1.0
   supabase_flutter: ^2.6.0
+  flutter_app_badger:
+    path: ./plugins/flutter_app_badger
 
 # ⚙️ FLUTTER CONFIGURATION
 flutter:
