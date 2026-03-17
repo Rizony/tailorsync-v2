@@ -37,6 +37,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState<string | null>(null);
   const [sessionWhatsapp, setSessionWhatsapp] = useState<string | null>(null);
@@ -94,6 +95,10 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
   async function handleRequest(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!tailor) return;
+    if (!tailor.is_available) {
+      setFormError("This designer is currently not accepting orders.");
+      return;
+    }
 
     const formData = new FormData(e.currentTarget);
     const { data: sessionData } = await supabase.auth.getSession();
@@ -153,14 +158,17 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
 
     try {
       setFormLoading(true);
+      setFormError(null);
       // Prefer inserting customer_id when available (for secure client portal).
       // If the DB column isn't deployed yet, gracefully retry without it.
-      const { error } = await supabase
+      const first = await supabase
         .from("marketplace_requests")
-        .insert(customerId ? { ...requestDataBase, customer_id: customerId } : requestDataBase);
+        .insert(customerId ? { ...requestDataBase, customer_id: customerId } : requestDataBase)
+        .select("id")
+        .maybeSingle();
 
-      if (error) {
-        const msg = (error as any)?.message ?? "";
+      if (first.error) {
+        const msg = (first.error as any)?.message ?? "";
         const missingColumn = msg.includes("customer_id") && msg.toLowerCase().includes("column");
         const maybeSchemaMismatch =
           missingColumn ||
@@ -170,7 +178,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
               msg.includes("reference_links") ||
               msg.includes("customer_whatsapp")));
 
-        if (!maybeSchemaMismatch) throw error;
+        if (!maybeSchemaMismatch) throw first.error;
 
         // Retry with minimal payload for older DB schema.
         const minimal = {
@@ -181,7 +189,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
           description: formData.get("description"),
           status: "pending",
         };
-        const retry = await supabase.from("marketplace_requests").insert(minimal);
+        const retry = await supabase.from("marketplace_requests").insert(minimal).select("id").maybeSingle();
         if (retry.error) throw retry.error;
       }
       setFormSuccess(true);
@@ -194,9 +202,13 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
         msg.toLowerCase().includes("not authorized");
 
       if (looksLikeRls) {
-        alert("Please login to send requests right now. (Your database security settings are blocking guest requests.)");
+        const m = "Please login to send requests right now. (Your database security settings are blocking guest requests.)";
+        setFormError(m);
+        alert(m);
       } else {
-        alert(`Failed to send request. Please try again.\n\n${msg}`);
+        const m = `Failed to send request. Please try again.\n\n${msg}`;
+        setFormError(m);
+        alert(m);
       }
     } finally {
       setFormLoading(false);
@@ -386,7 +398,13 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                   Send a job request and get a professional quote instantly.
                 </p>
 
-                <form onSubmit={handleRequest} className="space-y-4">
+                <form
+                  onSubmit={handleRequest}
+                  className="space-y-4"
+                  onChange={() => {
+                    if (formError) setFormError(null);
+                  }}
+                >
                   <div>
                     <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Full Name</label>
                     <input value={name} onChange={(e) => setName(e.target.value)} required type="text" placeholder="John Doe" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
@@ -459,13 +477,26 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                     />
                   </div>
 
-                  <button 
+                  <button
+                    type="submit"
                     disabled={formLoading || !tailor.is_available}
                     className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available ? 'bg-slate-300 cursor-not-allowed' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'}`}
                   >
                     <span>{formLoading ? "Sending..." : "Send Job Request"}</span>
                     {!formLoading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                   </button>
+
+                  {!tailor.is_available && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600">
+                      This designer is currently not accepting orders.
+                    </div>
+                  )}
+
+                  {formError && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 whitespace-pre-line">
+                      {formError}
+                    </div>
+                  )}
                 </form>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
