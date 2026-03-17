@@ -50,28 +50,28 @@ class BeSafeTailorGuides {
     'Neck': MeasurementGuide(
       title: 'Neck Round',
       description: 'Measure around the base of the neck where a shirt collar would sit.',
-      imagePath: 'assets/logo.png', // Image to be added later
+      imagePath: 'assets/guides/shoulder_measurement_guide.png',
     ),
     'Bicep': MeasurementGuide(
-      title: 'Bicep',
+      title: 'Bicep / Upper Arm',
       description: 'Measure around the widest part of the upper arm.',
-      imagePath: 'assets/logo.png', // Image to be added later
+      imagePath: 'assets/guides/sleeve_length_guide.png',
     ),
     'Thigh': MeasurementGuide(
       title: 'Thigh',
       description: 'Measure around the widest part of the thigh.',
-      imagePath: 'assets/logo.png', // Image to be added later
+      imagePath: 'assets/guides/hip_measurement_guide.png',
     ),
     'Height': MeasurementGuide(
       title: 'Body Height',
       description: 'Measure total height from the floor to the top of the head while standing straight.',
-      imagePath: 'assets/logo.png', // Image to be added later
+      imagePath: 'assets/guides/inseam_guide.png',
     ),
     // Fallback or generic guide for others
     'Default': MeasurementGuide(
       title: 'Tailoring Guide',
       description: 'Follow the on-screen prompts to capture accurate body proportions for a perfect fit.',
-      imagePath: 'assets/logo.png',
+      imagePath: 'assets/guides/chest_measurement_guide.png',
     ),
   };
 

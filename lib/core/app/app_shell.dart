@@ -11,6 +11,8 @@ import 'package:tailorsync_v2/core/widgets/subscription_banner.dart';
 import 'package:tailorsync_v2/core/providers/navigation_provider.dart';
 import 'package:tailorsync_v2/features/marketplace/services/marketplace_notification_service.dart';
 import 'package:tailorsync_v2/features/marketplace/repositories/marketplace_repository.dart';
+import 'package:tailorsync_v2/core/sync/sync_manager.dart';
+import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -35,6 +37,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     
     // Initialize marketplace alerts
     ref.watch(marketplaceNotificationServiceProvider);
+
+    // Ensure offline sync manager is initialized and starts processing when online.
+    ref.watch(syncManagerProvider);
+    final isOffline = ref.watch(isOfflineProvider);
+    if (!isOffline) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(syncManagerProvider).processQueue();
+      });
+    }
 
     return Scaffold(
       body: OfflineWrapper(child: _screens[currentIndex]),

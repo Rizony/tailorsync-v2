@@ -21,6 +21,11 @@ body {
   overflow-x: hidden;
 }
 
+/* Brand helpers */
+.needlix-logo {
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.10));
+}
+
 /* Glassmorphism Utilities */
 .glass-panel {
   background: rgba(255, 255, 255, 0.7);

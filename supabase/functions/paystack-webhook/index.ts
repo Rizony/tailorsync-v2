@@ -24,6 +24,63 @@ serve(async (req) => {
       const metadata = data.metadata || {}
       const { plan_id, user_id } = metadata
 
+      // --- Marketplace payment flow (client -> tailor, platform takes 10%) ---
+      const marketplaceRequestId =
+        metadata.marketplace_request_id || metadata.request_id || metadata.marketplaceRequestId
+      const marketplaceTailorId = metadata.tailor_id || metadata.tailorId
+      const marketplaceCustomerId = metadata.customer_id || metadata.customerId
+
+      if (marketplaceRequestId && marketplaceTailorId) {
+        const reference = data.reference || data.id?.toString()
+
+        // Paystack sends `amount` in kobo; convert to Naira for storage
+        const amountNaira = (data.amount ?? 0) / 100
+        const commissionRate = 0.10
+        const commissionAmount = Math.round(amountNaira * commissionRate * 100) / 100
+        const netAmount = Math.round((amountNaira - commissionAmount) * 100) / 100
+
+        // Record payment (idempotent by unique reference)
+        await supabase.from('marketplace_payments').upsert({
+          request_id: marketplaceRequestId,
+          customer_id: marketplaceCustomerId ?? null,
+          tailor_id: marketplaceTailorId,
+          provider: 'paystack',
+          reference,
+          amount: amountNaira,
+          commission_rate: commissionRate,
+          commission_amount: commissionAmount,
+          net_amount: netAmount,
+          status: 'paid',
+          raw: payload,
+        }, { onConflict: 'reference' })
+
+        // Mark request as paid
+        await supabase
+          .from('marketplace_requests')
+          .update({ payment_status: 'paid', paid_at: new Date().toISOString() })
+          .eq('id', marketplaceRequestId)
+
+        // Credit tailor wallet with net amount
+        await supabase.rpc('increment_wallet_balance', {
+          user_id: marketplaceTailorId,
+          amount: netAmount,
+        })
+
+        // Record platform revenue (commission)
+        await supabase.from('platform_revenue').insert({
+          source: 'marketplace_payment',
+          source_id: marketplaceRequestId,
+          amount: commissionAmount,
+          currency: 'NGN',
+        })
+
+        console.log(`Marketplace payment paid: request=${marketplaceRequestId} tailor=${marketplaceTailorId} amount=${amountNaira}`)
+        return new Response(
+          JSON.stringify({ received: true }),
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
       if (!plan_id || !user_id) {
         console.error('Missing plan_id or user_id in metadata')
         return new Response(

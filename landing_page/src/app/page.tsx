@@ -11,17 +11,17 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="fixed left-0 right-0 top-0 z-50 glass-panel border-b border-white/20">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
               alt="Needlix Logo"
-              width={200}
-              height={60}
-              className="h-10 md:h-14 w-auto object-contain"
+              width={220}
+              height={66}
+              className="needlix-logo h-10 sm:h-12 md:h-14 w-auto object-contain"
               priority
             />
-          </div>
-          <div className="flex items-center gap-6">
+          </Link>
+          <div className="flex items-center gap-3 sm:gap-6">
             <Link href="#features" className="hidden text-sm font-semibold text-slate-600 transition-colors hover:text-[#0076B6] sm:block">
               Features
             </Link>
@@ -31,6 +31,18 @@ export default function LandingPage() {
             <Link href="/marketplace" className="hidden text-sm font-semibold text-[#0076B6] transition-colors hover:text-[#00AEEF] sm:flex items-center gap-1.5">
               <Search className="h-4 w-4" />
               Find a Tailor
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+            >
+              Client Login
+            </Link>
+            <Link
+              href="/signup"
+              className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+            >
+              Sign up
             </Link>
             <a
               href="#download"
@@ -86,6 +98,41 @@ export default function LandingPage() {
                     <Search className="h-5 w-5 text-[#00AEEF]" />
                     Find a Tailor
                   </Link>
+                </div>
+
+                {/* Client Portal CTA (make it obvious) */}
+                <div className="mt-6 rounded-3xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-2xl bg-[#00AEEF]/10 flex items-center justify-center flex-shrink-0">
+                      <ShieldCheck className="h-5 w-5 text-[#0076B6]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-extrabold text-[#0A1128]">Client Portal (Web)</p>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Sign up to track requests, pay securely, and rate your tailor — right from your browser.
+                      </p>
+                      <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                        <Link
+                          href="/signup"
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0A1128] px-6 py-3 text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+                        >
+                          Create Client Account <ArrowRight className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          href="/login"
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                        >
+                          Login <ChevronRight className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          href="/client"
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-6 py-3 text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
+                        >
+                          Track your job <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-12 flex items-center gap-4 text-sm text-slate-500 font-medium">
@@ -355,11 +402,12 @@ export default function LandingPage() {
               alt="Needlix Logo"
               width={160}
               height={48}
-              className="h-8 md:h-10 w-auto object-contain"
+              className="needlix-logo h-8 md:h-10 w-auto object-contain"
             />
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-500">
             <Link href="/marketplace" className="hover:text-[#0076B6] font-medium transition-colors">Marketplace</Link>
+            <Link href="/client" className="hover:text-[#0076B6] font-medium transition-colors">Client Portal</Link>
             <Link href="#features" className="hover:text-[#0076B6] font-medium transition-colors">Features</Link>
             <Link href="#download" className="hover:text-[#0076B6] font-medium transition-colors">Download</Link>
           </div>

@@ -19,6 +19,12 @@ interface TailorProfile {
   rating: number;
   is_available: boolean;
   logo_url: string;
+  photo_url?: string;
+  avatar_url?: string;
+}
+
+function getTailorLogoUrl(tailor: Partial<TailorProfile> | null | undefined) {
+  return tailor?.logo_url || tailor?.photo_url || tailor?.avatar_url || "";
 }
 
 export default function MarketplacePage() {
@@ -71,10 +77,11 @@ export default function MarketplacePage() {
        <nav className="fixed left-0 right-0 top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Needlix Logo" width={140} height={40} className="h-8 w-auto object-contain" />
+            <Image src="/logo.png" alt="Needlix Logo" width={160} height={48} className="needlix-logo h-8 sm:h-9 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/" className="text-sm font-semibold text-slate-600 hover:text-[#0076B6]">Home</Link>
+            <Link href="/login" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF]">Client Login</Link>
             <a href="#download" className="rounded-full bg-[#0076B6] px-5 py-2 text-sm font-semibold text-white hover:bg-[#00AEEF]">Get App</a>
           </div>
         </div>
@@ -88,6 +95,26 @@ export default function MarketplacePage() {
             <p className="text-lg text-slate-600 max-w-2xl">
               Browse top-rated tailors and fashion designers in the Needlix community. Quality craftsmanship, delivered to your door.
             </p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/client"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-6 py-3 text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
+              >
+                Track your request / job <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0A1128] px-6 py-3 text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+              >
+                Create client account <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+              >
+                Login <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
 
           {/* Search & Filter Bar */}
@@ -137,6 +164,7 @@ export default function MarketplacePage() {
 function TailorCard({ tailor }: { tailor: TailorProfile }) {
   const isPremium = tailor.subscription_tier === "premium";
   const isStandard = tailor.subscription_tier === "standard";
+  const logoUrl = getTailorLogoUrl(tailor);
 
   return (
     <motion.div
@@ -162,8 +190,8 @@ function TailorCard({ tailor }: { tailor: TailorProfile }) {
       {/* Cover/Header */}
       <div className="h-32 bg-gradient-to-r from-[#0076B6] to-[#00AEEF] relative">
         <div className="absolute -bottom-10 left-6 h-20 w-20 rounded-2xl border-4 border-white bg-slate-100 shadow-md flex items-center justify-center overflow-hidden">
-          {tailor.logo_url ? (
-            <Image src={tailor.logo_url} alt={tailor.brand_name} width={80} height={80} className="object-cover" />
+          {logoUrl ? (
+            <Image src={logoUrl} alt={tailor.brand_name} width={80} height={80} className="object-cover" />
           ) : (
             <Scissors className="h-8 w-8 text-slate-300" />
           )}

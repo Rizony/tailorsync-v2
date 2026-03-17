@@ -29,6 +29,21 @@ class MarketplaceRepository {
         .eq('id', requestId);
   }
 
+  Future<void> updateRequestQuote({
+    required String requestId,
+    required double quoteAmount,
+    String quoteCurrency = 'NGN',
+    String? quoteMessage,
+  }) async {
+    await _client.from('marketplace_requests').update({
+      'quote_amount': quoteAmount,
+      'quote_currency': quoteCurrency,
+      'quote_message': quoteMessage,
+      'quoted_at': DateTime.now().toIso8601String(),
+      'quoted_by': _client.auth.currentUser?.id,
+    }).eq('id', requestId);
+  }
+
   Stream<List<MarketplaceRequest>> watchRequests() {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return Stream.value([]);

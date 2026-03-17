@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
 import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
+import 'package:tailorsync_v2/core/sync/sync_manager.dart';
 
 class OfflineWrapper extends ConsumerWidget {
   final Widget child;
@@ -17,11 +18,12 @@ class OfflineWrapper extends ConsumerWidget {
       valueListenable: Hive.box<SyncAction>('sync_queue').listenable(),
       builder: (context, Box<SyncAction> box, _) {
         final hasPendingSync = box.isNotEmpty;
+        final isSyncingBanner = (isOffline || hasPendingSync);
         
         return Stack(
           children: [
             child,
-            if (isOffline || hasPendingSync)
+            if (isSyncingBanner)
               Positioned(
                 left: 0,
                 right: 0,
@@ -60,6 +62,19 @@ class OfflineWrapper extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          if (!isOffline && hasPendingSync) ...[
+                            TextButton(
+                              onPressed: () => ref.read(syncManagerProvider).processQueue(),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text('RETRY', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
                           TextButton(
                             onPressed: () {
                               showModalBottomSheet(

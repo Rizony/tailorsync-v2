@@ -25,6 +25,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   late TextEditingController _termsController;
   late TextEditingController _bioController;
   late TextEditingController _specialtiesController;
+  final TextEditingController _portfolioLinkController = TextEditingController();
   
   // Branding Contact Info
   late TextEditingController _addressController;
@@ -71,6 +72,8 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   int _yearsOfExperience = 0;
   bool _isLoading = false;
   bool _initialized = false;
+  bool _isUploadingPortfolio = false;
+  List<String> _portfolioUrls = [];
 
   @override
   void initState() {
@@ -126,6 +129,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _yearsOfExperience = user.yearsOfExperience;
     _bioController.text = user.bio ?? '';
     _specialtiesController.text = (user.specialties as List).join(', ');
+    _portfolioUrls = List<String>.from(user.portfolioUrls ?? const <String>[]);
     setState(() {});
   }
 
@@ -162,7 +166,54 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _withdrawalPinController.dispose();
     _bioController.dispose();
     _specialtiesController.dispose();
+    _portfolioLinkController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addPortfolioFromGallery() async {
+    try {
+      setState(() => _isUploadingPortfolio = true);
+      final picker = ImagePicker();
+      final files = await picker.pickMultiImage(imageQuality: 75);
+      if (files.isEmpty) return;
+
+      final uploaded = <String>[];
+      for (final f in files) {
+        final file = File(f.path);
+        final url = await _uploadImage(file, 'portfolio_${DateTime.now().millisecondsSinceEpoch}.jpg');
+        if (url != null) uploaded.add(url);
+      }
+
+      if (uploaded.isNotEmpty && mounted) {
+        setState(() {
+          final next = [..._portfolioUrls];
+          for (final u in uploaded) {
+            if (!next.contains(u)) next.add(u);
+          }
+          _portfolioUrls = next;
+        });
+        showSuccessSnackBar(context, 'Added ${uploaded.length} portfolio image(s).');
+      }
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Portfolio upload failed: $e');
+    } finally {
+      if (mounted) setState(() => _isUploadingPortfolio = false);
+    }
+  }
+
+  void _addPortfolioLink() {
+    final link = _portfolioLinkController.text.trim();
+    if (link.isEmpty) return;
+    setState(() {
+      if (!_portfolioUrls.contains(link)) _portfolioUrls = [..._portfolioUrls, link];
+      _portfolioLinkController.clear();
+    });
+  }
+
+  void _removePortfolioUrl(String url) {
+    setState(() {
+      _portfolioUrls = _portfolioUrls.where((u) => u != url).toList();
+    });
   }
 
   Future<void> _pickImage(bool isLogo) async {
@@ -271,6 +322,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
           yearsOfExperience: _yearsOfExperience,
           bio: _bioController.text,
           specialties: _specialtiesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+          portfolioUrls: _portfolioUrls,
         );
         
         await ref.read(profileNotifierProvider.notifier).updateProfile(updatedUser);
@@ -664,6 +716,96 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                             minimumSize: const Size(double.infinity, 44),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Portfolio / Showroom', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Upload or add links to your best work. This appears on your public profile and showroom.',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 12),
+                        if (_portfolioUrls.isNotEmpty) ...[
+                          SizedBox(
+                            height: 92,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _portfolioUrls.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 10),
+                              itemBuilder: (context, i) {
+                                final url = _portfolioUrls[i];
+                                return Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(
+                                        url,
+                                        width: 120,
+                                        height: 92,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          width: 120,
+                                          height: 92,
+                                          color: Colors.grey.shade200,
+                                          child: const Icon(Icons.broken_image_outlined),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: InkWell(
+                                        onTap: () => _removePortfolioUrl(url),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(alpha: 0.6),
+                                            borderRadius: BorderRadius.circular(999),
+                                          ),
+                                          child: const Icon(Icons.close, size: 14, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        OutlinedButton.icon(
+                          onPressed: _isUploadingPortfolio ? null : _addPortfolioFromGallery,
+                          icon: _isUploadingPortfolio
+                              ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.photo_library_outlined, size: 18),
+                          label: Text(_isUploadingPortfolio ? 'Uploading...' : 'Add photos'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 44),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _portfolioLinkController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Add image link',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: _addPortfolioLink,
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(52, 52),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Icon(Icons.add),
+                            ),
+                          ],
                         ),
                       ],
                       const Divider(),

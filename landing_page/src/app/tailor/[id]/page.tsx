@@ -19,8 +19,16 @@ interface TailorProfile {
   rating: number;
   is_available: boolean;
   logo_url: string;
+  photo_url?: string;
+  avatar_url?: string;
   years_of_experience: number;
 }
+
+function getTailorLogoUrl(tailor: Partial<TailorProfile> | null | undefined) {
+  return tailor?.logo_url || tailor?.photo_url || tailor?.avatar_url || "";
+}
+
+const MARKETPLACE_UPLOAD_BUCKET = "marketplace_uploads";
 
 export default function TailorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -56,19 +64,90 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
     if (!tailor) return;
 
     const formData = new FormData(e.currentTarget);
-    const requestData = {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const qtyRaw = String(formData.get("quantity") ?? "").trim();
+    const quantity = qtyRaw ? Number(qtyRaw) : null;
+
+    const imageUrls = String(formData.get("image_urls") ?? "")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    // Optional direct photo uploads (requires client login for storage access)
+    const photoInput = e.currentTarget.querySelector('input[name="photos"]') as HTMLInputElement | null;
+    const photoFiles = Array.from(photoInput?.files ?? []);
+    const customerId = sessionData.session?.user?.id ?? null;
+
+    if (photoFiles.length > 0 && !customerId) {
+      alert("Please login to upload photos (or paste photo links). We'll still send your request without uploads.");
+    }
+
+    let uploadedUrls: string[] = [];
+    if (photoFiles.length > 0 && customerId) {
+      const uploadPrefix = `requests/${tailor.id}/${customerId}/${Date.now()}`;
+      const uploads = await Promise.all(
+        photoFiles.map(async (file, i) => {
+          const safeName = (file.name || `photo_${i}.jpg`).replace(/[^\w.\-]+/g, "_");
+          const path = `${uploadPrefix}/${i}_${safeName}`;
+          const up = await supabase.storage.from(MARKETPLACE_UPLOAD_BUCKET).upload(path, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+          if (up.error) throw up.error;
+          const pub = supabase.storage.from(MARKETPLACE_UPLOAD_BUCKET).getPublicUrl(path);
+          return pub.data.publicUrl;
+        })
+      );
+      uploadedUrls = uploads.filter(Boolean);
+    }
+
+    const referenceLinks = String(formData.get("reference_links") ?? "")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const requestDataBase = {
       tailor_id: tailor.id,
       customer_name: formData.get("name"),
       customer_email: formData.get("email"),
       customer_phone: formData.get("phone"),
       description: formData.get("description"),
+      item_quantity: Number.isFinite(quantity) ? quantity : null,
+      image_urls: [...uploadedUrls, ...imageUrls],
+      reference_links: referenceLinks,
       status: "pending",
     };
 
     try {
       setFormLoading(true);
-      const { error } = await supabase.from("marketplace_requests").insert(requestData);
-      if (error) throw error;
+      // Prefer inserting customer_id when available (for secure client portal).
+      // If the DB column isn't deployed yet, gracefully retry without it.
+      const { error } = await supabase
+        .from("marketplace_requests")
+        .insert(customerId ? { ...requestDataBase, customer_id: customerId } : requestDataBase);
+
+      if (error) {
+        const msg = (error as any)?.message ?? "";
+        const missingColumn = msg.includes("customer_id") && msg.toLowerCase().includes("column");
+        const maybeSchemaMismatch =
+          missingColumn ||
+          (msg.toLowerCase().includes("column") &&
+            (msg.includes("item_quantity") || msg.includes("image_urls") || msg.includes("reference_links")));
+
+        if (!maybeSchemaMismatch) throw error;
+
+        // Retry with minimal payload for older DB schema.
+        const minimal = {
+          tailor_id: tailor.id,
+          customer_name: formData.get("name"),
+          customer_email: formData.get("email"),
+          customer_phone: formData.get("phone"),
+          description: formData.get("description"),
+          status: "pending",
+        };
+        const retry = await supabase.from("marketplace_requests").insert(minimal);
+        if (retry.error) throw retry.error;
+      }
       setFormSuccess(true);
     } catch (err) {
       console.error("Error sending request:", err);
@@ -92,6 +171,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
   );
 
   const isPremium = tailor.subscription_tier === "premium";
+  const logoUrl = getTailorLogoUrl(tailor);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
@@ -103,8 +183,22 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
             <span>Back to Marketplace</span>
           </Link>
           <Link href="/">
-             <Image src="/logo.png" alt="Needlix Logo" width={120} height={36} className="h-6 w-auto object-contain" />
+             <Image src="/logo.png" alt="Needlix Logo" width={140} height={40} className="needlix-logo h-6 sm:h-7 w-auto object-contain" />
           </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+            >
+              Client Login
+            </Link>
+            <Link
+              href="/signup"
+              className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+            >
+              Sign up
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -114,8 +208,8 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
         <div className="mx-auto max-w-5xl px-6">
           <div className="relative -mt-16 mb-8 flex flex-col md:flex-row md:items-end gap-6">
             <div className="h-32 w-32 rounded-3xl border-4 border-white bg-slate-100 shadow-xl flex items-center justify-center overflow-hidden">
-               {tailor.logo_url ? (
-                  <Image src={tailor.logo_url} alt={tailor.brand_name} width={128} height={128} className="object-cover" />
+               {logoUrl ? (
+                  <Image src={logoUrl} alt={tailor.brand_name} width={128} height={128} className="object-cover" />
                 ) : (
                   <Scissors className="h-12 w-12 text-slate-300" />
                 )}
@@ -243,6 +337,59 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                   <div>
                     <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">What do you need?</label>
                     <textarea name="description" required rows={4} placeholder="e.g. I need two traditional outfits and a suit for a wedding next month..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm resize-none" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Quantity</label>
+                      <input
+                        name="quantity"
+                        type="number"
+                        min={1}
+                        placeholder="1"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm"
+                      />
+                    </div>
+                    <div className="text-xs text-slate-500 flex items-end">
+                      Optional. Helps the tailor quote faster.
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Photo links (optional)</label>
+                    <textarea
+                      name="image_urls"
+                      rows={3}
+                      placeholder={"Paste image URLs, one per line\nhttps://..."}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm resize-none"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                      Tip: upload photos anywhere (Google Drive, iCloud, etc.) and paste share links.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Upload photos (optional)</label>
+                    <input
+                      name="photos"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="w-full text-sm file:mr-4 file:rounded-xl file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-bold file:text-slate-700 hover:file:bg-slate-200"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                      Best experience: login first so uploads attach directly to your request.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Reference links (optional)</label>
+                    <textarea
+                      name="reference_links"
+                      rows={2}
+                      placeholder={"Fabric / style references, one per line\nhttps://..."}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm resize-none"
+                    />
                   </div>
 
                   <button 
