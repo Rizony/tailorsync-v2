@@ -64,6 +64,8 @@ class _RequestCard extends ConsumerWidget {
     final hasLinks = request.referenceLinks.isNotEmpty;
     final hasQuote = (request.quoteAmount != null && (request.quoteAmount ?? 0) > 0);
     final isPaid = request.paymentStatus.toLowerCase() == 'paid';
+    final quoteStatus = request.quoteStatus.toLowerCase();
+    final hasCounter = (request.counterOfferAmount != null && (request.counterOfferAmount ?? 0) > 0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -98,11 +100,92 @@ class _RequestCard extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Quote: ₦${request.quoteAmount?.toStringAsFixed(0)} • ${isPaid ? "PAID" : "UNPAID"}',
+                      'Quote: ₦${request.quoteAmount?.toStringAsFixed(0)} • ${isPaid ? "PAID" : "UNPAID"} • ${quoteStatus.toUpperCase()}',
                       style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
+              ),
+            ],
+            if (request.quoteMessage != null && request.quoteMessage!.trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                ),
+                child: Text(
+                  'Tailor note: ${request.quoteMessage}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            ],
+            if (hasCounter) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Client counter-offer',
+                      style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '₦${request.counterOfferAmount?.toStringAsFixed(0)}',
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    if (request.counterOfferMessage != null && request.counterOfferMessage!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(request.counterOfferMessage!, style: theme.textTheme.bodySmall),
+                    ],
+                    if (request.counterOfferedAt != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        DateFormat('MMM dd, yyyy • hh:mm a').format(request.counterOfferedAt!),
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
+                              ref.invalidate(marketplaceRequestsProvider);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Counter-offer accepted. Quote updated.')),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.check_circle_outline, size: 18),
+                            label: const Text('Accept counter'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showQuoteDialog(context, ref),
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text('Update quote'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
             const Divider(height: 24.0),
@@ -194,6 +277,16 @@ class _RequestCard extends ConsumerWidget {
             Wrap(
               spacing: 8.0,
               children: [
+                if (request.customerWhatsapp != null && request.customerWhatsapp!.trim().isNotEmpty)
+                  ActionChip(
+                    avatar: const Icon(Icons.chat, size: 16),
+                    label: const Text('WhatsApp'),
+                    onPressed: () {
+                      final raw = request.customerWhatsapp!.trim();
+                      final phone = raw.replaceAll(' ', '').replaceAll('+', '');
+                      launchUrl(Uri.parse('https://wa.me/$phone'), mode: LaunchMode.externalApplication);
+                    },
+                  ),
                 if (request.customerPhone != null)
                   ActionChip(
                     avatar: const Icon(Icons.phone, size: 16),
@@ -210,6 +303,18 @@ class _RequestCard extends ConsumerWidget {
                   label: Text(hasQuote ? 'Update Quote' : 'Send Quote'),
                   onPressed: () => _showQuoteDialog(context, ref),
                 ),
+                if (hasQuote && !isPaid && quoteStatus != 'accepted')
+                  ActionChip(
+                    avatar: const Icon(Icons.check_circle_outline, size: 16),
+                    label: const Text('Mark Accepted'),
+                    onPressed: () async {
+                      await ref.read(marketplaceRepositoryProvider).setQuoteStatus(
+                            requestId: request.id,
+                            quoteStatus: 'accepted',
+                          );
+                      ref.invalidate(marketplaceRequestsProvider);
+                    },
+                  ),
               ],
             ),
             if (isPending) ...[

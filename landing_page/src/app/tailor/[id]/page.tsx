@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, MapPin, Star, Scissors, CheckCircle2, MessageSqu
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/auth";
 
 interface TailorProfile {
   id: string;
@@ -36,10 +37,41 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const [sessionName, setSessionName] = useState<string | null>(null);
+  const [sessionWhatsapp, setSessionWhatsapp] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   useEffect(() => {
     fetchTailor();
   }, [id]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const s = data.session;
+      setIsLoggedIn(!!s);
+      if (!s) return;
+      setSessionEmail(s.user.email ?? null);
+      setSessionName((s.user.user_metadata as any)?.full_name ?? null);
+      setSessionWhatsapp((s.user.user_metadata as any)?.whatsapp ?? null);
+
+      // Prefill form (user can still edit)
+      setName(((s.user.user_metadata as any)?.full_name ?? "").toString());
+      setEmail((s.user.email ?? "").toString());
+      setWhatsapp((((s.user.user_metadata as any)?.whatsapp ?? "") as string).toString());
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => {
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   async function fetchTailor() {
     try {
@@ -108,9 +140,10 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
 
     const requestDataBase = {
       tailor_id: tailor.id,
-      customer_name: formData.get("name"),
-      customer_email: formData.get("email"),
-      customer_phone: formData.get("phone"),
+      customer_name: name,
+      customer_email: email,
+      customer_phone: whatsapp,
+      customer_whatsapp: whatsapp,
       description: formData.get("description"),
       item_quantity: Number.isFinite(quantity) ? quantity : null,
       image_urls: [...uploadedUrls, ...imageUrls],
@@ -139,9 +172,9 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
         // Retry with minimal payload for older DB schema.
         const minimal = {
           tailor_id: tailor.id,
-          customer_name: formData.get("name"),
-          customer_email: formData.get("email"),
-          customer_phone: formData.get("phone"),
+          customer_name: name,
+          customer_email: email,
+          customer_phone: whatsapp,
           description: formData.get("description"),
           status: "pending",
         };
@@ -186,18 +219,39 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
              <Image src="/logo.png" alt="Needlix Logo" width={140} height={40} className="needlix-logo h-6 sm:h-7 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
-            >
-              Client Login
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
-            >
-              Sign up
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href="/client"
+                  className="inline-flex items-center justify-center rounded-full border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
+                >
+                  My Dashboard
+                </Link>
+                <button
+                  onClick={async () => {
+                    await signOut();
+                  }}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Client Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -322,16 +376,16 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                 <form onSubmit={handleRequest} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Full Name</label>
-                    <input name="name" required type="text" placeholder="John Doe" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
+                    <input value={name} onChange={(e) => setName(e.target.value)} required type="text" placeholder="John Doe" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Email</label>
-                      <input name="email" required type="email" placeholder="john@example.com" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
+                      <input value={email} onChange={(e) => setEmail(e.target.value)} required type="email" placeholder="john@example.com" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Phone</label>
-                      <input name="phone" required type="tel" placeholder="080..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
+                      <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">WhatsApp</label>
+                      <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} required type="tel" placeholder="+234..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm" />
                     </div>
                   </div>
                   <div>

@@ -1,11 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronRight, Play, Scissors, Search, ShieldCheck, Star, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/auth";
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-[#00AEEF] selection:text-white">
       {/* Navigation */}
@@ -32,18 +43,37 @@ export default function LandingPage() {
               <Search className="h-4 w-4" />
               Find a Tailor
             </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
-            >
-              Client Login
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
-            >
-              Sign up
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href="/client"
+                  className="inline-flex items-center justify-center rounded-full border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
+                >
+                  My Dashboard
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Client Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
             <a
               href="#download"
               className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[#0076B6] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#00AEEF] hover:shadow-lg hover:shadow-[#00AEEF]/30 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:ring-offset-2"

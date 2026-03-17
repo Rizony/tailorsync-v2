@@ -12,6 +12,7 @@ class MarketplaceRequest with _$MarketplaceRequest {
     @JsonKey(name: 'customer_name') required String customerName,
     @JsonKey(name: 'customer_email') required String customerEmail,
     @JsonKey(name: 'customer_phone') String? customerPhone,
+    @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
     required String description,
     @JsonKey(name: 'item_quantity') int? itemQuantity,
     @JsonKey(name: 'image_urls') @Default(<String>[]) List<String> imageUrls,
@@ -20,6 +21,11 @@ class MarketplaceRequest with _$MarketplaceRequest {
     @JsonKey(name: 'payment_status') @Default('unpaid') String paymentStatus,
     @JsonKey(name: 'quote_amount') double? quoteAmount,
     @JsonKey(name: 'quote_currency') @Default('NGN') String quoteCurrency,
+    @JsonKey(name: 'quote_message') String? quoteMessage,
+    @JsonKey(name: 'quote_status') @Default('pending') String quoteStatus, // pending, accepted, declined, countered
+    @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
+    @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
+    @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _MarketplaceRequest;
 

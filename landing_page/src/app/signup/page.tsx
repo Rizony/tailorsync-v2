@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Mail, Lock, ArrowRight, User } from "lucide-react";
+import { Mail, Lock, ArrowRight, User, Phone } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function ClientSignupPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ export default function ClientSignupPage() {
         email,
         password,
         options: {
-          data: { full_name: fullName, role: "client" },
+          data: { full_name: fullName, whatsapp, role: "client" },
         },
       });
       if (error) throw error;
@@ -115,6 +116,24 @@ export default function ClientSignupPage() {
                   placeholder="you@example.com"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">WhatsApp number</label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  required
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm"
+                  placeholder="e.g. +2348012345678"
+                />
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                Tailors use this to send invoices and updates via WhatsApp.
+              </p>
             </div>
 
             <div>

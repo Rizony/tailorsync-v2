@@ -6,6 +6,7 @@ import { Search, MapPin, Star, Scissors, ArrowRight, Filter, CheckCircle2 } from
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/auth";
 
 interface TailorProfile {
   id: string;
@@ -31,9 +32,16 @@ export default function MarketplacePage() {
   const [tailors, setTailors] = useState<TailorProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     fetchTailors();
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   async function fetchTailors() {
@@ -81,7 +89,17 @@ export default function MarketplacePage() {
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/" className="text-sm font-semibold text-slate-600 hover:text-[#0076B6]">Home</Link>
-            <Link href="/login" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF]">Client Login</Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/client" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF]">My Dashboard</Link>
+                <button onClick={() => signOut()} className="text-sm font-bold text-slate-700 hover:text-[#0076B6]">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF]">Client Login</Link>
+                <Link href="/signup" className="text-sm font-bold text-slate-700 hover:text-[#0076B6]">Sign up</Link>
+              </>
+            )}
             <a href="#download" className="rounded-full bg-[#0076B6] px-5 py-2 text-sm font-semibold text-white hover:bg-[#00AEEF]">Get App</a>
           </div>
         </div>

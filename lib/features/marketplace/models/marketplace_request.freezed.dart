@@ -31,6 +31,8 @@ mixin _$MarketplaceRequest {
   String get customerEmail => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer_phone')
   String? get customerPhone => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customer_whatsapp')
+  String? get customerWhatsapp => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'item_quantity')
   int? get itemQuantity => throw _privateConstructorUsedError;
@@ -46,6 +48,17 @@ mixin _$MarketplaceRequest {
   double? get quoteAmount => throw _privateConstructorUsedError;
   @JsonKey(name: 'quote_currency')
   String get quoteCurrency => throw _privateConstructorUsedError;
+  @JsonKey(name: 'quote_message')
+  String? get quoteMessage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'quote_status')
+  String get quoteStatus =>
+      throw _privateConstructorUsedError; // pending, accepted, declined, countered
+  @JsonKey(name: 'counter_offer_amount')
+  double? get counterOfferAmount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'counter_offer_message')
+  String? get counterOfferMessage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'counter_offered_at')
+  DateTime? get counterOfferedAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -72,6 +85,7 @@ abstract class $MarketplaceRequestCopyWith<$Res> {
       @JsonKey(name: 'customer_name') String customerName,
       @JsonKey(name: 'customer_email') String customerEmail,
       @JsonKey(name: 'customer_phone') String? customerPhone,
+      @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
       String description,
       @JsonKey(name: 'item_quantity') int? itemQuantity,
       @JsonKey(name: 'image_urls') List<String> imageUrls,
@@ -80,6 +94,11 @@ abstract class $MarketplaceRequestCopyWith<$Res> {
       @JsonKey(name: 'payment_status') String paymentStatus,
       @JsonKey(name: 'quote_amount') double? quoteAmount,
       @JsonKey(name: 'quote_currency') String quoteCurrency,
+      @JsonKey(name: 'quote_message') String? quoteMessage,
+      @JsonKey(name: 'quote_status') String quoteStatus,
+      @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
+      @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
+      @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -104,6 +123,7 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
     Object? customerName = null,
     Object? customerEmail = null,
     Object? customerPhone = freezed,
+    Object? customerWhatsapp = freezed,
     Object? description = null,
     Object? itemQuantity = freezed,
     Object? imageUrls = null,
@@ -112,6 +132,11 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
     Object? paymentStatus = null,
     Object? quoteAmount = freezed,
     Object? quoteCurrency = null,
+    Object? quoteMessage = freezed,
+    Object? quoteStatus = null,
+    Object? counterOfferAmount = freezed,
+    Object? counterOfferMessage = freezed,
+    Object? counterOfferedAt = freezed,
     Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
@@ -138,6 +163,10 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
       customerPhone: freezed == customerPhone
           ? _value.customerPhone
           : customerPhone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerWhatsapp: freezed == customerWhatsapp
+          ? _value.customerWhatsapp
+          : customerWhatsapp // ignore: cast_nullable_to_non_nullable
               as String?,
       description: null == description
           ? _value.description
@@ -171,6 +200,26 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
           ? _value.quoteCurrency
           : quoteCurrency // ignore: cast_nullable_to_non_nullable
               as String,
+      quoteMessage: freezed == quoteMessage
+          ? _value.quoteMessage
+          : quoteMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      quoteStatus: null == quoteStatus
+          ? _value.quoteStatus
+          : quoteStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      counterOfferAmount: freezed == counterOfferAmount
+          ? _value.counterOfferAmount
+          : counterOfferAmount // ignore: cast_nullable_to_non_nullable
+              as double?,
+      counterOfferMessage: freezed == counterOfferMessage
+          ? _value.counterOfferMessage
+          : counterOfferMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      counterOfferedAt: freezed == counterOfferedAt
+          ? _value.counterOfferedAt
+          : counterOfferedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -194,6 +243,7 @@ abstract class _$$MarketplaceRequestImplCopyWith<$Res>
       @JsonKey(name: 'customer_name') String customerName,
       @JsonKey(name: 'customer_email') String customerEmail,
       @JsonKey(name: 'customer_phone') String? customerPhone,
+      @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
       String description,
       @JsonKey(name: 'item_quantity') int? itemQuantity,
       @JsonKey(name: 'image_urls') List<String> imageUrls,
@@ -202,6 +252,11 @@ abstract class _$$MarketplaceRequestImplCopyWith<$Res>
       @JsonKey(name: 'payment_status') String paymentStatus,
       @JsonKey(name: 'quote_amount') double? quoteAmount,
       @JsonKey(name: 'quote_currency') String quoteCurrency,
+      @JsonKey(name: 'quote_message') String? quoteMessage,
+      @JsonKey(name: 'quote_status') String quoteStatus,
+      @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
+      @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
+      @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -224,6 +279,7 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
     Object? customerName = null,
     Object? customerEmail = null,
     Object? customerPhone = freezed,
+    Object? customerWhatsapp = freezed,
     Object? description = null,
     Object? itemQuantity = freezed,
     Object? imageUrls = null,
@@ -232,6 +288,11 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
     Object? paymentStatus = null,
     Object? quoteAmount = freezed,
     Object? quoteCurrency = null,
+    Object? quoteMessage = freezed,
+    Object? quoteStatus = null,
+    Object? counterOfferAmount = freezed,
+    Object? counterOfferMessage = freezed,
+    Object? counterOfferedAt = freezed,
     Object? createdAt = null,
   }) {
     return _then(_$MarketplaceRequestImpl(
@@ -258,6 +319,10 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
       customerPhone: freezed == customerPhone
           ? _value.customerPhone
           : customerPhone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerWhatsapp: freezed == customerWhatsapp
+          ? _value.customerWhatsapp
+          : customerWhatsapp // ignore: cast_nullable_to_non_nullable
               as String?,
       description: null == description
           ? _value.description
@@ -291,6 +356,26 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
           ? _value.quoteCurrency
           : quoteCurrency // ignore: cast_nullable_to_non_nullable
               as String,
+      quoteMessage: freezed == quoteMessage
+          ? _value.quoteMessage
+          : quoteMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      quoteStatus: null == quoteStatus
+          ? _value.quoteStatus
+          : quoteStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      counterOfferAmount: freezed == counterOfferAmount
+          ? _value.counterOfferAmount
+          : counterOfferAmount // ignore: cast_nullable_to_non_nullable
+              as double?,
+      counterOfferMessage: freezed == counterOfferMessage
+          ? _value.counterOfferMessage
+          : counterOfferMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      counterOfferedAt: freezed == counterOfferedAt
+          ? _value.counterOfferedAt
+          : counterOfferedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -309,6 +394,7 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
       @JsonKey(name: 'customer_name') required this.customerName,
       @JsonKey(name: 'customer_email') required this.customerEmail,
       @JsonKey(name: 'customer_phone') this.customerPhone,
+      @JsonKey(name: 'customer_whatsapp') this.customerWhatsapp,
       required this.description,
       @JsonKey(name: 'item_quantity') this.itemQuantity,
       @JsonKey(name: 'image_urls')
@@ -319,6 +405,11 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
       @JsonKey(name: 'payment_status') this.paymentStatus = 'unpaid',
       @JsonKey(name: 'quote_amount') this.quoteAmount,
       @JsonKey(name: 'quote_currency') this.quoteCurrency = 'NGN',
+      @JsonKey(name: 'quote_message') this.quoteMessage,
+      @JsonKey(name: 'quote_status') this.quoteStatus = 'pending',
+      @JsonKey(name: 'counter_offer_amount') this.counterOfferAmount,
+      @JsonKey(name: 'counter_offer_message') this.counterOfferMessage,
+      @JsonKey(name: 'counter_offered_at') this.counterOfferedAt,
       @JsonKey(name: 'created_at') required this.createdAt})
       : _imageUrls = imageUrls,
         _referenceLinks = referenceLinks;
@@ -343,6 +434,9 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
   @override
   @JsonKey(name: 'customer_phone')
   final String? customerPhone;
+  @override
+  @JsonKey(name: 'customer_whatsapp')
+  final String? customerWhatsapp;
   @override
   final String description;
   @override
@@ -379,12 +473,28 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
   @JsonKey(name: 'quote_currency')
   final String quoteCurrency;
   @override
+  @JsonKey(name: 'quote_message')
+  final String? quoteMessage;
+  @override
+  @JsonKey(name: 'quote_status')
+  final String quoteStatus;
+// pending, accepted, declined, countered
+  @override
+  @JsonKey(name: 'counter_offer_amount')
+  final double? counterOfferAmount;
+  @override
+  @JsonKey(name: 'counter_offer_message')
+  final String? counterOfferMessage;
+  @override
+  @JsonKey(name: 'counter_offered_at')
+  final DateTime? counterOfferedAt;
+  @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, createdAt: $createdAt)';
+    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, customerWhatsapp: $customerWhatsapp, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, quoteMessage: $quoteMessage, quoteStatus: $quoteStatus, counterOfferAmount: $counterOfferAmount, counterOfferMessage: $counterOfferMessage, counterOfferedAt: $counterOfferedAt, createdAt: $createdAt)';
   }
 
   @override
@@ -403,6 +513,8 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
                 other.customerEmail == customerEmail) &&
             (identical(other.customerPhone, customerPhone) ||
                 other.customerPhone == customerPhone) &&
+            (identical(other.customerWhatsapp, customerWhatsapp) ||
+                other.customerWhatsapp == customerWhatsapp) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.itemQuantity, itemQuantity) ||
@@ -418,29 +530,46 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
                 other.quoteAmount == quoteAmount) &&
             (identical(other.quoteCurrency, quoteCurrency) ||
                 other.quoteCurrency == quoteCurrency) &&
+            (identical(other.quoteMessage, quoteMessage) ||
+                other.quoteMessage == quoteMessage) &&
+            (identical(other.quoteStatus, quoteStatus) ||
+                other.quoteStatus == quoteStatus) &&
+            (identical(other.counterOfferAmount, counterOfferAmount) ||
+                other.counterOfferAmount == counterOfferAmount) &&
+            (identical(other.counterOfferMessage, counterOfferMessage) ||
+                other.counterOfferMessage == counterOfferMessage) &&
+            (identical(other.counterOfferedAt, counterOfferedAt) ||
+                other.counterOfferedAt == counterOfferedAt) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      tailorId,
-      customerId,
-      customerName,
-      customerEmail,
-      customerPhone,
-      description,
-      itemQuantity,
-      const DeepCollectionEquality().hash(_imageUrls),
-      const DeepCollectionEquality().hash(_referenceLinks),
-      status,
-      paymentStatus,
-      quoteAmount,
-      quoteCurrency,
-      createdAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        tailorId,
+        customerId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        customerWhatsapp,
+        description,
+        itemQuantity,
+        const DeepCollectionEquality().hash(_imageUrls),
+        const DeepCollectionEquality().hash(_referenceLinks),
+        status,
+        paymentStatus,
+        quoteAmount,
+        quoteCurrency,
+        quoteMessage,
+        quoteStatus,
+        counterOfferAmount,
+        counterOfferMessage,
+        counterOfferedAt,
+        createdAt
+      ]);
 
   /// Create a copy of MarketplaceRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -461,22 +590,28 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
 
 abstract class _MarketplaceRequest implements MarketplaceRequest {
   const factory _MarketplaceRequest(
-          {required final String id,
-          @JsonKey(name: 'tailor_id') required final String tailorId,
-          @JsonKey(name: 'customer_id') final String? customerId,
-          @JsonKey(name: 'customer_name') required final String customerName,
-          @JsonKey(name: 'customer_email') required final String customerEmail,
-          @JsonKey(name: 'customer_phone') final String? customerPhone,
-          required final String description,
-          @JsonKey(name: 'item_quantity') final int? itemQuantity,
-          @JsonKey(name: 'image_urls') final List<String> imageUrls,
-          @JsonKey(name: 'reference_links') final List<String> referenceLinks,
-          required final String status,
-          @JsonKey(name: 'payment_status') final String paymentStatus,
-          @JsonKey(name: 'quote_amount') final double? quoteAmount,
-          @JsonKey(name: 'quote_currency') final String quoteCurrency,
-          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
-      _$MarketplaceRequestImpl;
+      {required final String id,
+      @JsonKey(name: 'tailor_id') required final String tailorId,
+      @JsonKey(name: 'customer_id') final String? customerId,
+      @JsonKey(name: 'customer_name') required final String customerName,
+      @JsonKey(name: 'customer_email') required final String customerEmail,
+      @JsonKey(name: 'customer_phone') final String? customerPhone,
+      @JsonKey(name: 'customer_whatsapp') final String? customerWhatsapp,
+      required final String description,
+      @JsonKey(name: 'item_quantity') final int? itemQuantity,
+      @JsonKey(name: 'image_urls') final List<String> imageUrls,
+      @JsonKey(name: 'reference_links') final List<String> referenceLinks,
+      required final String status,
+      @JsonKey(name: 'payment_status') final String paymentStatus,
+      @JsonKey(name: 'quote_amount') final double? quoteAmount,
+      @JsonKey(name: 'quote_currency') final String quoteCurrency,
+      @JsonKey(name: 'quote_message') final String? quoteMessage,
+      @JsonKey(name: 'quote_status') final String quoteStatus,
+      @JsonKey(name: 'counter_offer_amount') final double? counterOfferAmount,
+      @JsonKey(name: 'counter_offer_message') final String? counterOfferMessage,
+      @JsonKey(name: 'counter_offered_at') final DateTime? counterOfferedAt,
+      @JsonKey(name: 'created_at')
+      required final DateTime createdAt}) = _$MarketplaceRequestImpl;
 
   factory _MarketplaceRequest.fromJson(Map<String, dynamic> json) =
       _$MarketplaceRequestImpl.fromJson;
@@ -499,6 +634,9 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
   @JsonKey(name: 'customer_phone')
   String? get customerPhone;
   @override
+  @JsonKey(name: 'customer_whatsapp')
+  String? get customerWhatsapp;
+  @override
   String get description;
   @override
   @JsonKey(name: 'item_quantity')
@@ -520,6 +658,21 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
   @override
   @JsonKey(name: 'quote_currency')
   String get quoteCurrency;
+  @override
+  @JsonKey(name: 'quote_message')
+  String? get quoteMessage;
+  @override
+  @JsonKey(name: 'quote_status')
+  String get quoteStatus; // pending, accepted, declined, countered
+  @override
+  @JsonKey(name: 'counter_offer_amount')
+  double? get counterOfferAmount;
+  @override
+  @JsonKey(name: 'counter_offer_message')
+  String? get counterOfferMessage;
+  @override
+  @JsonKey(name: 'counter_offered_at')
+  DateTime? get counterOfferedAt;
   @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;

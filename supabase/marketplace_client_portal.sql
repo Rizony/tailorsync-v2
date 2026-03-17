@@ -9,7 +9,8 @@ ADD COLUMN IF NOT EXISTS customer_id uuid REFERENCES auth.users(id);
 ALTER TABLE public.marketplace_requests
 ADD COLUMN IF NOT EXISTS item_quantity integer,
 ADD COLUMN IF NOT EXISTS image_urls text[] DEFAULT '{}',
-ADD COLUMN IF NOT EXISTS reference_links text[] DEFAULT '{}';
+ADD COLUMN IF NOT EXISTS reference_links text[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS customer_whatsapp text;
 
 -- Backfill is optional. If you have old requests, they will remain visible to tailors only.
 -- Clients should create new requests while logged in to populate customer_id.

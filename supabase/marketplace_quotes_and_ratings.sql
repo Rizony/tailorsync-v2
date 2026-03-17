@@ -5,7 +5,11 @@ ADD COLUMN IF NOT EXISTS quote_amount numeric, -- major currency units (e.g., Na
 ADD COLUMN IF NOT EXISTS quote_currency text DEFAULT 'NGN',
 ADD COLUMN IF NOT EXISTS quote_message text,
 ADD COLUMN IF NOT EXISTS quoted_at timestamp with time zone,
-ADD COLUMN IF NOT EXISTS quoted_by uuid REFERENCES public.profiles(id);
+ADD COLUMN IF NOT EXISTS quoted_by uuid REFERENCES public.profiles(id),
+ADD COLUMN IF NOT EXISTS quote_status text DEFAULT 'pending', -- pending, accepted, declined, countered
+ADD COLUMN IF NOT EXISTS counter_offer_amount numeric,
+ADD COLUMN IF NOT EXISTS counter_offer_message text,
+ADD COLUMN IF NOT EXISTS counter_offered_at timestamp with time zone;
 
 -- One rating per request (post-completion)
 CREATE TABLE IF NOT EXISTS public.marketplace_ratings (

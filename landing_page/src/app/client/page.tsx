@@ -16,11 +16,16 @@ interface MarketplaceRequest {
   customer_name: string;
   customer_email: string;
   customer_phone?: string | null;
+  customer_whatsapp?: string | null;
   description: string;
   status: RequestStatus;
   payment_status?: string | null;
   quote_amount?: number | null;
   quote_currency?: string | null;
+  quote_message?: string | null;
+  quote_status?: string | null; // pending, accepted, declined, countered
+  counter_offer_amount?: number | null;
+  counter_offer_message?: string | null;
   created_at: string;
 }
 
@@ -50,6 +55,10 @@ export default function ClientDashboardPage() {
   const [ratingValue, setRatingValue] = useState<number>(5);
   const [ratingReview, setRatingReview] = useState<string>("");
   const [submittingRating, setSubmittingRating] = useState<boolean>(false);
+  const [quoteTarget, setQuoteTarget] = useState<MarketplaceRequest | null>(null);
+  const [counterAmount, setCounterAmount] = useState<string>("");
+  const [counterMessage, setCounterMessage] = useState<string>("");
+  const [submittingQuoteAction, setSubmittingQuoteAction] = useState<boolean>(false);
 
   const sorted = useMemo(() => {
     return [...requests].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
@@ -147,6 +156,11 @@ export default function ClientDashboardPage() {
         setError("This request does not have a quote amount yet.");
         return;
       }
+      const qs = String(r.quote_status || "pending").toLowerCase();
+      if (qs !== "accepted") {
+        setError("Please accept the tailor’s quote (or send a counter offer) before making payment.");
+        return;
+      }
 
       const reference = `NEEDLIX_MKT_${Date.now()}_${r.id}`;
       const callback_url = `${window.location.origin}/client`;
@@ -177,6 +191,87 @@ export default function ClientDashboardPage() {
       window.location.href = payload.payment_url;
     } catch (err: any) {
       setError(err?.message ?? "Payment initialization failed");
+    }
+  }
+
+  async function acceptQuote(r: MarketplaceRequest) {
+    setSubmittingQuoteAction(true);
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace("/login");
+        return;
+      }
+      const resp = await supabase
+        .from("marketplace_requests")
+        .update({ quote_status: "accepted" })
+        .eq("id", r.id);
+      if (resp.error) throw resp.error;
+      await fetchRequests(email);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to accept quote");
+    } finally {
+      setSubmittingQuoteAction(false);
+    }
+  }
+
+  async function declineQuote(r: MarketplaceRequest) {
+    setSubmittingQuoteAction(true);
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace("/login");
+        return;
+      }
+      const resp = await supabase
+        .from("marketplace_requests")
+        .update({ quote_status: "declined" })
+        .eq("id", r.id);
+      if (resp.error) throw resp.error;
+      await fetchRequests(email);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to decline quote");
+    } finally {
+      setSubmittingQuoteAction(false);
+    }
+  }
+
+  async function submitCounterOffer() {
+    if (!quoteTarget) return;
+    setSubmittingQuoteAction(true);
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace("/login");
+        return;
+      }
+      const amt = Number(counterAmount.replaceAll(",", "").trim());
+      if (!Number.isFinite(amt) || amt <= 0) {
+        setError("Enter a valid counter-offer amount.");
+        return;
+      }
+      const resp = await supabase
+        .from("marketplace_requests")
+        .update({
+          quote_status: "countered",
+          counter_offer_amount: amt,
+          counter_offer_message: counterMessage.trim() || null,
+          counter_offered_at: new Date().toISOString(),
+        })
+        .eq("id", quoteTarget.id);
+      if (resp.error) throw resp.error;
+
+      setQuoteTarget(null);
+      setCounterAmount("");
+      setCounterMessage("");
+      await fetchRequests(email);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to submit counter offer");
+    } finally {
+      setSubmittingQuoteAction(false);
     }
   }
 
@@ -296,6 +391,11 @@ export default function ClientDashboardPage() {
                     </div>
                     <p className="font-bold text-slate-900 line-clamp-1">{r.customer_name}</p>
                     <p className="text-sm text-slate-600 whitespace-pre-line mt-2">{r.description}</p>
+                    {r.quote_message ? (
+                      <p className="text-sm text-slate-700 mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <span className="font-extrabold">Tailor note:</span> {r.quote_message}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex flex-col gap-2">
                     <Link
@@ -321,6 +421,43 @@ export default function ClientDashboardPage() {
                         Waiting for quote
                       </div>
                     )}
+
+                    {/* Quote negotiation */}
+                    {r.quote_amount && String(r.payment_status || "").toLowerCase() !== "paid" ? (
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                        <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Quote actions</p>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => acceptQuote(r)}
+                            disabled={submittingQuoteAction}
+                            className="rounded-2xl bg-[#0076B6] px-4 py-2 text-sm font-bold text-white hover:bg-[#00AEEF] disabled:opacity-60"
+                          >
+                            Accept quote
+                          </button>
+                          <button
+                            onClick={() => {
+                              setQuoteTarget(r);
+                              setCounterAmount(r.counter_offer_amount ? String(r.counter_offer_amount) : "");
+                              setCounterMessage(r.counter_offer_message ?? "");
+                            }}
+                            disabled={submittingQuoteAction}
+                            className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+                          >
+                            Negotiate (counter offer)
+                          </button>
+                          <button
+                            onClick={() => declineQuote(r)}
+                            disabled={submittingQuoteAction}
+                            className="rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-100 disabled:opacity-60"
+                          >
+                            Decline quote
+                          </button>
+                        </div>
+                        <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+                          Payments must be completed through Needlix to protect both you and the tailor, keep a verified receipt trail, and enable dispute support.
+                        </p>
+                      </div>
+                    ) : null}
 
                     {String(r.status || "").toLowerCase() === "completed" &&
                     String(r.payment_status || "").toLowerCase() === "paid" ? (
@@ -405,6 +542,62 @@ export default function ClientDashboardPage() {
                   className="flex-1 rounded-2xl bg-[#0076B6] px-4 py-3 text-sm font-bold text-white hover:bg-[#00AEEF] disabled:opacity-60"
                 >
                   {submittingRating ? "Submitting..." : "Submit rating"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {quoteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-extrabold text-[#0A1128]">Counter offer</h3>
+                  <p className="text-sm text-slate-500 mt-1">Propose a new price or terms. The tailor will see this in the app.</p>
+                </div>
+                <button
+                  onClick={() => setQuoteTarget(null)}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Amount (₦)</label>
+                <input
+                  value={counterAmount}
+                  onChange={(e) => setCounterAmount(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
+                  placeholder="e.g. 20000"
+                />
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Message (optional)</label>
+                <textarea
+                  value={counterMessage}
+                  onChange={(e) => setCounterMessage(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
+                  placeholder="Add notes about quantity, delivery timeline, fittings, etc."
+                />
+              </div>
+
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => setQuoteTarget(null)}
+                  className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitCounterOffer}
+                  disabled={submittingQuoteAction}
+                  className="flex-1 rounded-2xl bg-[#0076B6] px-4 py-3 text-sm font-bold text-white hover:bg-[#00AEEF] disabled:opacity-60"
+                >
+                  {submittingQuoteAction ? "Submitting..." : "Send counter offer"}
                 </button>
               </div>
             </div>

@@ -44,6 +44,32 @@ class MarketplaceRepository {
     }).eq('id', requestId);
   }
 
+  Future<void> setQuoteStatus({
+    required String requestId,
+    required String quoteStatus,
+  }) async {
+    await _client
+        .from('marketplace_requests')
+        .update({'quote_status': quoteStatus})
+        .eq('id', requestId);
+  }
+
+  Future<void> acceptCounterOffer({
+    required MarketplaceRequest request,
+  }) async {
+    final counter = request.counterOfferAmount;
+    if (counter == null || counter <= 0) return;
+    await _client.from('marketplace_requests').update({
+      'quote_amount': counter,
+      'quote_status': 'accepted',
+      'counter_offer_amount': null,
+      'counter_offer_message': null,
+      'counter_offered_at': null,
+      'quoted_at': DateTime.now().toIso8601String(),
+      'quoted_by': _client.auth.currentUser?.id,
+    }).eq('id', request.id);
+  }
+
   Stream<List<MarketplaceRequest>> watchRequests() {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return Stream.value([]);
