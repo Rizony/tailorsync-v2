@@ -25,7 +25,12 @@ CREATE POLICY "Clients can view their own requests" ON public.marketplace_reques
 -- Clients can insert their own requests (customer_id must match)
 DROP POLICY IF EXISTS "Clients can insert their own requests" ON public.marketplace_requests;
 CREATE POLICY "Clients can insert their own requests" ON public.marketplace_requests
-  FOR INSERT WITH CHECK (auth.uid() = customer_id);
+  FOR INSERT WITH CHECK (customer_id IS NULL OR auth.uid() = customer_id);
+
+-- Keep anonymous visitors working: allow public insert when no customer_id is provided.
+DROP POLICY IF EXISTS "Public can insert requests" ON public.marketplace_requests;
+CREATE POLICY "Public can insert requests" ON public.marketplace_requests
+  FOR INSERT WITH CHECK (customer_id IS NULL);
 
 -- Clients can update their own requests (for future fields like ratings / confirmations)
 DROP POLICY IF EXISTS "Clients can update their own requests" ON public.marketplace_requests;

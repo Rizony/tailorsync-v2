@@ -165,7 +165,10 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
         const maybeSchemaMismatch =
           missingColumn ||
           (msg.toLowerCase().includes("column") &&
-            (msg.includes("item_quantity") || msg.includes("image_urls") || msg.includes("reference_links")));
+            (msg.includes("item_quantity") ||
+              msg.includes("image_urls") ||
+              msg.includes("reference_links") ||
+              msg.includes("customer_whatsapp")));
 
         if (!maybeSchemaMismatch) throw error;
 
@@ -184,7 +187,17 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       setFormSuccess(true);
     } catch (err) {
       console.error("Error sending request:", err);
-      alert("Failed to send request. Please try again.");
+      const msg = (err as any)?.message ?? String(err ?? "");
+      const looksLikeRls =
+        msg.toLowerCase().includes("row-level security") ||
+        msg.toLowerCase().includes("permission denied") ||
+        msg.toLowerCase().includes("not authorized");
+
+      if (looksLikeRls) {
+        alert("Please login to send requests right now. (Your database security settings are blocking guest requests.)");
+      } else {
+        alert(`Failed to send request. Please try again.\n\n${msg}`);
+      }
     } finally {
       setFormLoading(false);
     }
