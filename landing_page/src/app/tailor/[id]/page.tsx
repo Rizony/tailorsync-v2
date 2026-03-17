@@ -479,8 +479,8 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
 
                   <button
                     type="submit"
-                    disabled={formLoading || !tailor.is_available}
-                    className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available ? 'bg-slate-300 cursor-not-allowed' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'}`}
+                    disabled={formLoading}
+                    className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available ? 'bg-slate-300' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'} ${formLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     <span>{formLoading ? "Sending..." : "Send Job Request"}</span>
                     {!formLoading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
@@ -502,6 +502,9 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                 <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   <ShieldCheck className="h-4 w-4 text-green-500" />
                   <span>Secure Marketplace Request</span>
+                </div>
+                <div className="mt-2 text-center text-[10px] font-semibold text-slate-300">
+                  Build: {(process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? process.env.NEXT_PUBLIC_GIT_SHA ?? "local").slice(0, 7)}
                 </div>
               </>
             )}
