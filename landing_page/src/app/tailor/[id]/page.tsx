@@ -163,9 +163,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       // If the DB column isn't deployed yet, gracefully retry without it.
       const first = await supabase
         .from("marketplace_requests")
-        .insert(customerId ? { ...requestDataBase, customer_id: customerId } : requestDataBase)
-        .select("id")
-        .maybeSingle();
+        .insert(customerId ? { ...requestDataBase, customer_id: customerId } : requestDataBase);
 
       if (first.error) {
         const msg = (first.error as any)?.message ?? "";
@@ -189,7 +187,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
           description: formData.get("description"),
           status: "pending",
         };
-        const retry = await supabase.from("marketplace_requests").insert(minimal).select("id").maybeSingle();
+        const retry = await supabase.from("marketplace_requests").insert(minimal);
         if (retry.error) throw retry.error;
       }
       setFormSuccess(true);
