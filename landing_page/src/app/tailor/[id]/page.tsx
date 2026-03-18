@@ -100,7 +100,8 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       return;
     }
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const { data: sessionData } = await supabase.auth.getSession();
     const qtyRaw = String(formData.get("quantity") ?? "").trim();
     const quantity = qtyRaw ? Number(qtyRaw) : null;
@@ -111,7 +112,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       .filter(Boolean);
 
     // Optional direct photo uploads (requires client login for storage access)
-    const photoInput = e.currentTarget.querySelector('input[name="photos"]') as HTMLInputElement | null;
+    const photoInput = form.querySelector('input[name="photos"]') as HTMLInputElement | null;
     const photoFiles = Array.from(photoInput?.files ?? []);
     const customerId = sessionData.session?.user?.id ?? null;
 
