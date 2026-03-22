@@ -10,10 +10,16 @@ import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 import 'package:tailorsync_v2/core/sync/sync_manager.dart';
 import '../models/order_model.dart';
 
+import 'package:tailorsync_v2/core/auth/auth_provider.dart';
+
 part 'order_repository.g.dart';
 
 @riverpod
-OrderRepository orderRepository(Ref ref) => OrderRepository(Supabase.instance.client, ref);
+OrderRepository orderRepository(Ref ref) {
+  // SECURITY: Watch AuthState so this provider recalculates on login/logout
+  ref.watch(authControllerProvider);
+  return OrderRepository(Supabase.instance.client, ref);
+}
 
 class OrderRepository {
   final SupabaseClient _supabase;
@@ -53,6 +59,14 @@ class OrderRepository {
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     
     if (cached.isNotEmpty) {
+      // SECURITY: Validate cache belongs to current user
+      final currentUserId = _supabase.auth.currentUser?.id;
+      if (currentUserId != null && cached.first.userId != currentUserId) {
+        // Cache poisoning detected (user logged into multiple accounts rapidly)!
+        await _orderBox.clear();
+        return _fetchRecentRemote(limit);
+      }
+
       // Background fetch
       _fetchRecentRemote(limit);
       return Right(cached.take(limit).toList());
@@ -135,6 +149,13 @@ class OrderRepository {
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     if (cached.isNotEmpty) {
+      // SECURITY: Validate cache belongs to current user
+      final currentUserId = _supabase.auth.currentUser?.id;
+      if (currentUserId != null && cached.first.userId != currentUserId) {
+        await _orderBox.clear();
+        return _fetchByStatusesRemote(statuses);
+      }
+
       _fetchByStatusesRemote(statuses);
       return Right(cached);
     }

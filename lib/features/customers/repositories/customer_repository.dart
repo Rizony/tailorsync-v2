@@ -21,12 +21,23 @@ class CustomerRepository extends _$CustomerRepository {
 
   @override
   Future<List<Customer>> build() async {
+    // SECURITY: Watch AuthState so this provider recalculates on login/logout
+    ref.watch(authControllerProvider);
+    
     _customerBox = Hive.box<Customer>('customers');
     _syncBox = Hive.box<SyncAction>('sync_queue');
     
     // Return cached data immediately
     final cached = _customerBox.values.toList();
     if (cached.isNotEmpty) {
+      // SECURITY: Validate cache belongs to current user
+      final currentUserId = _supabase.auth.currentUser?.id;
+      if (currentUserId != null && cached.first.userId != currentUserId) {
+        // Cache poisoning detected!
+        await _customerBox.clear();
+        return _fetchRemote();
+      }
+
       // Trigger a background fetch to sync with remote
       _fetchRemote();
       return cached;

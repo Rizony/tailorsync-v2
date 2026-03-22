@@ -18,6 +18,9 @@ class ReferralStats {
 
 /// Fetches referral stats for the current user from Supabase.
 final referralStatsProvider = FutureProvider<ReferralStats>((ref) async {
+  // SECURITY: Watch AuthState so this provider recalculates on login/logout
+  ref.watch(authControllerProvider);
+  
   final uid = Supabase.instance.client.auth.currentUser?.id;
   if (uid == null) {
     return const ReferralStats(

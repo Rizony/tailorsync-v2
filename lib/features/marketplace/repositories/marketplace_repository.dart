@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tailorsync_v2/core/auth/auth_provider.dart';
 import '../models/marketplace_request.dart';
 
 part 'marketplace_repository.g.dart';
@@ -100,6 +101,8 @@ class MarketplaceRepository {
 
 @riverpod
 MarketplaceRepository marketplaceRepository(MarketplaceRepositoryRef ref) {
+  // SECURITY: Watch AuthState so this provider recalculates on login/logout
+  ref.watch(authControllerProvider);
   return MarketplaceRepository(Supabase.instance.client);
 }
 
