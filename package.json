@@ -1,0 +1,7 @@
+{
+  "name": "tailorsync-v2",
+  "private": true,
+  "workspaces": [
+    "landing_page"
+  ]
+}
