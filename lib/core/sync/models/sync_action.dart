@@ -7,7 +7,7 @@ class SyncAction {
   @HiveField(1)
   final String actionType; // 'CREATE', 'UPDATE', 'DELETE'
   @HiveField(2)
-  final String endpoint;   // 'jobs', 'customers', etc.
+  final String endpoint;   // 'orders', 'customers', etc.
   @HiveField(3)
   final Map<String, dynamic> payload;
   @HiveField(4)

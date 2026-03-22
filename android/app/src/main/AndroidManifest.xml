@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     
     <application
-        android:label="NEEDLIX"
+        android:label="Needlix"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">
@@ -35,7 +35,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="io.supabase.tailorsync" android:host="login-callback" />
+                <data android:scheme="io.supabase.needlix" android:host="login-callback" />
             </intent-filter>
 
             <!-- Deep linking for payment callbacks -->
@@ -43,7 +43,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tailorsync" android:host="payment-callback" />
+                <data android:scheme="needlix" android:host="payment-callback" />
             </intent-filter>
         </activity>
         

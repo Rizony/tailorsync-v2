@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:tailorsync_v2/core/sync/hive_adapters.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 import 'package:tailorsync_v2/core/app/app_shell.dart';
 import 'package:tailorsync_v2/core/auth/auth_gate.dart';
@@ -34,15 +34,15 @@ void main() async {
   
   // Register manual adapters
   Hive.registerAdapter(CustomerAdapter());
-  Hive.registerAdapter(JobItemAdapter());
+  Hive.registerAdapter(OrderItemAdapter());
   Hive.registerAdapter(PaymentAdapter());
-  Hive.registerAdapter(JobModelAdapter());
+  Hive.registerAdapter(OrderModelAdapter());
   Hive.registerAdapter(SyncActionAdapter());
 
   // Open required boxes
   await Hive.openBox('settings');
   await Hive.openBox<Customer>('customers');
-  await Hive.openBox<JobModel>('jobs');
+  await Hive.openBox<OrderModel>('orders');
   await Hive.openBox<SyncAction>('sync_queue');
 
   runApp(
@@ -66,7 +66,7 @@ class NeedlixApp extends ConsumerWidget {
     final currentThemeColor = ref.watch(themeColorProvider);
 
     return MaterialApp(
-      title: 'NEEDLIX',
+      title: 'Needlix',
       theme: AppTheme.lightTheme(customPrimaryColor: currentThemeColor),
       darkTheme: AppTheme.darkTheme(customPrimaryColor: currentThemeColor),
       themeMode: currentThemeMode, // Apply it here

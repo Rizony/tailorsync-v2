@@ -10,24 +10,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/core/notifications/notification_service.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
-import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 
-class CreateJobScreen extends ConsumerStatefulWidget {
-  final JobModel? job;
-  const CreateJobScreen({super.key, this.job});
+class CreateOrderScreen extends ConsumerStatefulWidget {
+  final OrderModel? order;
+  const CreateOrderScreen({super.key, this.order});
 
   @override
-  ConsumerState<CreateJobScreen> createState() => _CreateJobScreenState();
+  ConsumerState<CreateOrderScreen> createState() => _CreateOrderScreenState();
 }
 
-class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
+class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _priceController = TextEditingController();
-  final _depositController = TextEditingController(); // Replaced balanceController
+  final _depositController = TextEditingController(); 
   final _notesController = TextEditingController();
   
   DateTime? _dueDate;
@@ -44,22 +44,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.job != null) {
-      final job = widget.job!;
-      _titleController.text = job.title;
-      _priceController.text = job.price.toString();
-      _depositController.text = (job.price - job.balanceDue).toString();
-      _notesController.text = job.notes ?? '';
-      _dueDate = job.dueDate;
-      _items.addAll(job.items);
-      _fabricStatus = job.fabricStatus;
-      _fabricSource = job.fabricSource;
+    if (widget.order != null) {
+      final order = widget.order!;
+      _titleController.text = order.title;
+      _priceController.text = order.price.toString();
+      _depositController.text = (order.price - order.balanceDue).toString();
+      _notesController.text = order.notes ?? '';
+      _dueDate = order.dueDate;
+      _items.addAll(order.items);
+      _fabricStatus = order.fabricStatus;
+      _fabricSource = order.fabricSource;
       
-      // We need to fetch the customer details since JobModel only has customerId
-      // For now, we'll try to find it in the repository provider's cache or fetch it
-      // This is a simplification; ideally we'd pass the Customer object too or fetch it properly
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _fetchCustomer(job.customerId);
+        _fetchCustomer(order.customerId);
       });
     }
   }
@@ -114,7 +111,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     });
   }
 
-  final List<JobItem> _items = [];
+  final List<OrderItem> _items = [];
 
   double _calculateTotal() {
     return _items.fold(0, (sum, item) => sum + (item.price * item.quantity));
@@ -168,7 +165,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           ElevatedButton(
             onPressed: () {
               if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
-                 final newItem = JobItem(
+                 final newItem = OrderItem(
                    name: nameController.text,
                    price: double.tryParse(priceController.text) ?? 0,
                    quantity: int.tryParse(qtyController.text) ?? 1,
@@ -184,7 +181,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     );
   }
 
-  Future<void> _saveJob({required bool isQuote}) async {
+  Future<void> _saveOrder({required bool isQuote}) async {
     if (!_formKey.currentState!.validate()) return;
     
     if (_items.isEmpty) {
@@ -230,8 +227,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         await ref.read(customerRepositoryProvider.notifier).updateCustomer(updatedCustomer);
       }
 
-      // 3. Create Job
-      // Auto-generate title if empty
+      // 3. Create Order
       String title = _titleController.text.trim();
       if (title.isEmpty) {
         if (_items.length == 1) {
@@ -244,8 +240,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       final total = _calculateTotal();
       final deposit = double.tryParse(_depositController.text) ?? 0;
 
-      final job = JobModel(
-        id: widget.job?.id ?? '', 
+      final order = OrderModel(
+        id: widget.order?.id ?? '', 
         userId: Supabase.instance.client.auth.currentUser!.id,
         customerId: _selectedCustomer!.id!,
         title: title,
@@ -256,40 +252,38 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         status: isQuote ? 'quote' : 'pending',
         images: imageUrls,
         notes: _notesController.text,
-        createdAt: widget.job?.createdAt ?? DateTime.now(),
-        payments: widget.job == null && deposit > 0 
+        createdAt: widget.order?.createdAt ?? DateTime.now(),
+        payments: widget.order == null && deposit > 0 
             ? [Payment(amount: deposit, date: DateTime.now(), note: 'Initial Deposit')]
-            : (widget.job?.payments ?? []),
+            : (widget.order?.payments ?? []),
         fabricStatus: _fabricStatus,
         fabricSource: _fabricSource,
       );
 
-      final result = widget.job == null 
-          ? await ref.read(jobRepositoryProvider).createJob(job)
-          : await ref.read(jobRepositoryProvider).updateJob(job);
+      final result = widget.order == null 
+          ? await ref.read(orderRepositoryProvider).createOrder(order)
+          : await ref.read(orderRepositoryProvider).updateOrder(order);
       
       if (result.isLeft()) throw result.getLeft().toNullable()!;
       
-      // 4. Schedule Notification (if it's an order)
       // 4. Schedule Notification (if it's an order)
       if (!isQuote && _dueDate != null) {
         try {
           final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
           await NotificationService.scheduleNotification(
             id: notificationId,
-            title: 'Job Due: ${job.title}',
+            title: 'Order Due: ${order.title}',
             body: 'Order for ${_selectedCustomer!.fullName} is due today!',
             scheduledDate: _dueDate!,
           );
         } catch (e) {
-          // Ignore notification errors - they shouldn't block the save
           debugPrint('Notification scheduling failed: $e');
         }
       }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isQuote ? (widget.job == null ? 'Quote saved!' : 'Quote updated!') : (widget.job == null ? 'Order created!' : 'Order updated!'))),
+          SnackBar(content: Text(isQuote ? (widget.order == null ? 'Quote saved!' : 'Quote updated!') : (widget.order == null ? 'Order created!' : 'Order updated!'))),
         );
         await Future.delayed(const Duration(milliseconds: 50));
         if (mounted) Navigator.pop(context);
@@ -306,7 +300,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.job == null ? 'New Order / Quote' : 'Edit Job')),
+      appBar: AppBar(title: Text(widget.order == null ? 'New Order / Quote' : 'Edit Order')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -518,7 +512,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => _saveJob(isQuote: true),
+                      onPressed: _isLoading ? null : () => _saveOrder(isQuote: true),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                       child: const Text('Save as Quote'),
                     ),
@@ -526,7 +520,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => _saveJob(isQuote: false),
+                      onPressed: _isLoading ? null : () => _saveOrder(isQuote: false),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
@@ -547,7 +541,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   }
 
   Widget _buildCustomerDropdown() {
-    // You might want to use a Autocomplete or a Modal for better UX with many customers
     return Consumer(
       builder: (context, ref, _) {
         final customersAsync = ref.watch(customerRepositoryProvider);

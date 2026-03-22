@@ -33,7 +33,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Community Board'),
+        title: const Text('Needlix Community Board'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Padding(
@@ -55,7 +55,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    label: 'Job Offers',
+                    label: 'Order Offers',
                     isSelected: _filterType == 'jobs',
                     onTap: () => setState(() => _filterType = 'jobs'),
                   ),
@@ -254,7 +254,7 @@ class _PostCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.orange),
                       ),
-                      child: const Text('JOB OFFER', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text('ORDER OFFER', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
                   if (post.postType == 'showroom')
                     Container(

@@ -23,7 +23,7 @@ const List<PlanFeature> kPlanFeatures = [
   PlanFeature(label: 'Unlimited customers', freemium: false, standard: true, premium: true),
   PlanFeature(label: 'Daily ad gate', freemium: true, standard: false, premium: false),
   PlanFeature(label: 'No video ads', freemium: false, standard: true, premium: true),
-  PlanFeature(label: 'Job & order tracking', freemium: true, standard: true, premium: true),
+  PlanFeature(label: 'Order tracking', freemium: true, standard: true, premium: true),
   PlanFeature(label: 'Customer measurements', freemium: true, standard: true, premium: true),
   PlanFeature(label: 'PDF invoices & quotations', freemium: false, standard: true, premium: true),
   PlanFeature(label: 'Cloud sync & backup', freemium: false, standard: true, premium: true),
@@ -32,7 +32,7 @@ const List<PlanFeature> kPlanFeatures = [
   PlanFeature(label: '40% commission – first month', freemium: false, standard: false, premium: true),
   PlanFeature(label: '20% recurring commissions', freemium: false, standard: false, premium: true),
   PlanFeature(label: 'Passive income dashboard', freemium: false, standard: false, premium: true),
-  PlanFeature(label: 'Exclusive Tailor Community', freemium: false, standard: false, premium: true),
+  PlanFeature(label: 'Exclusive Needlix Community', freemium: false, standard: false, premium: true),
   PlanFeature(label: 'Fast priority support', freemium: false, standard: false, premium: true),
 ];
 
@@ -75,7 +75,7 @@ const List<PlanPricing> kPlans = [
     badgeColor: Color(0xFF607D8B),
     highlights: [
       'Up to 20 customers',
-      'Basic job tracking',
+      'Basic order tracking',
       'Watch ads to unlock more',
     ],
   ),
@@ -103,7 +103,7 @@ const List<PlanPricing> kPlans = [
     badgeColor: Color(0xFFE65100),
     highlights: [
       'Everything in Standard',
-      'Exclusive Tailor Community',
+      'Exclusive Needlix Community',
       'Referral commissions (up to 40%)',
       'Passive income dashboard',
       'Fast priority support',

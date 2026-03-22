@@ -54,7 +54,7 @@ class MarketplaceNotificationService {
       title: 'New Marketplace Inquiry! 🧵',
       body: newItems == 1 
           ? 'A new potential customer is reaching out from the website.' 
-          : 'You have $newItems new job inquiries from the website.',
+          : 'You have $newItems new order inquiries from the website.',
     );
   }
 }

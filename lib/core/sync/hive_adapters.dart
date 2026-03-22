@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 
 class CustomerAdapter extends TypeAdapter<Customer> {
@@ -48,17 +48,17 @@ class CustomerAdapter extends TypeAdapter<Customer> {
   }
 }
 
-class JobItemAdapter extends TypeAdapter<JobItem> {
+class OrderItemAdapter extends TypeAdapter<OrderItem> {
   @override
   final int typeId = 1;
 
   @override
-  JobItem read(BinaryReader reader) {
+  OrderItem read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return JobItem(
+    return OrderItem(
       name: fields[0] as String,
       quantity: fields[1] as int,
       price: fields[2] as double,
@@ -66,7 +66,7 @@ class JobItemAdapter extends TypeAdapter<JobItem> {
   }
 
   @override
-  void write(BinaryWriter writer, JobItem obj) {
+  void write(BinaryWriter writer, OrderItem obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
@@ -111,17 +111,17 @@ class PaymentAdapter extends TypeAdapter<Payment> {
   }
 }
 
-class JobModelAdapter extends TypeAdapter<JobModel> {
+class OrderModelAdapter extends TypeAdapter<OrderModel> {
   @override
   final int typeId = 3;
 
   @override
-  JobModel read(BinaryReader reader) {
+  OrderModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return JobModel(
+    return OrderModel(
       id: fields[0] as String,
       userId: fields[1] as String,
       customerId: fields[2] as String,
@@ -131,7 +131,7 @@ class JobModelAdapter extends TypeAdapter<JobModel> {
       dueDate: fields[6] as DateTime,
       status: fields[7] as String,
       images: (fields[8] as List?)?.cast<String>() ?? [],
-      items: (fields[9] as List?)?.cast<JobItem>() ?? [],
+      items: (fields[9] as List?)?.cast<OrderItem>() ?? [],
       payments: (fields[10] as List?)?.cast<Payment>() ?? [],
       fabricStatus: fields[11] as String,
       fabricSource: fields[12] as String?,
@@ -144,7 +144,7 @@ class JobModelAdapter extends TypeAdapter<JobModel> {
   }
 
   @override
-  void write(BinaryWriter writer, JobModel obj) {
+  void write(BinaryWriter writer, OrderModel obj) {
     writer
       ..writeByte(18)
       ..writeByte(0)

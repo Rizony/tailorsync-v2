@@ -1,19 +1,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive_ce/hive.dart';
 
-part 'job_model.freezed.dart';
-part 'job_model.g.dart';
+part 'order_model.freezed.dart';
+part 'order_model.g.dart';
 
 @freezed
 @HiveType(typeId: 1)
-class JobItem with _$JobItem {
-  const factory JobItem({
+class OrderItem with _$OrderItem {
+  const factory OrderItem({
     @HiveField(0) required String name,
     @Default(1) @HiveField(1) int quantity,
     @Default(0) @HiveField(2) double price,
-  }) = _JobItem;
+  }) = _OrderItem;
 
-  factory JobItem.fromJson(Map<String, dynamic> json) => _$JobItemFromJson(json);
+  factory OrderItem.fromJson(Map<String, dynamic> json) => _$OrderItemFromJson(json);
 }
 
 @freezed
@@ -31,8 +31,8 @@ class Payment with _$Payment {
 
 @freezed
 @HiveType(typeId: 3)
-class JobModel with _$JobModel {
-  const factory JobModel({
+class OrderModel with _$OrderModel {
+  const factory OrderModel({
     @HiveField(0) required String id,
     @JsonKey(name: 'user_id') @HiveField(1) required String userId,
     @JsonKey(name: 'customer_id') @HiveField(2) required String customerId,
@@ -42,7 +42,7 @@ class JobModel with _$JobModel {
     @JsonKey(name: 'due_date') @HiveField(6) required DateTime dueDate,
     @Default('pending') @HiveField(7) String status,
     @Default([]) @HiveField(8) List<String> images,
-    @Default([]) @HiveField(9) List<JobItem> items,
+    @Default([]) @HiveField(9) List<OrderItem> items,
     @Default([]) @HiveField(10) List<Payment> payments,
     @JsonKey(name: 'fabric_status') @Default('not_received') @HiveField(11) String fabricStatus,
     @JsonKey(name: 'fabric_source') @HiveField(12) String? fabricSource,
@@ -51,9 +51,9 @@ class JobModel with _$JobModel {
     @JsonKey(name: 'assigned_to') @HiveField(15) String? assignedTo,
     @JsonKey(name: 'is_outsourced') @Default(false) @HiveField(16) bool isOutsourced,
     @JsonKey(readValue: _readCustomerName, includeToJson: false) @HiveField(17) String? customerName,
-  }) = _JobModel;
+  }) = _OrderModel;
 
-  factory JobModel.fromJson(Map<String, dynamic> json) => _$JobModelFromJson(json);
+  factory OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
 
   static const String statusPending = 'pending';
   static const String statusInProgress = 'in_progress';

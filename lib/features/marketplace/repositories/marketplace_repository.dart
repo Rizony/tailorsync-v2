@@ -82,7 +82,7 @@ class MarketplaceRepository {
         .map((data) => data.map((e) => MarketplaceRequest.fromJson(e)).toList());
   }
 
-  Future<void> acceptAndCreateJob({
+  Future<void> acceptAndCreateOrder({
     required MarketplaceRequest request,
     required String customerId,
     required String title,

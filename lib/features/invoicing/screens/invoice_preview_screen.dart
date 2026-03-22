@@ -4,17 +4,17 @@ import 'package:printing/printing.dart';
 import 'package:tailorsync_v2/core/auth/models/app_user.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 import 'package:tailorsync_v2/features/invoicing/services/invoice_service.dart';
 import 'dart:typed_data';
 
 class InvoicePreviewScreen extends ConsumerStatefulWidget {
-  final JobModel job;
+  final OrderModel order;
   final Customer customer;
 
   const InvoicePreviewScreen({
     super.key,
-    required this.job,
+    required this.order,
     required this.customer,
   });
 
@@ -60,7 +60,7 @@ class _InvoicePreviewScreenState extends ConsumerState<InvoicePreviewScreen> {
   Future<Uint8List> _generatePdf(dynamic format, AppUser profile) async {
     final invoiceService = ref.read(invoiceServiceProvider);
     return await invoiceService.generateInvoiceBytes(
-      job: widget.job,
+      order: widget.order,
       customer: widget.customer,
       profile: profile,
     );
@@ -78,7 +78,7 @@ class _InvoicePreviewScreenState extends ConsumerState<InvoicePreviewScreen> {
     try {
       final invoiceService = ref.read(invoiceServiceProvider);
       final bytes = await invoiceService.generateInvoiceBytes(
-        job: widget.job,
+        order: widget.order,
         customer: widget.customer,
         profile: profile,
       );
@@ -88,7 +88,7 @@ class _InvoicePreviewScreenState extends ConsumerState<InvoicePreviewScreen> {
 
       await Printing.sharePdf(
         bytes: bytes, 
-        filename: 'Invoice_${widget.job.title.replaceAll(" ", "_")}.pdf'
+        filename: 'Invoice_${widget.order.title.replaceAll(" ", "_")}.pdf'
       );
     } catch (e) {
       if (!mounted) return;
@@ -109,7 +109,7 @@ class _InvoicePreviewScreenState extends ConsumerState<InvoicePreviewScreen> {
     try {
       final invoiceService = ref.read(invoiceServiceProvider);
       final bytes = await invoiceService.generateInvoiceBytes(
-        job: widget.job,
+        order: widget.order,
         customer: widget.customer,
         profile: profile,
       );
@@ -119,7 +119,7 @@ class _InvoicePreviewScreenState extends ConsumerState<InvoicePreviewScreen> {
 
       await Printing.layoutPdf(
         onLayout: (format) => bytes,
-        name: 'Invoice_${widget.job.title}',
+        name: 'Invoice_${widget.order.title}',
       );
     } catch (e) {
       if (!mounted) return;

@@ -258,7 +258,7 @@ class BillingService {
   }
 
   /// Process monthly recurring commission for existing referrals
-  /// Call this via scheduled job/webhook when subscriptions renew
+  /// Call this via scheduled task/webhook when subscriptions renew
   static Future<void> processMonthlyReferralCommissions() async {
     try {
       // Get all active Premium users with referrals

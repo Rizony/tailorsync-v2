@@ -8,47 +8,47 @@ import 'package:tailorsync_v2/core/errors/failures.dart';
 import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
 import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 import 'package:tailorsync_v2/core/sync/sync_manager.dart';
-import '../models/job_model.dart';
+import '../models/order_model.dart';
 
-part 'job_repository.g.dart';
+part 'order_repository.g.dart';
 
 @riverpod
-JobRepository jobRepository(Ref ref) => JobRepository(Supabase.instance.client, ref);
+OrderRepository orderRepository(Ref ref) => OrderRepository(Supabase.instance.client, ref);
 
-class JobRepository {
+class OrderRepository {
   final SupabaseClient _supabase;
   final Ref _ref;
-  late Box<JobModel> _jobBox;
+  late Box<OrderModel> _orderBox;
   late Box<SyncAction> _syncBox;
 
-  JobRepository(this._supabase, this._ref) {
-    _jobBox = Hive.box<JobModel>('jobs');
+  OrderRepository(this._supabase, this._ref) {
+    _orderBox = Hive.box<OrderModel>('orders');
     _syncBox = Hive.box<SyncAction>('sync_queue');
   }
 
-  Future<Either<Failure, JobModel?>> getJob(String id) async {
+  Future<Either<Failure, OrderModel?>> getOrder(String id) async {
     // 1. Check local cache
-    final cached = _jobBox.get(id);
+    final cached = _orderBox.get(id);
     if (cached != null) return Right(cached);
 
     try {
       final response = await _supabase
-          .from('jobs')
+          .from('orders')
           .select('*, customers(full_name)')
           .eq('id', id)
           .single();
       
-      final job = JobModel.fromJson(response);
-      await _jobBox.put(id, job); // Update cache
-      return Right(job);
+      final order = OrderModel.fromJson(response);
+      await _orderBox.put(id, order); // Update cache
+      return Right(order);
     } catch (e, stack) {
       return Left(ErrorHandler.handle(e, stack));
     }
   }
 
-  Future<Either<Failure, List<JobModel>>> getRecentJobs({int limit = 10}) async {
+  Future<Either<Failure, List<OrderModel>>> getRecentOrders({int limit = 10}) async {
     // 1. Return cached data immediately if available
-    final cached = _jobBox.values
+    final cached = _orderBox.values
         .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     
@@ -61,26 +61,26 @@ class JobRepository {
     return _fetchRecentRemote(limit);
   }
 
-  Future<Either<Failure, List<JobModel>>> _fetchRecentRemote(int limit) async {
+  Future<Either<Failure, List<OrderModel>>> _fetchRecentRemote(int limit) async {
     try {
       final response = await _supabase
-          .from('jobs')
+          .from('orders')
           .select('*, customers(full_name)')
           .order('created_at', ascending: false)
           .limit(limit);
       
-      final jobs = (response as List).map((e) => JobModel.fromJson(e)).toList();
+      final orders = (response as List).map((e) => OrderModel.fromJson(e)).toList();
       
-      // Update cache (Merge instead of clear to avoid losing offline-created jobs not yet synced)
-      for (var job in jobs) {
-        await _jobBox.put(job.id, job);
+      // Update cache
+      for (var order in orders) {
+        await _orderBox.put(order.id, order);
       }
       
-      return Right(jobs);
+      return Right(orders);
     } catch (e, stack) {
       // If we have any cache, return it
-      if (_jobBox.isNotEmpty) {
-        return Right(_jobBox.values.toList());
+      if (_orderBox.isNotEmpty) {
+        return Right(_orderBox.values.toList());
       }
       return Left(ErrorHandler.handle(e, stack));
     }
@@ -88,38 +88,36 @@ class JobRepository {
 
   Future<Either<Failure, Map<String, int>>> getStats() async {
     // Local stats for offline use
-    final activeCount = _jobBox.values
-        .where((j) => JobModel.activeStatuses.contains(j.status))
+    final activeCount = _orderBox.values
+        .where((j) => OrderModel.activeStatuses.contains(j.status))
         .length;
-    final completedCount = _jobBox.values
-        .where((j) => [JobModel.statusCompleted, JobModel.statusDelivered].contains(j.status))
+    final completedCount = _orderBox.values
+        .where((j) => [OrderModel.statusCompleted, OrderModel.statusDelivered].contains(j.status))
         .length;
 
-    // We can still try to fetch remote stats in the background if needed, 
-    // but for offline mode, local stats are what matter.
     return Right({
       'active': activeCount,
       'completed': completedCount,
     });
   }
 
-  Future<Either<Failure, Unit>> createJob(JobModel job) async {
+  Future<Either<Failure, Unit>> createOrder(OrderModel order) async {
     try {
       final id = const Uuid().v4();
-      final newJob = job.copyWith(
+      final newOrder = order.copyWith(
         id: id,
         userId: _supabase.auth.currentUser!.id,
         createdAt: DateTime.now(),
       );
 
       // 1. Save to local cache
-      await _jobBox.put(id, newJob);
+      await _orderBox.put(id, newOrder);
       
       // 2. Push to sync outbox
       await _pushSyncAction(
         SyncAction.actionCreate,
-        'jobs',
-        newJob.toJson(),
+        'orders',
+        newOrder.toJson(),
         id,
       );
 
@@ -129,9 +127,9 @@ class JobRepository {
     }
   }
 
-  Future<Either<Failure, List<JobModel>>> getJobsByStatuses(List<String> statuses) async {
+  Future<Either<Failure, List<OrderModel>>> getOrdersByStatuses(List<String> statuses) async {
     // 1. Check local cache
-    final cached = _jobBox.values
+    final cached = _orderBox.values
         .where((j) => statuses.contains(j.status))
         .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -144,28 +142,28 @@ class JobRepository {
     return _fetchByStatusesRemote(statuses);
   }
 
-  Future<Either<Failure, List<JobModel>>> _fetchByStatusesRemote(List<String> statuses) async {
+  Future<Either<Failure, List<OrderModel>>> _fetchByStatusesRemote(List<String> statuses) async {
     try {
       final response = await _supabase
-          .from('jobs')
+          .from('orders')
           .select('*, customers(full_name)')
           .inFilter('status', statuses)
           .order('created_at', ascending: false);
       
-      final jobs = (response as List).map((e) => JobModel.fromJson(e)).toList();
+      final orders = (response as List).map((e) => OrderModel.fromJson(e)).toList();
       
-      for (var job in jobs) {
-        await _jobBox.put(job.id, job);
+      for (var order in orders) {
+        await _orderBox.put(order.id, order);
       }
       
-      return Right(jobs);
+      return Right(orders);
     } catch (e, stack) {
       return Left(ErrorHandler.handle(e, stack));
     }
   }
 
-  Future<Either<Failure, List<JobModel>>> getJobsByCustomerId(String customerId) async {
-    final cached = _jobBox.values
+  Future<Either<Failure, List<OrderModel>>> getOrdersByCustomerId(String customerId) async {
+    final cached = _orderBox.values
         .where((j) => j.customerId == customerId)
         .toList();
     
@@ -173,29 +171,29 @@ class JobRepository {
 
     try {
       final response = await _supabase
-          .from('jobs')
+          .from('orders')
           .select()
           .eq('customer_id', customerId)
           .order('created_at', ascending: false);
       
-      final jobs = (response as List).map((e) => JobModel.fromJson(e)).toList();
-      return Right(jobs);
+      final orders = (response as List).map((e) => OrderModel.fromJson(e)).toList();
+      return Right(orders);
     } catch (e, stack) {
       return Left(ErrorHandler.handle(e, stack));
     }
   }
 
-  Future<Either<Failure, Unit>> updateJob(JobModel job) async {
+  Future<Either<Failure, Unit>> updateOrder(OrderModel order) async {
     try {
       // 1. Save to local cache
-      await _jobBox.put(job.id, job);
+      await _orderBox.put(order.id, order);
       
       // 2. Push to sync outbox
       await _pushSyncAction(
         SyncAction.actionUpdate,
-        'jobs',
-        job.toJson(),
-        job.id,
+        'orders',
+        order.toJson(),
+        order.id,
       );
 
       return const Right(unit);
@@ -220,31 +218,31 @@ class JobRepository {
 }
 
 @riverpod
-Future<List<JobModel>> recentJobs(Ref ref) async {
-  final repository = ref.watch(jobRepositoryProvider);
-  final result = await repository.getRecentJobs();
+Future<List<OrderModel>> recentOrders(Ref ref) async {
+  final repository = ref.watch(orderRepositoryProvider);
+  final result = await repository.getRecentOrders();
   return result.fold(
     (failure) => throw failure,
-    (jobs) => jobs,
+    (orders) => orders,
   );
 }
 
 @riverpod
-Future<List<JobModel>> jobsByStatuses(Ref ref, List<String> statuses) async {
-  final repository = ref.watch(jobRepositoryProvider);
-  final result = await repository.getJobsByStatuses(statuses);
+Future<List<OrderModel>> ordersByStatuses(Ref ref, List<String> statuses) async {
+  final repository = ref.watch(orderRepositoryProvider);
+  final result = await repository.getOrdersByStatuses(statuses);
   return result.fold(
     (failure) => throw failure,
-    (jobs) => jobs,
+    (orders) => orders,
   );
 }
 
 @riverpod
-Future<List<JobModel>> jobsByCustomer(Ref ref, String customerId) async {
-  final repository = ref.watch(jobRepositoryProvider);
-  final result = await repository.getJobsByCustomerId(customerId);
+Future<List<OrderModel>> ordersByCustomer(Ref ref, String customerId) async {
+  final repository = ref.watch(orderRepositoryProvider);
+  final result = await repository.getOrdersByCustomerId(customerId);
   return result.fold(
     (failure) => throw failure,
-    (jobs) => jobs,
+    (orders) => orders,
   );
 }

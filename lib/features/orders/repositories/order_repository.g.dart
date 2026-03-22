@@ -1,45 +1,46 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'job_repository.dart';
+part of 'order_repository.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$jobRepositoryHash() => r'4889ef2dc0434cca42c8c85c0341b85996cb14ce';
+String _$orderRepositoryHash() => r'b324c5f1aa11fab69ba9a50be8c822005d410b9a';
 
-/// See also [jobRepository].
-@ProviderFor(jobRepository)
-final jobRepositoryProvider = AutoDisposeProvider<JobRepository>.internal(
-  jobRepository,
-  name: r'jobRepositoryProvider',
+/// See also [orderRepository].
+@ProviderFor(orderRepository)
+final orderRepositoryProvider = AutoDisposeProvider<OrderRepository>.internal(
+  orderRepository,
+  name: r'orderRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$jobRepositoryHash,
+      : _$orderRepositoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef JobRepositoryRef = AutoDisposeProviderRef<JobRepository>;
-String _$recentJobsHash() => r'c6463842d8bd895f90edb977c4360a9cf026f57c';
+typedef OrderRepositoryRef = AutoDisposeProviderRef<OrderRepository>;
+String _$recentOrdersHash() => r'9144675e38269f084d16beea2126fa7d0dbc708a';
 
-/// See also [recentJobs].
-@ProviderFor(recentJobs)
-final recentJobsProvider = AutoDisposeFutureProvider<List<JobModel>>.internal(
-  recentJobs,
-  name: r'recentJobsProvider',
+/// See also [recentOrders].
+@ProviderFor(recentOrders)
+final recentOrdersProvider =
+    AutoDisposeFutureProvider<List<OrderModel>>.internal(
+  recentOrders,
+  name: r'recentOrdersProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$recentJobsHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$recentOrdersHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef RecentJobsRef = AutoDisposeFutureProviderRef<List<JobModel>>;
-String _$jobsByStatusesHash() => r'62dfb52f0441e470d226ebf62f7b94f6fb3f0840';
+typedef RecentOrdersRef = AutoDisposeFutureProviderRef<List<OrderModel>>;
+String _$ordersByStatusesHash() => r'b838729b3677e9a2fb6425cdf5243b9c4892edb0';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -62,27 +63,27 @@ class _SystemHash {
   }
 }
 
-/// See also [jobsByStatuses].
-@ProviderFor(jobsByStatuses)
-const jobsByStatusesProvider = JobsByStatusesFamily();
+/// See also [ordersByStatuses].
+@ProviderFor(ordersByStatuses)
+const ordersByStatusesProvider = OrdersByStatusesFamily();
 
-/// See also [jobsByStatuses].
-class JobsByStatusesFamily extends Family<AsyncValue<List<JobModel>>> {
-  /// See also [jobsByStatuses].
-  const JobsByStatusesFamily();
+/// See also [ordersByStatuses].
+class OrdersByStatusesFamily extends Family<AsyncValue<List<OrderModel>>> {
+  /// See also [ordersByStatuses].
+  const OrdersByStatusesFamily();
 
-  /// See also [jobsByStatuses].
-  JobsByStatusesProvider call(
+  /// See also [ordersByStatuses].
+  OrdersByStatusesProvider call(
     List<String> statuses,
   ) {
-    return JobsByStatusesProvider(
+    return OrdersByStatusesProvider(
       statuses,
     );
   }
 
   @override
-  JobsByStatusesProvider getProviderOverride(
-    covariant JobsByStatusesProvider provider,
+  OrdersByStatusesProvider getProviderOverride(
+    covariant OrdersByStatusesProvider provider,
   ) {
     return call(
       provider.statuses,
@@ -101,32 +102,33 @@ class JobsByStatusesFamily extends Family<AsyncValue<List<JobModel>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'jobsByStatusesProvider';
+  String? get name => r'ordersByStatusesProvider';
 }
 
-/// See also [jobsByStatuses].
-class JobsByStatusesProvider extends AutoDisposeFutureProvider<List<JobModel>> {
-  /// See also [jobsByStatuses].
-  JobsByStatusesProvider(
+/// See also [ordersByStatuses].
+class OrdersByStatusesProvider
+    extends AutoDisposeFutureProvider<List<OrderModel>> {
+  /// See also [ordersByStatuses].
+  OrdersByStatusesProvider(
     List<String> statuses,
   ) : this._internal(
-          (ref) => jobsByStatuses(
-            ref as JobsByStatusesRef,
+          (ref) => ordersByStatuses(
+            ref as OrdersByStatusesRef,
             statuses,
           ),
-          from: jobsByStatusesProvider,
-          name: r'jobsByStatusesProvider',
+          from: ordersByStatusesProvider,
+          name: r'ordersByStatusesProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$jobsByStatusesHash,
-          dependencies: JobsByStatusesFamily._dependencies,
+                  : _$ordersByStatusesHash,
+          dependencies: OrdersByStatusesFamily._dependencies,
           allTransitiveDependencies:
-              JobsByStatusesFamily._allTransitiveDependencies,
+              OrdersByStatusesFamily._allTransitiveDependencies,
           statuses: statuses,
         );
 
-  JobsByStatusesProvider._internal(
+  OrdersByStatusesProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -140,12 +142,12 @@ class JobsByStatusesProvider extends AutoDisposeFutureProvider<List<JobModel>> {
 
   @override
   Override overrideWith(
-    FutureOr<List<JobModel>> Function(JobsByStatusesRef provider) create,
+    FutureOr<List<OrderModel>> Function(OrdersByStatusesRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: JobsByStatusesProvider._internal(
-        (ref) => create(ref as JobsByStatusesRef),
+      override: OrdersByStatusesProvider._internal(
+        (ref) => create(ref as OrdersByStatusesRef),
         from: from,
         name: null,
         dependencies: null,
@@ -157,13 +159,13 @@ class JobsByStatusesProvider extends AutoDisposeFutureProvider<List<JobModel>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<JobModel>> createElement() {
-    return _JobsByStatusesProviderElement(this);
+  AutoDisposeFutureProviderElement<List<OrderModel>> createElement() {
+    return _OrdersByStatusesProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is JobsByStatusesProvider && other.statuses == statuses;
+    return other is OrdersByStatusesProvider && other.statuses == statuses;
   }
 
   @override
@@ -177,43 +179,43 @@ class JobsByStatusesProvider extends AutoDisposeFutureProvider<List<JobModel>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin JobsByStatusesRef on AutoDisposeFutureProviderRef<List<JobModel>> {
+mixin OrdersByStatusesRef on AutoDisposeFutureProviderRef<List<OrderModel>> {
   /// The parameter `statuses` of this provider.
   List<String> get statuses;
 }
 
-class _JobsByStatusesProviderElement
-    extends AutoDisposeFutureProviderElement<List<JobModel>>
-    with JobsByStatusesRef {
-  _JobsByStatusesProviderElement(super.provider);
+class _OrdersByStatusesProviderElement
+    extends AutoDisposeFutureProviderElement<List<OrderModel>>
+    with OrdersByStatusesRef {
+  _OrdersByStatusesProviderElement(super.provider);
 
   @override
-  List<String> get statuses => (origin as JobsByStatusesProvider).statuses;
+  List<String> get statuses => (origin as OrdersByStatusesProvider).statuses;
 }
 
-String _$jobsByCustomerHash() => r'74327edf19f6e2ae3abc4b7156a669800f694a02';
+String _$ordersByCustomerHash() => r'877dc109b859fe89aa8e27c822aed3ef53cf39e0';
 
-/// See also [jobsByCustomer].
-@ProviderFor(jobsByCustomer)
-const jobsByCustomerProvider = JobsByCustomerFamily();
+/// See also [ordersByCustomer].
+@ProviderFor(ordersByCustomer)
+const ordersByCustomerProvider = OrdersByCustomerFamily();
 
-/// See also [jobsByCustomer].
-class JobsByCustomerFamily extends Family<AsyncValue<List<JobModel>>> {
-  /// See also [jobsByCustomer].
-  const JobsByCustomerFamily();
+/// See also [ordersByCustomer].
+class OrdersByCustomerFamily extends Family<AsyncValue<List<OrderModel>>> {
+  /// See also [ordersByCustomer].
+  const OrdersByCustomerFamily();
 
-  /// See also [jobsByCustomer].
-  JobsByCustomerProvider call(
+  /// See also [ordersByCustomer].
+  OrdersByCustomerProvider call(
     String customerId,
   ) {
-    return JobsByCustomerProvider(
+    return OrdersByCustomerProvider(
       customerId,
     );
   }
 
   @override
-  JobsByCustomerProvider getProviderOverride(
-    covariant JobsByCustomerProvider provider,
+  OrdersByCustomerProvider getProviderOverride(
+    covariant OrdersByCustomerProvider provider,
   ) {
     return call(
       provider.customerId,
@@ -232,32 +234,33 @@ class JobsByCustomerFamily extends Family<AsyncValue<List<JobModel>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'jobsByCustomerProvider';
+  String? get name => r'ordersByCustomerProvider';
 }
 
-/// See also [jobsByCustomer].
-class JobsByCustomerProvider extends AutoDisposeFutureProvider<List<JobModel>> {
-  /// See also [jobsByCustomer].
-  JobsByCustomerProvider(
+/// See also [ordersByCustomer].
+class OrdersByCustomerProvider
+    extends AutoDisposeFutureProvider<List<OrderModel>> {
+  /// See also [ordersByCustomer].
+  OrdersByCustomerProvider(
     String customerId,
   ) : this._internal(
-          (ref) => jobsByCustomer(
-            ref as JobsByCustomerRef,
+          (ref) => ordersByCustomer(
+            ref as OrdersByCustomerRef,
             customerId,
           ),
-          from: jobsByCustomerProvider,
-          name: r'jobsByCustomerProvider',
+          from: ordersByCustomerProvider,
+          name: r'ordersByCustomerProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$jobsByCustomerHash,
-          dependencies: JobsByCustomerFamily._dependencies,
+                  : _$ordersByCustomerHash,
+          dependencies: OrdersByCustomerFamily._dependencies,
           allTransitiveDependencies:
-              JobsByCustomerFamily._allTransitiveDependencies,
+              OrdersByCustomerFamily._allTransitiveDependencies,
           customerId: customerId,
         );
 
-  JobsByCustomerProvider._internal(
+  OrdersByCustomerProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -271,12 +274,12 @@ class JobsByCustomerProvider extends AutoDisposeFutureProvider<List<JobModel>> {
 
   @override
   Override overrideWith(
-    FutureOr<List<JobModel>> Function(JobsByCustomerRef provider) create,
+    FutureOr<List<OrderModel>> Function(OrdersByCustomerRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: JobsByCustomerProvider._internal(
-        (ref) => create(ref as JobsByCustomerRef),
+      override: OrdersByCustomerProvider._internal(
+        (ref) => create(ref as OrdersByCustomerRef),
         from: from,
         name: null,
         dependencies: null,
@@ -288,13 +291,13 @@ class JobsByCustomerProvider extends AutoDisposeFutureProvider<List<JobModel>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<JobModel>> createElement() {
-    return _JobsByCustomerProviderElement(this);
+  AutoDisposeFutureProviderElement<List<OrderModel>> createElement() {
+    return _OrdersByCustomerProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is JobsByCustomerProvider && other.customerId == customerId;
+    return other is OrdersByCustomerProvider && other.customerId == customerId;
   }
 
   @override
@@ -308,18 +311,18 @@ class JobsByCustomerProvider extends AutoDisposeFutureProvider<List<JobModel>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin JobsByCustomerRef on AutoDisposeFutureProviderRef<List<JobModel>> {
+mixin OrdersByCustomerRef on AutoDisposeFutureProviderRef<List<OrderModel>> {
   /// The parameter `customerId` of this provider.
   String get customerId;
 }
 
-class _JobsByCustomerProviderElement
-    extends AutoDisposeFutureProviderElement<List<JobModel>>
-    with JobsByCustomerRef {
-  _JobsByCustomerProviderElement(super.provider);
+class _OrdersByCustomerProviderElement
+    extends AutoDisposeFutureProviderElement<List<OrderModel>>
+    with OrdersByCustomerRef {
+  _OrdersByCustomerProviderElement(super.provider);
 
   @override
-  String get customerId => (origin as JobsByCustomerProvider).customerId;
+  String get customerId => (origin as OrdersByCustomerProvider).customerId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

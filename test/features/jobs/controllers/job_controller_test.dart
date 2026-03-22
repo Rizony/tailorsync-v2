@@ -3,91 +3,91 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/features/jobs/controllers/job_controller.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
-import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
+import 'package:tailorsync_v2/features/orders/controllers/order_controller.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
 
-// Mock the repository class directly - much easier now!
-class MockJobRepository extends Mock implements JobRepository {}
+// Mock the repository class directly
+class MockOrderRepository extends Mock implements OrderRepository {}
 
 void main() {
-  late MockJobRepository mockRepository;
+  late MockOrderRepository mockRepository;
   late ProviderContainer container;
 
   // Helpers
-  final testJob = JobModel(
+  final testOrder = OrderModel(
     id: '1',
     userId: 'user1',
     customerId: 'cust1',
     title: 'Test Suit',
     price: 10000,
     dueDate: DateTime.now(),
-    status: JobModel.statusQuote,
+    status: OrderModel.statusQuote,
     items: [],
     images: [],
     createdAt: DateTime.now(),
   );
 
   setUp(() {
-    mockRepository = MockJobRepository();
+    mockRepository = MockOrderRepository();
     container = ProviderContainer(
       overrides: [
-        jobRepositoryProvider.overrideWithValue(mockRepository),
+        orderRepositoryProvider.overrideWithValue(mockRepository),
       ],
     );
     
     // Register fallback values
-    registerFallbackValue(testJob);
+    registerFallbackValue(testOrder);
   });
 
   tearDown(() {
     container.dispose();
   });
 
-  test('JobController.build fetches job from repository', () async {
-    when(() => mockRepository.getJob('1')).thenAnswer((_) async => Right(testJob));
+  test('OrderController.build fetches order from repository', () async {
+    when(() => mockRepository.getOrder('1')).thenAnswer((_) async => Right(testOrder));
 
     // Read the controller (this triggers build)
-    final job = await container.read(jobControllerProvider('1').future);
+    final order = await container.read(orderControllerProvider('1').future);
 
-    expect(job, testJob);
-    verify(() => mockRepository.getJob('1')).called(1);
+    expect(order, testOrder);
+    verify(() => mockRepository.getOrder('1')).called(1);
   });
 
   test('updateStatus calls repository and updates state', () async {
-    when(() => mockRepository.getJob('1')).thenAnswer((_) async => Right(testJob));
-    when(() => mockRepository.updateJob(any())).thenAnswer((_) async => const Right(unit));
+    when(() => mockRepository.getOrder('1')).thenAnswer((_) async => Right(testOrder));
+    when(() => mockRepository.updateOrder(any())).thenAnswer((_) async => const Right(unit));
 
     // initialize
-    await container.read(jobControllerProvider('1').future);
+    await container.read(orderControllerProvider('1').future);
     
     // Act
-    await container.read(jobControllerProvider('1').notifier).updateStatus(JobModel.statusInProgress);
+    await container.read(orderControllerProvider('1').notifier).updateStatus(OrderModel.statusInProgress);
 
     // Assert
-    verify(() => mockRepository.updateJob(any(that: isA<JobModel>()
-      .having((j) => j.status, 'status', JobModel.statusInProgress)
+    verify(() => mockRepository.updateOrder(any(that: isA<OrderModel>()
+      .having((o) => o.status, 'status', OrderModel.statusInProgress)
     ))).called(1);
 
     // State should be updated
-    final newState = container.read(jobControllerProvider('1'));
-    expect(newState.value?.status, JobModel.statusInProgress);
+    final newState = container.read(orderControllerProvider('1'));
+    expect(newState.value?.status, OrderModel.statusInProgress);
   });
 
   test('convertQuoteToOrder updates status and balance', () async {
-    when(() => mockRepository.getJob('1')).thenAnswer((_) async => Right(testJob));
-    when(() => mockRepository.updateJob(any())).thenAnswer((_) async => const Right(unit));
+    when(() => mockRepository.getOrder('1')).thenAnswer((_) async => Right(testOrder));
+    when(() => mockRepository.updateOrder(any())).thenAnswer((_) async => const Right(unit));
 
     // initialize
-    await container.read(jobControllerProvider('1').future);
+    await container.read(orderControllerProvider('1').future);
     
     // Act: Deposit 2000, Total 10000 -> Balance 8000
-    await container.read(jobControllerProvider('1').notifier).convertQuoteToOrder(2000, 10000);
+    await container.read(orderControllerProvider('1').notifier).convertQuoteToOrder(2000, 10000);
 
     // Assert
-    verify(() => mockRepository.updateJob(any(that: isA<JobModel>()
-      .having((j) => j.status, 'status', JobModel.statusPending)
-      .having((j) => j.balanceDue, 'balanceDue', 8000)
+    verify(() => mockRepository.updateOrder(any(that: isA<OrderModel>()
+      .having((o) => o.status, 'status', OrderModel.statusPending)
+      .having((o) => o.balanceDue, 'balanceDue', 8000)
     ))).called(1);
   });
 }

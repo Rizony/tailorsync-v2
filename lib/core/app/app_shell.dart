@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tailorsync_v2/features/dashboard/screens/dashboard_screen.dart';
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
-import 'package:tailorsync_v2/features/jobs/screens/jobs_list_screen.dart';
+import 'package:tailorsync_v2/features/orders/screens/orders_list_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/customers_screen.dart';
 import 'package:tailorsync_v2/features/community/screens/community_screen.dart';
 import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
@@ -25,7 +25,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   // The index of these screens must match the BottomNavigationBar items exactly
   final List<Widget> _screens = [
     const DashboardScreen(),
-    const JobsListScreen(),
+    const OrdersListScreen(),
     const CustomersScreen(),
     const CommunityScreen(), // The new Community tab
     const SettingsScreen(), // Settings

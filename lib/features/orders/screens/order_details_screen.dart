@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
 
 
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tailorsync_v2/features/jobs/controllers/job_controller.dart';
-import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
+import 'package:tailorsync_v2/features/orders/controllers/order_controller.dart';
+import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
 import 'package:tailorsync_v2/features/invoicing/screens/invoice_preview_screen.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
@@ -18,16 +18,16 @@ import 'package:tailorsync_v2/core/notifications/whatsapp_service.dart';
 import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
 import 'package:tailorsync_v2/features/community/models/community_post.dart';
 
-class JobDetailsScreen extends ConsumerStatefulWidget {
-  final JobModel job;
-  const JobDetailsScreen({super.key, required this.job});
+class OrderDetailsScreen extends ConsumerStatefulWidget {
+  final OrderModel order;
+  const OrderDetailsScreen({super.key, required this.order});
 
   @override
-  ConsumerState<JobDetailsScreen> createState() => _JobDetailsScreenState();
+  ConsumerState<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
 }
 
-class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
-  late JobModel _job;
+class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
+  late OrderModel _order;
   Customer? _customer;
 
 
@@ -35,32 +35,32 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _job = widget.job;
+    _order = widget.order;
     _fetchCustomer();
   }
 
   Future<void> _fetchCustomer() async {
-    final customer = await ref.read(customerRepositoryProvider.notifier).getCustomer(_job.customerId);
+    final customer = await ref.read(customerRepositoryProvider.notifier).getCustomer(_order.customerId);
     if (mounted) setState(() => _customer = customer);
   }
 
   Future<void> _updateStatus(String newStatus) async {
-    final controller = ref.read(jobControllerProvider(_job.id).notifier);
+    final controller = ref.read(orderControllerProvider(_order.id).notifier);
     
     // Status Logic
-    if (_job.status == JobModel.statusQuote && newStatus == JobModel.statusPending) {
+    if (_order.status == OrderModel.statusQuote && newStatus == OrderModel.statusPending) {
        final deposit = await _showDepositDialog();
        if (deposit == null) return;
        
-       await controller.convertQuoteToOrder(deposit, _job.price);
+       await controller.convertQuoteToOrder(deposit, _order.price);
        return;
     }
 
     await controller.updateStatus(newStatus);
 
-    if ((newStatus == JobModel.statusFitting || 
-         newStatus == JobModel.statusCompleted || 
-         newStatus == JobModel.statusInProgress) && 
+    if ((newStatus == OrderModel.statusFitting || 
+         newStatus == OrderModel.statusCompleted || 
+         newStatus == OrderModel.statusInProgress) && 
         _customer?.phoneNumber != null && mounted) {
       _promptWhatsAppUpdate(newStatus);
     }
@@ -96,7 +96,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
     if (wantToNotify != null && _customer?.phoneNumber != null) {
       final phoneNumber = _customer!.phoneNumber!;
       final customerName = _customer!.fullName;
-      final orderTitle = _job.title;
+      final orderTitle = _order.title;
       final profile = ref.read(profileNotifierProvider).valueOrNull;
 
       if (wantToNotify == 'whatsapp') {
@@ -106,9 +106,9 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           orderTitle: orderTitle,
           status: status,
           shopName: profile?.shopName,
-          balanceDue: _job.balanceDue.toStringAsFixed(2),
+          balanceDue: _order.balanceDue.toStringAsFixed(2),
           currency: profile?.currencySymbol,
-          dueDate: _job.dueDate,
+          dueDate: _order.dueDate,
         );
       } else if (wantToNotify == 'sms') {
         await WhatsAppService.sendSMSUpdate(
@@ -117,9 +117,9 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           orderTitle: orderTitle,
           status: status,
           shopName: profile?.shopName,
-          balanceDue: _job.balanceDue.toStringAsFixed(2),
+          balanceDue: _order.balanceDue.toStringAsFixed(2),
           currency: profile?.currencySymbol,
-          dueDate: _job.dueDate,
+          dueDate: _order.dueDate,
         );
       }
     }
@@ -196,7 +196,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             onPressed: () {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
-                ref.read(jobControllerProvider(_job.id).notifier).recordPayment(
+                ref.read(orderControllerProvider(_order.id).notifier).recordPayment(
                   amount,
                   note: noteController.text.isEmpty ? null : noteController.text,
                 );
@@ -215,35 +215,35 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     // Watch the controller state
-    final jobState = ref.watch(jobControllerProvider(widget.job.id));
+    final orderState = ref.watch(orderControllerProvider(widget.order.id));
     final profile = ref.watch(profileNotifierProvider).valueOrNull;
     
     // Listen for errors
-    ref.listen(jobControllerProvider(widget.job.id), (previous, next) {
+    ref.listen(orderControllerProvider(widget.order.id), (previous, next) {
       if (next.hasError && !next.isLoading) {
         showErrorSnackBar(context, next.error!);
       }
       if (next.hasValue && !next.isLoading && !next.hasError) {
-        // Update local job if we have new data
-         setState(() => _job = next.valueOrNull!);
+        // Update local order if we have new data
+         setState(() => _order = next.valueOrNull!);
       }
     });
 
-    final isLoading = jobState.isLoading;
+    final isLoading = orderState.isLoading;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_job.title),
+        title: Text(_order.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {
                await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => CreateJobScreen(job: _job)),
+                MaterialPageRoute(builder: (_) => CreateOrderScreen(order: _order)),
               );
-              // Refresh job details when returning from edit
-              ref.invalidate(jobControllerProvider(widget.job.id));
+              // Refresh order details when returning from edit
+              ref.invalidate(orderControllerProvider(widget.order.id));
             },
           ),
           IconButton(
@@ -276,19 +276,19 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => InvoicePreviewScreen(job: _job, customer: _customer!),
+                  builder: (_) => InvoicePreviewScreen(order: _order, customer: _customer!),
                 ),
               );
             },
           ),
-          if (_job.status == JobModel.statusQuote)
+          if (_order.status == OrderModel.statusQuote)
             TextButton(
-              onPressed: isLoading ? null : () => _updateStatus(JobModel.statusPending),
+              onPressed: isLoading ? null : () => _updateStatus(OrderModel.statusPending),
               child: isLoading 
                   ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)) 
                   : const Text('Convert to Order'),
             ),
-          if (_job.status == JobModel.statusCompleted || _job.status == JobModel.statusDelivered)
+          if (_order.status == OrderModel.statusCompleted || _order.status == OrderModel.statusDelivered)
             IconButton(
               icon: const Icon(Icons.share_outlined, color: Colors.blue),
               tooltip: 'Share to Showroom',
@@ -307,7 +307,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               children: [
                 _buildStatusSelector(),
                 Text(
-                  '${profile?.currencySymbol ?? '₦'}${_job.price}',
+                  '${profile?.currencySymbol ?? '₦'}${_order.price}',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                 ),
               ],
@@ -315,10 +315,10 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             const SizedBox(height: 24),
 
               // --- Order Items List ---
-              if (_job.items.isNotEmpty) ...[
+              if (_order.items.isNotEmpty) ...[
                 const Text('Items', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                ..._job.items.map((item) => Padding(
+                ..._order.items.map((item) => Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,7 +371,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                           String phone = _customer!.phoneNumber!.replaceAll(RegExp(r'\D'), '');
                           if (phone.startsWith('0')) phone = '234${phone.substring(1)}';
                           
-                          final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_job.title}' from MyTailorShop is ready!");
+                          final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_order.title}' from MyTailorShop is ready!");
                           launchUrl(Uri.parse('https://wa.me/$phone?text=$message'), mode: LaunchMode.externalApplication);
                         },
                       ),
@@ -381,7 +381,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               ),
 
             // Due Date
-            _buildDetailRow(Icons.calendar_today, 'Due Date', DateFormat.yMMMd().format(_job.dueDate)),
+            _buildDetailRow(Icons.calendar_today, 'Due Date', DateFormat.yMMMd().format(_order.dueDate)),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -389,11 +389,11 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                   child: _buildDetailRow(
                     Icons.account_balance_wallet, 
                     'Balance Due', 
-                    '${profile?.currencySymbol ?? '₦'}${_job.balanceDue.toStringAsFixed(2)}',
-                    color: _job.balanceDue > 0 ? Colors.red : Colors.green,
+                    '${profile?.currencySymbol ?? '₦'}${_order.balanceDue.toStringAsFixed(2)}',
+                    color: _order.balanceDue > 0 ? Colors.red : Colors.green,
                   ),
                 ),
-                if (_job.balanceDue > 0)
+                if (_order.balanceDue > 0)
                   TextButton.icon(
                     onPressed: _showRecordPaymentDialog,
                     icon: const Icon(Icons.add_circle_outline, size: 20),
@@ -411,7 +411,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             const SizedBox(height: 24),
 
             // Payment History
-            if (_job.payments.isNotEmpty) ...[
+            if (_order.payments.isNotEmpty) ...[
               const Text('Payment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
@@ -420,7 +420,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
-                  children: _job.payments.reversed.map((p) => ListTile(
+                  children: _order.payments.reversed.map((p) => ListTile(
                     dense: true,
                     leading: const Icon(Icons.check_circle, color: Colors.green, size: 20),
                     title: Text('${profile?.currencySymbol ?? '₦'}${p.amount.toStringAsFixed(2)}'),
@@ -433,20 +433,20 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             ],
 
             // Images
-            if (_job.images.isNotEmpty) ...[
+            if (_order.images.isNotEmpty) ...[
               const Text('Designs / Sketches', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               SizedBox(
                 height: 120,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _job.images.length,
+                  itemCount: _order.images.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(_job.images[index], width: 120, height: 120, fit: BoxFit.cover),
+                        child: Image.network(_order.images[index], width: 120, height: 120, fit: BoxFit.cover),
                       ),
                     );
                   },
@@ -456,7 +456,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
             ],
 
             // Measurements / Notes
-            if (_job.notes != null && _job.notes!.isNotEmpty) ...[
+            if (_order.notes != null && _order.notes!.isNotEmpty) ...[
                const Text('Notes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                const SizedBox(height: 8),
                Container(
@@ -466,28 +466,28 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                    borderRadius: BorderRadius.circular(12),
                  ),
-                 child: Text(_job.notes!),
+                 child: Text(_order.notes!),
                ),
             ],
             
             const SizedBox(height: 40),
             
-            if (JobModel.activeStatuses.contains(_job.status) && _job.status != JobModel.statusPending)
+            if (OrderModel.activeStatuses.contains(_order.status) && _order.status != OrderModel.statusPending)
               const SizedBox.shrink(),
 
-            if (_job.status == JobModel.statusPending)
+            if (_order.status == OrderModel.statusPending)
                SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: ref.watch(jobControllerProvider(_job.id)).isLoading ? null : () => _updateStatus(JobModel.statusInProgress),
+                  onPressed: ref.watch(orderControllerProvider(_order.id)).isLoading ? null : () => _updateStatus(OrderModel.statusInProgress),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: ref.watch(jobControllerProvider(_job.id)).isLoading 
+                  child: ref.watch(orderControllerProvider(_order.id)).isLoading 
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Start Job'),
+                      : const Text('Start Order'),
                 ),
               ),
           ],
@@ -497,11 +497,11 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
   }
 
   Widget _buildStatusSelector() {
-    if (_job.status == JobModel.statusQuote) {
-      return _buildStatusChip(_job.status);
+    if (_order.status == OrderModel.statusQuote) {
+      return _buildStatusChip(_order.status);
     }
     
-    final allowedStatuses = JobModel.allStatuses.where((s) => s != JobModel.statusQuote).toList();
+    final allowedStatuses = OrderModel.allStatuses.where((s) => s != OrderModel.statusQuote).toList();
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -512,7 +512,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: _job.status,
+          value: _order.status,
           icon: const Icon(Icons.arrow_drop_down, size: 20),
           isDense: true,
           items: allowedStatuses.map((status) {
@@ -521,7 +521,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
               child: _buildStatusChip(status, isSmall: true),
             );
           }).toList(),
-          onChanged: ref.watch(jobControllerProvider(_job.id)).isLoading ? null : (val) {
+          onChanged: ref.watch(orderControllerProvider(_order.id)).isLoading ? null : (val) {
             if (val != null) _updateStatus(val);
           },
         ),
@@ -545,7 +545,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: _job.fabricStatus,
+                value: _order.fabricStatus,
                 isDense: true,
                 isExpanded: true,
                 items: const [
@@ -555,7 +555,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                 ],
                 onChanged: (val) {
                   if (val != null) {
-                    ref.read(jobControllerProvider(_job.id).notifier).updateFabricStatus(val);
+                    ref.read(orderControllerProvider(_order.id).notifier).updateFabricStatus(val);
                   }
                 },
               ),
@@ -566,7 +566,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
           Flexible(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String?>(
-                value: _job.fabricSource,
+                value: _order.fabricSource,
                 isDense: true,
                 isExpanded: true,
                 hint: const Text('Select', style: TextStyle(fontSize: 12)),
@@ -575,7 +575,7 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
                   DropdownMenuItem(value: 'shop', child: Text('Shop', style: TextStyle(fontSize: 13))),
                 ],
                 onChanged: (val) {
-                  ref.read(jobControllerProvider(_job.id).notifier).updateFabricStatus(_job.fabricStatus, source: val);
+                  ref.read(orderControllerProvider(_order.id).notifier).updateFabricStatus(_order.fabricStatus, source: val);
                 },
               ),
             ),
@@ -610,14 +610,14 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
   Widget _buildStatusChip(String status, {bool isSmall = false}) {
     Color color;
     switch (status) {
-      case JobModel.statusPending: color = Colors.orange; break;
-      case JobModel.statusInProgress: color = Colors.blue; break;
-      case JobModel.statusFitting: color = Colors.purple; break;
-      case JobModel.statusAdjustment: color = Colors.amber; break;
-      case JobModel.statusCompleted: color = Colors.green; break;
-      case JobModel.statusDelivered: color = Colors.grey; break;
-      case JobModel.statusCanceled: color = Colors.red; break;
-      case JobModel.statusQuote: color = Colors.cyan; break;
+      case OrderModel.statusPending: color = Colors.orange; break;
+      case OrderModel.statusInProgress: color = Colors.blue; break;
+      case OrderModel.statusFitting: color = Colors.purple; break;
+      case OrderModel.statusAdjustment: color = Colors.amber; break;
+      case OrderModel.statusCompleted: color = Colors.green; break;
+      case OrderModel.statusDelivered: color = Colors.grey; break;
+      case OrderModel.statusCanceled: color = Colors.red; break;
+      case OrderModel.statusQuote: color = Colors.cyan; break;
       default: color = Colors.grey;
     }
     
@@ -659,10 +659,10 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
         id: '', // Handled by repository
         userId: profile.id,
         postType: 'showroom',
-        title: 'Showcase: ${_job.title}',
+        title: 'Showcase: ${_order.title}',
         content: 'Check out my latest completed work! 🧵✨\n\n'
-                '${_job.notes ?? "Just finished this beautiful piece."}',
-        imageUrls: _job.images,
+                '${_order.notes ?? "Just finished this beautiful piece."}',
+        imageUrls: _order.images,
         createdAt: DateTime.now(),
       );
 
@@ -670,10 +670,10 @@ class _JobDetailsScreenState extends ConsumerState<JobDetailsScreen> {
         await ref.read(communityRepositoryProvider).createPost(post);
         
         // Also add to user's portfolio if not already there
-        if (_job.images.isNotEmpty) {
+        if (_order.images.isNotEmpty) {
           final newPortfolio = List<String>.from(profile.portfolioUrls);
           bool modified = false;
-          for (final img in _job.images) {
+          for (final img in _order.images) {
             if (!newPortfolio.contains(img)) {
               newPortfolio.add(img);
               modified = true;

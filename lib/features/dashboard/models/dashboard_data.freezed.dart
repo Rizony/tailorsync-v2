@@ -16,12 +16,12 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$DashboardData {
-  int get activeJobs => throw _privateConstructorUsedError;
-  int get completedJobs => throw _privateConstructorUsedError;
+  int get activeOrders => throw _privateConstructorUsedError;
+  int get completedOrders => throw _privateConstructorUsedError;
   int get totalCustomers => throw _privateConstructorUsedError;
   double get totalRevenue => throw _privateConstructorUsedError;
-  List<JobModel> get recentJobs => throw _privateConstructorUsedError;
-  List<JobModel> get urgentJobs => throw _privateConstructorUsedError;
+  List<OrderModel> get recentOrders => throw _privateConstructorUsedError;
+  List<OrderModel> get urgentOrders => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
 
   /// Create a copy of DashboardData
@@ -38,12 +38,12 @@ abstract class $DashboardDataCopyWith<$Res> {
       _$DashboardDataCopyWithImpl<$Res, DashboardData>;
   @useResult
   $Res call(
-      {int activeJobs,
-      int completedJobs,
+      {int activeOrders,
+      int completedOrders,
       int totalCustomers,
       double totalRevenue,
-      List<JobModel> recentJobs,
-      List<JobModel> urgentJobs,
+      List<OrderModel> recentOrders,
+      List<OrderModel> urgentOrders,
       String userName});
 }
 
@@ -62,22 +62,22 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? activeJobs = null,
-    Object? completedJobs = null,
+    Object? activeOrders = null,
+    Object? completedOrders = null,
     Object? totalCustomers = null,
     Object? totalRevenue = null,
-    Object? recentJobs = null,
-    Object? urgentJobs = null,
+    Object? recentOrders = null,
+    Object? urgentOrders = null,
     Object? userName = null,
   }) {
     return _then(_value.copyWith(
-      activeJobs: null == activeJobs
-          ? _value.activeJobs
-          : activeJobs // ignore: cast_nullable_to_non_nullable
+      activeOrders: null == activeOrders
+          ? _value.activeOrders
+          : activeOrders // ignore: cast_nullable_to_non_nullable
               as int,
-      completedJobs: null == completedJobs
-          ? _value.completedJobs
-          : completedJobs // ignore: cast_nullable_to_non_nullable
+      completedOrders: null == completedOrders
+          ? _value.completedOrders
+          : completedOrders // ignore: cast_nullable_to_non_nullable
               as int,
       totalCustomers: null == totalCustomers
           ? _value.totalCustomers
@@ -87,14 +87,14 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
           ? _value.totalRevenue
           : totalRevenue // ignore: cast_nullable_to_non_nullable
               as double,
-      recentJobs: null == recentJobs
-          ? _value.recentJobs
-          : recentJobs // ignore: cast_nullable_to_non_nullable
-              as List<JobModel>,
-      urgentJobs: null == urgentJobs
-          ? _value.urgentJobs
-          : urgentJobs // ignore: cast_nullable_to_non_nullable
-              as List<JobModel>,
+      recentOrders: null == recentOrders
+          ? _value.recentOrders
+          : recentOrders // ignore: cast_nullable_to_non_nullable
+              as List<OrderModel>,
+      urgentOrders: null == urgentOrders
+          ? _value.urgentOrders
+          : urgentOrders // ignore: cast_nullable_to_non_nullable
+              as List<OrderModel>,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -112,12 +112,12 @@ abstract class _$$DashboardDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int activeJobs,
-      int completedJobs,
+      {int activeOrders,
+      int completedOrders,
       int totalCustomers,
       double totalRevenue,
-      List<JobModel> recentJobs,
-      List<JobModel> urgentJobs,
+      List<OrderModel> recentOrders,
+      List<OrderModel> urgentOrders,
       String userName});
 }
 
@@ -134,22 +134,22 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? activeJobs = null,
-    Object? completedJobs = null,
+    Object? activeOrders = null,
+    Object? completedOrders = null,
     Object? totalCustomers = null,
     Object? totalRevenue = null,
-    Object? recentJobs = null,
-    Object? urgentJobs = null,
+    Object? recentOrders = null,
+    Object? urgentOrders = null,
     Object? userName = null,
   }) {
     return _then(_$DashboardDataImpl(
-      activeJobs: null == activeJobs
-          ? _value.activeJobs
-          : activeJobs // ignore: cast_nullable_to_non_nullable
+      activeOrders: null == activeOrders
+          ? _value.activeOrders
+          : activeOrders // ignore: cast_nullable_to_non_nullable
               as int,
-      completedJobs: null == completedJobs
-          ? _value.completedJobs
-          : completedJobs // ignore: cast_nullable_to_non_nullable
+      completedOrders: null == completedOrders
+          ? _value.completedOrders
+          : completedOrders // ignore: cast_nullable_to_non_nullable
               as int,
       totalCustomers: null == totalCustomers
           ? _value.totalCustomers
@@ -159,14 +159,14 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
           ? _value.totalRevenue
           : totalRevenue // ignore: cast_nullable_to_non_nullable
               as double,
-      recentJobs: null == recentJobs
-          ? _value._recentJobs
-          : recentJobs // ignore: cast_nullable_to_non_nullable
-              as List<JobModel>,
-      urgentJobs: null == urgentJobs
-          ? _value._urgentJobs
-          : urgentJobs // ignore: cast_nullable_to_non_nullable
-              as List<JobModel>,
+      recentOrders: null == recentOrders
+          ? _value._recentOrders
+          : recentOrders // ignore: cast_nullable_to_non_nullable
+              as List<OrderModel>,
+      urgentOrders: null == urgentOrders
+          ? _value._urgentOrders
+          : urgentOrders // ignore: cast_nullable_to_non_nullable
+              as List<OrderModel>,
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
@@ -179,38 +179,38 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
 
 class _$DashboardDataImpl implements _DashboardData {
   const _$DashboardDataImpl(
-      {required this.activeJobs,
-      required this.completedJobs,
+      {required this.activeOrders,
+      required this.completedOrders,
       required this.totalCustomers,
       required this.totalRevenue,
-      required final List<JobModel> recentJobs,
-      required final List<JobModel> urgentJobs,
+      required final List<OrderModel> recentOrders,
+      required final List<OrderModel> urgentOrders,
       required this.userName})
-      : _recentJobs = recentJobs,
-        _urgentJobs = urgentJobs;
+      : _recentOrders = recentOrders,
+        _urgentOrders = urgentOrders;
 
   @override
-  final int activeJobs;
+  final int activeOrders;
   @override
-  final int completedJobs;
+  final int completedOrders;
   @override
   final int totalCustomers;
   @override
   final double totalRevenue;
-  final List<JobModel> _recentJobs;
+  final List<OrderModel> _recentOrders;
   @override
-  List<JobModel> get recentJobs {
-    if (_recentJobs is EqualUnmodifiableListView) return _recentJobs;
+  List<OrderModel> get recentOrders {
+    if (_recentOrders is EqualUnmodifiableListView) return _recentOrders;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_recentJobs);
+    return EqualUnmodifiableListView(_recentOrders);
   }
 
-  final List<JobModel> _urgentJobs;
+  final List<OrderModel> _urgentOrders;
   @override
-  List<JobModel> get urgentJobs {
-    if (_urgentJobs is EqualUnmodifiableListView) return _urgentJobs;
+  List<OrderModel> get urgentOrders {
+    if (_urgentOrders is EqualUnmodifiableListView) return _urgentOrders;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_urgentJobs);
+    return EqualUnmodifiableListView(_urgentOrders);
   }
 
   @override
@@ -218,7 +218,7 @@ class _$DashboardDataImpl implements _DashboardData {
 
   @override
   String toString() {
-    return 'DashboardData(activeJobs: $activeJobs, completedJobs: $completedJobs, totalCustomers: $totalCustomers, totalRevenue: $totalRevenue, recentJobs: $recentJobs, urgentJobs: $urgentJobs, userName: $userName)';
+    return 'DashboardData(activeOrders: $activeOrders, completedOrders: $completedOrders, totalCustomers: $totalCustomers, totalRevenue: $totalRevenue, recentOrders: $recentOrders, urgentOrders: $urgentOrders, userName: $userName)';
   }
 
   @override
@@ -226,18 +226,18 @@ class _$DashboardDataImpl implements _DashboardData {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DashboardDataImpl &&
-            (identical(other.activeJobs, activeJobs) ||
-                other.activeJobs == activeJobs) &&
-            (identical(other.completedJobs, completedJobs) ||
-                other.completedJobs == completedJobs) &&
+            (identical(other.activeOrders, activeOrders) ||
+                other.activeOrders == activeOrders) &&
+            (identical(other.completedOrders, completedOrders) ||
+                other.completedOrders == completedOrders) &&
             (identical(other.totalCustomers, totalCustomers) ||
                 other.totalCustomers == totalCustomers) &&
             (identical(other.totalRevenue, totalRevenue) ||
                 other.totalRevenue == totalRevenue) &&
             const DeepCollectionEquality()
-                .equals(other._recentJobs, _recentJobs) &&
+                .equals(other._recentOrders, _recentOrders) &&
             const DeepCollectionEquality()
-                .equals(other._urgentJobs, _urgentJobs) &&
+                .equals(other._urgentOrders, _urgentOrders) &&
             (identical(other.userName, userName) ||
                 other.userName == userName));
   }
@@ -245,12 +245,12 @@ class _$DashboardDataImpl implements _DashboardData {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      activeJobs,
-      completedJobs,
+      activeOrders,
+      completedOrders,
       totalCustomers,
       totalRevenue,
-      const DeepCollectionEquality().hash(_recentJobs),
-      const DeepCollectionEquality().hash(_urgentJobs),
+      const DeepCollectionEquality().hash(_recentOrders),
+      const DeepCollectionEquality().hash(_urgentOrders),
       userName);
 
   /// Create a copy of DashboardData
@@ -264,26 +264,26 @@ class _$DashboardDataImpl implements _DashboardData {
 
 abstract class _DashboardData implements DashboardData {
   const factory _DashboardData(
-      {required final int activeJobs,
-      required final int completedJobs,
+      {required final int activeOrders,
+      required final int completedOrders,
       required final int totalCustomers,
       required final double totalRevenue,
-      required final List<JobModel> recentJobs,
-      required final List<JobModel> urgentJobs,
+      required final List<OrderModel> recentOrders,
+      required final List<OrderModel> urgentOrders,
       required final String userName}) = _$DashboardDataImpl;
 
   @override
-  int get activeJobs;
+  int get activeOrders;
   @override
-  int get completedJobs;
+  int get completedOrders;
   @override
   int get totalCustomers;
   @override
   double get totalRevenue;
   @override
-  List<JobModel> get recentJobs;
+  List<OrderModel> get recentOrders;
   @override
-  List<JobModel> get urgentJobs;
+  List<OrderModel> get urgentOrders;
   @override
   String get userName;
 

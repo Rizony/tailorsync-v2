@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'job_model.dart';
+part of 'order_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-JobItem _$JobItemFromJson(Map<String, dynamic> json) {
-  return _JobItem.fromJson(json);
+OrderItem _$OrderItemFromJson(Map<String, dynamic> json) {
+  return _OrderItem.fromJson(json);
 }
 
 /// @nodoc
-mixin _$JobItem {
+mixin _$OrderItem {
   @HiveField(0)
   String get name => throw _privateConstructorUsedError;
   @HiveField(1)
@@ -27,19 +27,20 @@ mixin _$JobItem {
   @HiveField(2)
   double get price => throw _privateConstructorUsedError;
 
-  /// Serializes this JobItem to a JSON map.
+  /// Serializes this OrderItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of JobItem
+  /// Create a copy of OrderItem
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $JobItemCopyWith<JobItem> get copyWith => throw _privateConstructorUsedError;
+  $OrderItemCopyWith<OrderItem> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $JobItemCopyWith<$Res> {
-  factory $JobItemCopyWith(JobItem value, $Res Function(JobItem) then) =
-      _$JobItemCopyWithImpl<$Res, JobItem>;
+abstract class $OrderItemCopyWith<$Res> {
+  factory $OrderItemCopyWith(OrderItem value, $Res Function(OrderItem) then) =
+      _$OrderItemCopyWithImpl<$Res, OrderItem>;
   @useResult
   $Res call(
       {@HiveField(0) String name,
@@ -48,16 +49,16 @@ abstract class $JobItemCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$JobItemCopyWithImpl<$Res, $Val extends JobItem>
-    implements $JobItemCopyWith<$Res> {
-  _$JobItemCopyWithImpl(this._value, this._then);
+class _$OrderItemCopyWithImpl<$Res, $Val extends OrderItem>
+    implements $OrderItemCopyWith<$Res> {
+  _$OrderItemCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of JobItem
+  /// Create a copy of OrderItem
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -84,10 +85,11 @@ class _$JobItemCopyWithImpl<$Res, $Val extends JobItem>
 }
 
 /// @nodoc
-abstract class _$$JobItemImplCopyWith<$Res> implements $JobItemCopyWith<$Res> {
-  factory _$$JobItemImplCopyWith(
-          _$JobItemImpl value, $Res Function(_$JobItemImpl) then) =
-      __$$JobItemImplCopyWithImpl<$Res>;
+abstract class _$$OrderItemImplCopyWith<$Res>
+    implements $OrderItemCopyWith<$Res> {
+  factory _$$OrderItemImplCopyWith(
+          _$OrderItemImpl value, $Res Function(_$OrderItemImpl) then) =
+      __$$OrderItemImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -97,14 +99,14 @@ abstract class _$$JobItemImplCopyWith<$Res> implements $JobItemCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$JobItemImplCopyWithImpl<$Res>
-    extends _$JobItemCopyWithImpl<$Res, _$JobItemImpl>
-    implements _$$JobItemImplCopyWith<$Res> {
-  __$$JobItemImplCopyWithImpl(
-      _$JobItemImpl _value, $Res Function(_$JobItemImpl) _then)
+class __$$OrderItemImplCopyWithImpl<$Res>
+    extends _$OrderItemCopyWithImpl<$Res, _$OrderItemImpl>
+    implements _$$OrderItemImplCopyWith<$Res> {
+  __$$OrderItemImplCopyWithImpl(
+      _$OrderItemImpl _value, $Res Function(_$OrderItemImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of JobItem
+  /// Create a copy of OrderItem
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -113,7 +115,7 @@ class __$$JobItemImplCopyWithImpl<$Res>
     Object? quantity = null,
     Object? price = null,
   }) {
-    return _then(_$JobItemImpl(
+    return _then(_$OrderItemImpl(
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -132,14 +134,14 @@ class __$$JobItemImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$JobItemImpl implements _JobItem {
-  const _$JobItemImpl(
+class _$OrderItemImpl implements _OrderItem {
+  const _$OrderItemImpl(
       {@HiveField(0) required this.name,
       @HiveField(1) this.quantity = 1,
       @HiveField(2) this.price = 0});
 
-  factory _$JobItemImpl.fromJson(Map<String, dynamic> json) =>
-      _$$JobItemImplFromJson(json);
+  factory _$OrderItemImpl.fromJson(Map<String, dynamic> json) =>
+      _$$OrderItemImplFromJson(json);
 
   @override
   @HiveField(0)
@@ -155,14 +157,14 @@ class _$JobItemImpl implements _JobItem {
 
   @override
   String toString() {
-    return 'JobItem(name: $name, quantity: $quantity, price: $price)';
+    return 'OrderItem(name: $name, quantity: $quantity, price: $price)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$JobItemImpl &&
+            other is _$OrderItemImpl &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.quantity, quantity) ||
                 other.quantity == quantity) &&
@@ -173,29 +175,30 @@ class _$JobItemImpl implements _JobItem {
   @override
   int get hashCode => Object.hash(runtimeType, name, quantity, price);
 
-  /// Create a copy of JobItem
+  /// Create a copy of OrderItem
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$JobItemImplCopyWith<_$JobItemImpl> get copyWith =>
-      __$$JobItemImplCopyWithImpl<_$JobItemImpl>(this, _$identity);
+  _$$OrderItemImplCopyWith<_$OrderItemImpl> get copyWith =>
+      __$$OrderItemImplCopyWithImpl<_$OrderItemImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$JobItemImplToJson(
+    return _$$OrderItemImplToJson(
       this,
     );
   }
 }
 
-abstract class _JobItem implements JobItem {
-  const factory _JobItem(
+abstract class _OrderItem implements OrderItem {
+  const factory _OrderItem(
       {@HiveField(0) required final String name,
       @HiveField(1) final int quantity,
-      @HiveField(2) final double price}) = _$JobItemImpl;
+      @HiveField(2) final double price}) = _$OrderItemImpl;
 
-  factory _JobItem.fromJson(Map<String, dynamic> json) = _$JobItemImpl.fromJson;
+  factory _OrderItem.fromJson(Map<String, dynamic> json) =
+      _$OrderItemImpl.fromJson;
 
   @override
   @HiveField(0)
@@ -207,11 +210,11 @@ abstract class _JobItem implements JobItem {
   @HiveField(2)
   double get price;
 
-  /// Create a copy of JobItem
+  /// Create a copy of OrderItem
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$JobItemImplCopyWith<_$JobItemImpl> get copyWith =>
+  _$$OrderItemImplCopyWith<_$OrderItemImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -443,12 +446,12 @@ abstract class _Payment implements Payment {
       throw _privateConstructorUsedError;
 }
 
-JobModel _$JobModelFromJson(Map<String, dynamic> json) {
-  return _JobModel.fromJson(json);
+OrderModel _$OrderModelFromJson(Map<String, dynamic> json) {
+  return _OrderModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$JobModel {
+mixin _$OrderModel {
   @HiveField(0)
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
@@ -472,7 +475,7 @@ mixin _$JobModel {
   @HiveField(8)
   List<String> get images => throw _privateConstructorUsedError;
   @HiveField(9)
-  List<JobItem> get items => throw _privateConstructorUsedError;
+  List<OrderItem> get items => throw _privateConstructorUsedError;
   @HiveField(10)
   List<Payment> get payments => throw _privateConstructorUsedError;
   @JsonKey(name: 'fabric_status')
@@ -496,20 +499,21 @@ mixin _$JobModel {
   @HiveField(17)
   String? get customerName => throw _privateConstructorUsedError;
 
-  /// Serializes this JobModel to a JSON map.
+  /// Serializes this OrderModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of JobModel
+  /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $JobModelCopyWith<JobModel> get copyWith =>
+  $OrderModelCopyWith<OrderModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $JobModelCopyWith<$Res> {
-  factory $JobModelCopyWith(JobModel value, $Res Function(JobModel) then) =
-      _$JobModelCopyWithImpl<$Res, JobModel>;
+abstract class $OrderModelCopyWith<$Res> {
+  factory $OrderModelCopyWith(
+          OrderModel value, $Res Function(OrderModel) then) =
+      _$OrderModelCopyWithImpl<$Res, OrderModel>;
   @useResult
   $Res call(
       {@HiveField(0) String id,
@@ -521,7 +525,7 @@ abstract class $JobModelCopyWith<$Res> {
       @JsonKey(name: 'due_date') @HiveField(6) DateTime dueDate,
       @HiveField(7) String status,
       @HiveField(8) List<String> images,
-      @HiveField(9) List<JobItem> items,
+      @HiveField(9) List<OrderItem> items,
       @HiveField(10) List<Payment> payments,
       @JsonKey(name: 'fabric_status') @HiveField(11) String fabricStatus,
       @JsonKey(name: 'fabric_source') @HiveField(12) String? fabricSource,
@@ -535,16 +539,16 @@ abstract class $JobModelCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
-    implements $JobModelCopyWith<$Res> {
-  _$JobModelCopyWithImpl(this._value, this._then);
+class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
+    implements $OrderModelCopyWith<$Res> {
+  _$OrderModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of JobModel
+  /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -608,7 +612,7 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
       items: null == items
           ? _value.items
           : items // ignore: cast_nullable_to_non_nullable
-              as List<JobItem>,
+              as List<OrderItem>,
       payments: null == payments
           ? _value.payments
           : payments // ignore: cast_nullable_to_non_nullable
@@ -646,11 +650,11 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
 }
 
 /// @nodoc
-abstract class _$$JobModelImplCopyWith<$Res>
-    implements $JobModelCopyWith<$Res> {
-  factory _$$JobModelImplCopyWith(
-          _$JobModelImpl value, $Res Function(_$JobModelImpl) then) =
-      __$$JobModelImplCopyWithImpl<$Res>;
+abstract class _$$OrderModelImplCopyWith<$Res>
+    implements $OrderModelCopyWith<$Res> {
+  factory _$$OrderModelImplCopyWith(
+          _$OrderModelImpl value, $Res Function(_$OrderModelImpl) then) =
+      __$$OrderModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -663,7 +667,7 @@ abstract class _$$JobModelImplCopyWith<$Res>
       @JsonKey(name: 'due_date') @HiveField(6) DateTime dueDate,
       @HiveField(7) String status,
       @HiveField(8) List<String> images,
-      @HiveField(9) List<JobItem> items,
+      @HiveField(9) List<OrderItem> items,
       @HiveField(10) List<Payment> payments,
       @JsonKey(name: 'fabric_status') @HiveField(11) String fabricStatus,
       @JsonKey(name: 'fabric_source') @HiveField(12) String? fabricSource,
@@ -677,14 +681,14 @@ abstract class _$$JobModelImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$JobModelImplCopyWithImpl<$Res>
-    extends _$JobModelCopyWithImpl<$Res, _$JobModelImpl>
-    implements _$$JobModelImplCopyWith<$Res> {
-  __$$JobModelImplCopyWithImpl(
-      _$JobModelImpl _value, $Res Function(_$JobModelImpl) _then)
+class __$$OrderModelImplCopyWithImpl<$Res>
+    extends _$OrderModelCopyWithImpl<$Res, _$OrderModelImpl>
+    implements _$$OrderModelImplCopyWith<$Res> {
+  __$$OrderModelImplCopyWithImpl(
+      _$OrderModelImpl _value, $Res Function(_$OrderModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of JobModel
+  /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -708,7 +712,7 @@ class __$$JobModelImplCopyWithImpl<$Res>
     Object? isOutsourced = null,
     Object? customerName = freezed,
   }) {
-    return _then(_$JobModelImpl(
+    return _then(_$OrderModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -748,7 +752,7 @@ class __$$JobModelImplCopyWithImpl<$Res>
       items: null == items
           ? _value._items
           : items // ignore: cast_nullable_to_non_nullable
-              as List<JobItem>,
+              as List<OrderItem>,
       payments: null == payments
           ? _value._payments
           : payments // ignore: cast_nullable_to_non_nullable
@@ -787,8 +791,8 @@ class __$$JobModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$JobModelImpl implements _JobModel {
-  const _$JobModelImpl(
+class _$OrderModelImpl implements _OrderModel {
+  const _$OrderModelImpl(
       {@HiveField(0) required this.id,
       @JsonKey(name: 'user_id') @HiveField(1) required this.userId,
       @JsonKey(name: 'customer_id') @HiveField(2) required this.customerId,
@@ -798,7 +802,7 @@ class _$JobModelImpl implements _JobModel {
       @JsonKey(name: 'due_date') @HiveField(6) required this.dueDate,
       @HiveField(7) this.status = 'pending',
       @HiveField(8) final List<String> images = const [],
-      @HiveField(9) final List<JobItem> items = const [],
+      @HiveField(9) final List<OrderItem> items = const [],
       @HiveField(10) final List<Payment> payments = const [],
       @JsonKey(name: 'fabric_status')
       @HiveField(11)
@@ -815,8 +819,8 @@ class _$JobModelImpl implements _JobModel {
         _items = items,
         _payments = payments;
 
-  factory _$JobModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$JobModelImplFromJson(json);
+  factory _$OrderModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$OrderModelImplFromJson(json);
 
   @override
   @HiveField(0)
@@ -858,11 +862,11 @@ class _$JobModelImpl implements _JobModel {
     return EqualUnmodifiableListView(_images);
   }
 
-  final List<JobItem> _items;
+  final List<OrderItem> _items;
   @override
   @JsonKey()
   @HiveField(9)
-  List<JobItem> get items {
+  List<OrderItem> get items {
     if (_items is EqualUnmodifiableListView) return _items;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_items);
@@ -908,14 +912,14 @@ class _$JobModelImpl implements _JobModel {
 
   @override
   String toString() {
-    return 'JobModel(id: $id, userId: $userId, customerId: $customerId, title: $title, price: $price, balanceDue: $balanceDue, dueDate: $dueDate, status: $status, images: $images, items: $items, payments: $payments, fabricStatus: $fabricStatus, fabricSource: $fabricSource, notes: $notes, createdAt: $createdAt, assignedTo: $assignedTo, isOutsourced: $isOutsourced, customerName: $customerName)';
+    return 'OrderModel(id: $id, userId: $userId, customerId: $customerId, title: $title, price: $price, balanceDue: $balanceDue, dueDate: $dueDate, status: $status, images: $images, items: $items, payments: $payments, fabricStatus: $fabricStatus, fabricSource: $fabricSource, notes: $notes, createdAt: $createdAt, assignedTo: $assignedTo, isOutsourced: $isOutsourced, customerName: $customerName)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$JobModelImpl &&
+            other is _$OrderModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.customerId, customerId) ||
@@ -967,24 +971,24 @@ class _$JobModelImpl implements _JobModel {
       isOutsourced,
       customerName);
 
-  /// Create a copy of JobModel
+  /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$JobModelImplCopyWith<_$JobModelImpl> get copyWith =>
-      __$$JobModelImplCopyWithImpl<_$JobModelImpl>(this, _$identity);
+  _$$OrderModelImplCopyWith<_$OrderModelImpl> get copyWith =>
+      __$$OrderModelImplCopyWithImpl<_$OrderModelImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$JobModelImplToJson(
+    return _$$OrderModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _JobModel implements JobModel {
-  const factory _JobModel(
+abstract class _OrderModel implements OrderModel {
+  const factory _OrderModel(
       {@HiveField(0) required final String id,
       @JsonKey(name: 'user_id') @HiveField(1) required final String userId,
       @JsonKey(name: 'customer_id')
@@ -996,7 +1000,7 @@ abstract class _JobModel implements JobModel {
       @JsonKey(name: 'due_date') @HiveField(6) required final DateTime dueDate,
       @HiveField(7) final String status,
       @HiveField(8) final List<String> images,
-      @HiveField(9) final List<JobItem> items,
+      @HiveField(9) final List<OrderItem> items,
       @HiveField(10) final List<Payment> payments,
       @JsonKey(name: 'fabric_status') @HiveField(11) final String fabricStatus,
       @JsonKey(name: 'fabric_source') @HiveField(12) final String? fabricSource,
@@ -1008,10 +1012,10 @@ abstract class _JobModel implements JobModel {
       @JsonKey(name: 'is_outsourced') @HiveField(16) final bool isOutsourced,
       @JsonKey(readValue: _readCustomerName, includeToJson: false)
       @HiveField(17)
-      final String? customerName}) = _$JobModelImpl;
+      final String? customerName}) = _$OrderModelImpl;
 
-  factory _JobModel.fromJson(Map<String, dynamic> json) =
-      _$JobModelImpl.fromJson;
+  factory _OrderModel.fromJson(Map<String, dynamic> json) =
+      _$OrderModelImpl.fromJson;
 
   @override
   @HiveField(0)
@@ -1046,7 +1050,7 @@ abstract class _JobModel implements JobModel {
   List<String> get images;
   @override
   @HiveField(9)
-  List<JobItem> get items;
+  List<OrderItem> get items;
   @override
   @HiveField(10)
   List<Payment> get payments;
@@ -1078,10 +1082,10 @@ abstract class _JobModel implements JobModel {
   @HiveField(17)
   String? get customerName;
 
-  /// Create a copy of JobModel
+  /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$JobModelImplCopyWith<_$JobModelImpl> get copyWith =>
+  _$$OrderModelImplCopyWith<_$OrderModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

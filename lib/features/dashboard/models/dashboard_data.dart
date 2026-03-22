@@ -1,17 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 
 part 'dashboard_data.freezed.dart';
 
 @freezed
 class DashboardData with _$DashboardData {
   const factory DashboardData({
-    required int activeJobs,
-    required int completedJobs,
+    required int activeOrders,
+    required int completedOrders,
     required int totalCustomers,
     required double totalRevenue,
-    required List<JobModel> recentJobs,
-    required List<JobModel> urgentJobs,
+    required List<OrderModel> recentOrders,
+    required List<OrderModel> urgentOrders,
     required String userName,
   }) = _DashboardData;
 }

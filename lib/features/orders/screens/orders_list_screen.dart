@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
-import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
-import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
-import 'package:tailorsync_v2/features/jobs/screens/job_details_screen.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
+import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
+import 'package:tailorsync_v2/features/orders/screens/order_details_screen.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 
-class JobsListScreen extends ConsumerStatefulWidget {
-  const JobsListScreen({super.key});
+class OrdersListScreen extends ConsumerStatefulWidget {
+  const OrdersListScreen({super.key});
 
   @override
-  ConsumerState<JobsListScreen> createState() => _JobsListScreenState();
+  ConsumerState<OrdersListScreen> createState() => _OrdersListScreenState();
 }
 
-class _JobsListScreenState extends ConsumerState<JobsListScreen> with SingleTickerProviderStateMixin {
+class _OrdersListScreenState extends ConsumerState<OrdersListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
@@ -69,10 +69,10 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> with SingleTick
             child: TabBarView(
               controller: _tabController,
               children: [
-                _JobsList(statuses: JobModel.activeStatuses, searchQuery: _searchController.text),
-                _JobsList(statuses: const [JobModel.statusQuote], searchQuery: _searchController.text),
-                _JobsList(statuses: const [JobModel.statusCompleted, JobModel.statusDelivered], searchQuery: _searchController.text),
-                _JobsList(statuses: const [JobModel.statusCanceled], searchQuery: _searchController.text),
+                _OrdersList(statuses: OrderModel.activeStatuses, searchQuery: _searchController.text),
+                _OrdersList(statuses: const [OrderModel.statusQuote], searchQuery: _searchController.text),
+                _OrdersList(statuses: const [OrderModel.statusCompleted, OrderModel.statusDelivered], searchQuery: _searchController.text),
+                _OrdersList(statuses: const [OrderModel.statusCanceled], searchQuery: _searchController.text),
               ],
             ),
           ),
@@ -82,7 +82,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> with SingleTick
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const CreateJobScreen()),
+            MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
           );
         },
         child: const Icon(Icons.add),
@@ -91,62 +91,62 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> with SingleTick
   }
 }
 
-class _JobsList extends ConsumerWidget {
+class _OrdersList extends ConsumerWidget {
   final List<String> statuses;
   final String searchQuery;
-  const _JobsList({required this.statuses, required this.searchQuery});
+  const _OrdersList({required this.statuses, required this.searchQuery});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jobsFuture = ref.watch(jobsByStatusesProvider(statuses));
+    final ordersFuture = ref.watch(ordersByStatusesProvider(statuses));
     final profile = ref.watch(profileNotifierProvider).valueOrNull;
 
-    return jobsFuture.when(
-      data: (jobs) {
-        final filteredJobs = jobs.where((job) {
+    return ordersFuture.when(
+      data: (orders) {
+        final filteredOrders = orders.where((order) {
            final query = searchQuery.toLowerCase();
-           final titleMatch = job.title.toLowerCase().contains(query);
-           final customerMatch = job.customerName?.toLowerCase().contains(query) ?? false;
+           final titleMatch = order.title.toLowerCase().contains(query);
+           final customerMatch = order.customerName?.toLowerCase().contains(query) ?? false;
            return titleMatch || customerMatch;
         }).toList();
 
-        if (filteredJobs.isEmpty) {
+        if (filteredOrders.isEmpty) {
           return const Center(child: Text('No orders found'));
         }
         return ListView.builder(
-          itemCount: filteredJobs.length,
+          itemCount: filteredOrders.length,
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80), // Added bottom padding for FAB
           itemBuilder: (context, index) {
-            final job = filteredJobs[index];
+            final order = filteredOrders[index];
             return Card(
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: ListTile(
                   isThreeLine: true,
-                  title: Text(job.title, style: Theme.of(context).textTheme.titleMedium),
+                  title: Text(order.title, style: Theme.of(context).textTheme.titleMedium),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (job.customerName != null) 
-                         Text(job.customerName!, style: Theme.of(context).textTheme.bodyMedium),
+                      if (order.customerName != null) 
+                         Text(order.customerName!, style: Theme.of(context).textTheme.bodyMedium),
                       Row(
                         children: [
-                          Text(DateFormat.yMMMd().format(job.createdAt), style: Theme.of(context).textTheme.bodySmall),
-                          if (statuses.contains(JobModel.statusPending) || 
-                              statuses.contains(JobModel.statusInProgress)) ...[
+                          Text(DateFormat.yMMMd().format(order.createdAt), style: Theme.of(context).textTheme.bodySmall),
+                          if (statuses.contains(OrderModel.statusPending) || 
+                              statuses.contains(OrderModel.statusInProgress)) ...[
                             Text(' • ', style: Theme.of(context).textTheme.bodySmall),
                             Text(
-                              'Due: ${DateFormat.MMMd().format(job.dueDate)}',
+                              'Due: ${DateFormat.MMMd().format(order.dueDate)}',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: _isOverdue(job) ? Theme.of(context).colorScheme.error : null,
-                                fontWeight: _isOverdue(job) ? FontWeight.bold : null,
+                                color: _isOverdue(order) ? Theme.of(context).colorScheme.error : null,
+                                fontWeight: _isOverdue(order) ? FontWeight.bold : null,
                               ),
                             ),
                           ],
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _buildStatusChip(context, job.status),
+                      _buildStatusChip(context, order.status),
                     ],
                   ),
                   trailing: Column(
@@ -154,24 +154,24 @@ class _JobsList extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${profile?.currencySymbol ?? '₦'}${job.price}', 
+                        '${profile?.currencySymbol ?? '₦'}${order.price}', 
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      if (job.balanceDue > 0)
+                      if (order.balanceDue > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 2.0),
                           child: Text(
-                            'Bal: ${profile?.currencySymbol ?? '₦'}${job.balanceDue.toStringAsFixed(0)}',
+                            'Bal: ${profile?.currencySymbol ?? '₦'}${order.balanceDue.toStringAsFixed(0)}',
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         )
-                      else if (job.price > 0)
+                      else if (order.price > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 2.0),
                           child: Text(
@@ -188,7 +188,7 @@ class _JobsList extends ConsumerWidget {
                      Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => JobDetailsScreen(job: job),
+                        builder: (_) => OrderDetailsScreen(order: order),
                       ),
                     );
                   },
@@ -203,26 +203,26 @@ class _JobsList extends ConsumerWidget {
     );
   }
 
-  bool _isOverdue(JobModel job) {
-    return job.status == JobModel.statusPending && 
-           job.dueDate.isBefore(DateTime.now());
+  bool _isOverdue(OrderModel order) {
+    return order.status == OrderModel.statusPending && 
+           order.dueDate.isBefore(DateTime.now());
   }
 
   Widget _buildStatusChip(BuildContext context, String status) {
     Color color;
     switch (status) {
-      case JobModel.statusPending: color = Colors.orange; break;
-      case JobModel.statusInProgress: color = Theme.of(context).colorScheme.primary; break;
-      case JobModel.statusFitting: color = Colors.purple; break;
-      case JobModel.statusAdjustment: color = Colors.amber; break;
-      case JobModel.statusCompleted: color = Theme.of(context).colorScheme.secondary; break; // Use secondary (Orange) or Green? User said SuccessColor exists now.
-      case JobModel.statusDelivered: color = Colors.grey; break;
-      case JobModel.statusCanceled: color = Theme.of(context).colorScheme.error; break;
-      case JobModel.statusQuote: color = Colors.cyan; break;
+      case OrderModel.statusPending: color = Colors.orange; break;
+      case OrderModel.statusInProgress: color = Theme.of(context).colorScheme.primary; break;
+      case OrderModel.statusFitting: color = Colors.purple; break;
+      case OrderModel.statusAdjustment: color = Colors.amber; break;
+      case OrderModel.statusCompleted: color = Theme.of(context).colorScheme.secondary; break; 
+      case OrderModel.statusDelivered: color = Colors.grey; break;
+      case OrderModel.statusCanceled: color = Theme.of(context).colorScheme.error; break;
+      case OrderModel.statusQuote: color = Colors.cyan; break;
       default: color = Colors.grey;
     }
 
-    if (status == JobModel.statusCompleted) {
+    if (status == OrderModel.statusCompleted) {
          color = const Color(0xFF43A047); 
     }
     

@@ -5,8 +5,8 @@ import 'package:tailorsync_v2/features/customers/models/customer.dart';
 
 import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
 import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
-import 'package:tailorsync_v2/features/jobs/repositories/job_repository.dart';
-import 'package:tailorsync_v2/features/jobs/screens/job_details_screen.dart';
+import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
+import 'package:tailorsync_v2/features/orders/screens/order_details_screen.dart';
 import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
 
 class CustomerDetailsScreen extends ConsumerWidget {
@@ -15,7 +15,7 @@ class CustomerDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jobsAsync = ref.watch(jobsByCustomerProvider(customer.id!));
+    final ordersAsync = ref.watch(ordersByCustomerProvider(customer.id!));
 
     return Scaffold(
       appBar: AppBar(
@@ -120,29 +120,29 @@ class CustomerDetailsScreen extends ConsumerWidget {
             const SizedBox(height: 12),
 
             // Order List
-            jobsAsync.when(
-              data: (jobs) {
-                if (jobs.isEmpty) {
+            ordersAsync.when(
+              data: (orders) {
+                if (orders.isEmpty) {
                   return const Text("No orders found for this customer.");
                 }
                 return ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: jobs.length,
+                  itemCount: orders.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
-                    final job = jobs[index];
+                    final order = orders[index];
                     return ListTile(
                       tileColor: Colors.grey[100],
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      title: Text(job.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(DateFormat.yMMMd().format(job.createdAt)),
-                      trailing: _buildStatusChip(job.status),
+                      title: Text(order.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(DateFormat.yMMMd().format(order.createdAt)),
+                      trailing: _buildStatusChip(order.status),
                       onTap: () {
                          Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => JobDetailsScreen(job: job),
+                            builder: (_) => OrderDetailsScreen(order: order),
                           ),
                         );
                       },

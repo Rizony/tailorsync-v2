@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:tailorsync_v2/features/dashboard/providers/dashboard_provider.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
-import 'package:tailorsync_v2/features/jobs/screens/create_job_screen.dart';
-import 'package:tailorsync_v2/features/jobs/screens/job_details_screen.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
+import 'package:tailorsync_v2/features/orders/screens/order_details_screen.dart';
 import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
 import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
@@ -83,11 +83,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: 24),
                   _buildQuickActions(context),
                   const SizedBox(height: 24),
-                  if (data.urgentJobs.isNotEmpty) ...[
-                    _buildUrgentJobs(context, data.urgentJobs, currencySymbol),
+                  if (data.urgentOrders.isNotEmpty) ...[
+                    _buildUrgentOrders(context, data.urgentOrders, currencySymbol),
                     const SizedBox(height: 24),
                   ],
-                  _buildRecentActivity(data.recentJobs, currencySymbol),
+                  _buildRecentActivity(data.recentOrders, currencySymbol),
                 ],
               ),
             ),
@@ -198,19 +198,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       children: [
         _buildStatCard(
           context, 
-          'Active Jobs', 
-          '${data.activeJobs}', 
+          'Active Orders', 
+          '${data.activeOrders}', 
           Icons.content_cut, 
           Colors.blue,
-          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.orders,
         ),
         _buildStatCard(
           context, 
           'Pending', 
-          '${data.activeJobs}', 
+          '${data.activeOrders}', 
           Icons.assignment_late, 
           Colors.orange,
-          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs,
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.orders,
         ),
         _buildStatCard(
           context, 
@@ -226,7 +226,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           '$currencySymbol${data.totalRevenue}', 
           Icons.attach_money, 
           Colors.green,
-          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.jobs, // revenue leads to jobs/orders
+          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.orders, 
         ),
       ],
     );
@@ -292,7 +292,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const CreateJobScreen()),
+                MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
               );
             },
             icon: const Icon(Icons.add),
@@ -329,7 +329,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildUrgentJobs(BuildContext context, List<JobModel> jobs, String currencySymbol) {
+  Widget _buildUrgentOrders(BuildContext context, List<OrderModel> orders, String currencySymbol) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -351,10 +351,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           height: 140,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: jobs.length,
+            itemCount: orders.length,
             separatorBuilder: (_, __) => const SizedBox(width: 14),
             itemBuilder: (context, index) {
-              return _UrgentJobCard(job: jobs[index], currencySymbol: currencySymbol);
+              return _UrgentOrderCard(order: orders[index], currencySymbol: currencySymbol);
             },
           ),
         ),
@@ -362,8 +362,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentActivity(List<JobModel> jobs, String currencySymbol) {
-    if (jobs.isEmpty) {
+  Widget _buildRecentActivity(List<OrderModel> orders, String currencySymbol) {
+    if (orders.isEmpty) {
        return const Center(child: Text("No recent activity"));
     }
 
@@ -381,16 +381,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: jobs.length,
+          itemCount: orders.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final job = jobs[index];
+            final order = orders[index];
             return InkWell(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => JobDetailsScreen(job: job),
+                    builder: (_) => OrderDetailsScreen(order: order),
                   ),
                 );
               },
@@ -424,11 +424,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          job.title,
+                          order.title,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         Text(
-                          DateFormat.yMMMd().format(job.createdAt),
+                          DateFormat.yMMMd().format(order.createdAt),
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                       ],
@@ -438,19 +438,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '$currencySymbol${job.price}',
+                        '$currencySymbol${order.price}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(job.status).withValues(alpha: 0.1),
+                          color: _getStatusColor(order.status).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          job.status.toUpperCase(),
+                          order.status.toUpperCase(),
                           style: TextStyle(
-                            color: _getStatusColor(job.status),
+                            color: _getStatusColor(order.status),
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -470,14 +470,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case JobModel.statusPending: return Colors.orange;
-      case JobModel.statusInProgress: return Colors.blue;
-      case JobModel.statusFitting: return Colors.purple;
-      case JobModel.statusAdjustment: return Colors.amber;
-      case JobModel.statusCompleted: return Colors.green;
-      case JobModel.statusDelivered: return Colors.grey;
-      case JobModel.statusCanceled: return Colors.red;
-      case JobModel.statusQuote: return Colors.cyan;
+      case OrderModel.statusPending: return Colors.orange;
+      case OrderModel.statusInProgress: return Colors.blue;
+      case OrderModel.statusFitting: return Colors.purple;
+      case OrderModel.statusAdjustment: return Colors.amber;
+      case OrderModel.statusCompleted: return Colors.green;
+      case OrderModel.statusDelivered: return Colors.grey;
+      case OrderModel.statusCanceled: return Colors.red;
+      case OrderModel.statusQuote: return Colors.cyan;
       default: return Colors.grey;
     }
   }
@@ -527,7 +527,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$pendingCount New Job Inquiries!',
+                    '$pendingCount New Inquiries!',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -552,17 +552,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-class _UrgentJobCard extends StatefulWidget {
-  final JobModel job;
+class _UrgentOrderCard extends StatefulWidget {
+  final OrderModel order;
   final String currencySymbol;
 
-  const _UrgentJobCard({required this.job, required this.currencySymbol});
+  const _UrgentOrderCard({required this.order, required this.currencySymbol});
 
   @override
-  State<_UrgentJobCard> createState() => _UrgentJobCardState();
+  State<_UrgentOrderCard> createState() => _UrgentOrderCardState();
 }
 
-class _UrgentJobCardState extends State<_UrgentJobCard> {
+class _UrgentOrderCardState extends State<_UrgentOrderCard> {
   late DateTime _now;
   late Stream<DateTime> _timerStream;
 
@@ -579,7 +579,7 @@ class _UrgentJobCardState extends State<_UrgentJobCard> {
       stream: _timerStream,
       builder: (context, snapshot) {
         final now = snapshot.data ?? _now;
-        final difference = widget.job.dueDate.difference(now);
+        final difference = widget.order.dueDate.difference(now);
         final hoursLeft = difference.inHours;
         final minutesLeft = difference.inMinutes % 60;
         
@@ -591,7 +591,7 @@ class _UrgentJobCardState extends State<_UrgentJobCard> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => JobDetailsScreen(job: widget.job),
+                builder: (_) => OrderDetailsScreen(order: widget.order),
               ),
             );
           },
@@ -614,7 +614,7 @@ class _UrgentJobCardState extends State<_UrgentJobCard> {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.job.title,
+                        widget.order.title,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, 
                             fontSize: 16, 
@@ -629,14 +629,14 @@ class _UrgentJobCardState extends State<_UrgentJobCard> {
                   ],
                 ),
                 Text(
-                  'Due: ${DateFormat.jm().format(widget.job.dueDate)}',
+                  'Due: ${DateFormat.jm().format(widget.order.dueDate)}',
                   style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${widget.currencySymbol}${widget.job.balanceDue} due',
+                      '${widget.currencySymbol}${widget.order.balanceDue} due',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     Container(
@@ -652,7 +652,7 @@ class _UrgentJobCardState extends State<_UrgentJobCard> {
                         ]
                       ),
                       child: Text(
-                        widget.job.status.toUpperCase(),
+                        widget.order.status.toUpperCase(),
                         style: TextStyle(
                           color: baseColor,
                           fontSize: 10,

@@ -311,7 +311,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
                             color: Colors.white, size: 36),
                         const SizedBox(height: 8),
                         const Text(
-                          'Upgrade NEEDLIX',
+                          'Upgrade Needlix',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 26,

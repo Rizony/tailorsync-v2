@@ -80,7 +80,7 @@ class TutorialService {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Tap here to create a new job. You can set it as a 'Quote' initially, and later convert it into an active order once the customer deposits!",
+                  "Tap here to create a new order. You can set it as a 'Quote' initially, and later convert it into an active order once the customer deposits!",
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
@@ -105,7 +105,7 @@ class TutorialService {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Track all your jobs here. You can update their statuses (e.g. 'Fitting' or 'Completed') and generate professional PDF Invoices to share with clients.",
+                  "Track all your orders here. You can update their statuses (e.g. 'Fitting' or 'Completed') and generate professional PDF Invoices to share with clients.",
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],

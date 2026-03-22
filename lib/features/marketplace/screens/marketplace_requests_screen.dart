@@ -6,8 +6,8 @@ import '../repositories/marketplace_repository.dart';
 import '../models/marketplace_request.dart';
 import '../../customers/repositories/customer_repository.dart';
 import '../../customers/models/customer.dart';
-import '../../jobs/repositories/job_repository.dart';
-import '../../jobs/models/job_model.dart';
+import '../../orders/repositories/order_repository.dart';
+import '../../orders/models/order_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -32,7 +32,7 @@ class MarketplaceRequestsScreen extends ConsumerWidget {
         data: (d) {
           final requests = d.value;
           if (requests.isEmpty) {
-            return const Center(child: Text('No job requests from the marketplace yet.'));
+            return const Center(child: Text('No order requests from the marketplace yet.'));
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -426,7 +426,7 @@ class _RequestCard extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Accept Request?'),
-          content: Text('This will create a new job for ${request.customerName}.'),
+          content: Text('This will create a new order for ${request.customerName}.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -434,7 +434,7 @@ class _RequestCard extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Accept & Create Job'),
+              child: const Text('Accept & Create Order'),
             ),
           ],
         ),
@@ -464,8 +464,8 @@ class _RequestCard extends ConsumerWidget {
         customerId = existingCustomer.id!;
       }
 
-      // 2. Create the job
-      final job = JobModel(
+      // 2. Create the order
+      final order = OrderModel(
         id: const Uuid().v4(),
         userId: '', // Repository handles this
         customerId: customerId,
@@ -479,14 +479,14 @@ class _RequestCard extends ConsumerWidget {
         notes: 'Marketplace Request: ${request.description}',
       );
 
-      await ref.read(jobRepositoryProvider).createJob(job);
+      await ref.read(orderRepositoryProvider).createOrder(order);
       
       // 3. Update request status
-      await ref.read(marketplaceRepositoryProvider).acceptAndCreateJob(
+      await ref.read(marketplaceRepositoryProvider).acceptAndCreateOrder(
         request: request,
         customerId: customerId,
-        title: job.title,
-        dueDate: job.dueDate,
+        title: order.title,
+        dueDate: order.dueDate,
         price: 0,
       );
     } else {
@@ -496,7 +496,7 @@ class _RequestCard extends ConsumerWidget {
     ref.invalidate(marketplaceRequestsProvider);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and job created' : 'rejected'}.')),
+        SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and order created' : 'rejected'}.')),
       );
     }
   }

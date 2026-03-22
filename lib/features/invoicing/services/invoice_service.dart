@@ -5,7 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:tailorsync_v2/core/auth/models/app_user.dart';
 import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/jobs/models/job_model.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,32 +13,32 @@ final invoiceServiceProvider = Provider((ref) => InvoiceService());
 
 class InvoiceService {
   Future<void> generateInvoice({
-    required JobModel job,
+    required OrderModel order,
     required Customer customer,
     required AppUser profile,
   }) async {
     final pdf = pw.Document();
-    await _buildPdfContent(pdf, job, customer, profile);
+    await _buildPdfContent(pdf, order, customer, profile);
     
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
-      name: 'Invoice-${job.id.substring(0, 8)}',
+      name: 'Invoice-${order.id.substring(0, 8)}',
     );
   }
 
   Future<Uint8List> generateInvoiceBytes({
-    required JobModel job,
+    required OrderModel order,
     required Customer customer,
     required AppUser profile,
   }) async {
     final pdf = pw.Document();
     // ... duplicate logic for now, or refactor to internal _buildPdf method
     // For implementation speed and safety, let's extract the building logic
-    await _buildPdfContent(pdf, job, customer, profile);
+    await _buildPdfContent(pdf, order, customer, profile);
     return pdf.save();
   }
 
-  Future<void> _buildPdfContent(pw.Document pdf, JobModel job, Customer customer, AppUser profile) async {
+  Future<void> _buildPdfContent(pw.Document pdf, OrderModel order, Customer customer, AppUser profile) async {
     // Load fonts with fallback
     pw.Font fontRegular;
     pw.Font fontBold;
@@ -131,9 +131,9 @@ class InvoiceService {
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       pw.Text('INVOICE', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                      pw.Text('#${job.id.substring(0, 8).toUpperCase()}'),
+                      pw.Text('#${order.id.substring(0, 8).toUpperCase()}'),
                       pw.Text('Date: ${DateFormat.yMMMd().format(DateTime.now())}'),
-                      pw.Text('Due Date: ${DateFormat.yMMMd().format(job.dueDate)}'),
+                      pw.Text('Due Date: ${DateFormat.yMMMd().format(order.dueDate)}'),
                     ],
                   ),
                 ],
@@ -181,10 +181,10 @@ class InvoiceService {
                         child: pw.Column(
                            crossAxisAlignment: pw.CrossAxisAlignment.start,
                            children: [
-                             if (job.items.isEmpty) ...[
-                               pw.Text('Tailoring Service: ${job.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                             if (order.items.isEmpty) ...[
+                               pw.Text('Tailoring Service: ${order.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                              ] else ...[
-                               for (var item in job.items)
+                               for (var item in order.items)
                                  pw.Padding(
                                    padding: const pw.EdgeInsets.only(bottom: 4),
                                    child: pw.Row(
@@ -195,7 +195,7 @@ class InvoiceService {
                                    )
                                  ),
                              ],
-                             if (job.notes != null) pw.Text(job.notes!, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
+                             if (order.notes != null) pw.Text(order.notes!, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
                            ],
                         ),
                       ),
@@ -204,10 +204,10 @@ class InvoiceService {
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.end,
                           children: [
-                            if (job.items.isEmpty) ...[
-                              pw.Text(_formatCurrency(job.price, profile.currencySymbol)),
+                            if (order.items.isEmpty) ...[
+                              pw.Text(_formatCurrency(order.price, profile.currencySymbol)),
                             ] else ...[
-                              for (var item in job.items)
+                              for (var item in order.items)
                                 pw.Padding(
                                    padding: const pw.EdgeInsets.only(bottom: 4),
                                    child: pw.Text(_formatCurrency(item.price * item.quantity, profile.currencySymbol)),
@@ -232,15 +232,15 @@ class InvoiceService {
                       children: [
                         _buildTotalRow(
                           'Subtotal', 
-                          job.price, 
+                          order.price, 
                           profile.currencySymbol,
                         ),
                         pw.SizedBox(height: 4),
                         
-                        if (job.balanceDue != job.price)
+                        if (order.balanceDue != order.price)
                           _buildTotalRow(
                             'Paid', 
-                            job.price - job.balanceDue, 
+                            order.price - order.balanceDue, 
                             profile.currencySymbol,
                             color: PdfColors.green,
                           ),
@@ -248,7 +248,7 @@ class InvoiceService {
                         if (profile.defaultTaxRate > 0)
                           _buildTotalRow(
                             'Tax (${profile.defaultTaxRate}%)', 
-                            job.price * (profile.defaultTaxRate / 100), 
+                            order.price * (profile.defaultTaxRate / 100), 
                             profile.currencySymbol,
                           ),
                           
@@ -256,7 +256,7 @@ class InvoiceService {
 
                         _buildTotalRow(
                           'Total', 
-                          job.price * (1 + (profile.defaultTaxRate / 100)),
+                          order.price * (1 + (profile.defaultTaxRate / 100)),
                           profile.currencySymbol,
                           isBold: true,
                           color: accentColor,
@@ -265,7 +265,7 @@ class InvoiceService {
                         
                         _buildTotalRow(
                           'Balance Due', 
-                          job.balanceDue, 
+                          order.balanceDue, 
                           profile.currencySymbol,
                           isBold: true,
                         ),
