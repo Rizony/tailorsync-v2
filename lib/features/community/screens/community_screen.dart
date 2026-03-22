@@ -9,6 +9,7 @@ import 'package:tailorsync_v2/features/community/models/community_post.dart';
 import 'package:tailorsync_v2/features/community/screens/create_post_screen.dart';
 import 'package:tailorsync_v2/features/community/screens/post_details_screen.dart';
 import 'package:tailorsync_v2/features/community/screens/tailor_profile_screen.dart';
+import 'package:tailorsync_v2/features/marketplace/screens/marketplace_requests_screen.dart';
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});
@@ -17,98 +18,70 @@ class CommunityScreen extends ConsumerStatefulWidget {
   ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
 }
 
-class _CommunityScreenState extends ConsumerState<CommunityScreen> {
-  String _filterType = 'all'; // 'all', 'discussions', 'jobs', 'marketplace'
+class _CommunityScreenState extends ConsumerState<CommunityScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String _filterType = 'all'; // 'all', 'discussions', 'jobs', 'showroom'
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileNotifierProvider);
-    final isPremium = profileAsync.valueOrNull?.subscriptionTier == SubscriptionTier.premium;
+    final isPremium =
+        profileAsync.valueOrNull?.subscriptionTier == SubscriptionTier.premium;
 
     if (!isPremium) {
       return _buildLockedScreen(context);
     }
 
-    final postsAsync = ref.watch(communityFeedProvider(_filterType));
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Needlix Community Board'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _FilterChip(
-                    label: 'All',
-                    isSelected: _filterType == 'all',
-                    onTap: () => setState(() => _filterType = 'all'),
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Discussions',
-                    isSelected: _filterType == 'discussions',
-                    onTap: () => setState(() => _filterType = 'discussions'),
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Order Offers',
-                    isSelected: _filterType == 'jobs',
-                    onTap: () => setState(() => _filterType = 'jobs'),
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Marketplace',
-                    isSelected: _filterType == 'marketplace',
-                    onTap: () => setState(() => _filterType = 'marketplace'),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        title: const Text('Needlix Community'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.people_outline), text: 'Community'),
+            Tab(icon: Icon(Icons.shopping_bag_outlined), text: 'Marketplace'),
+          ],
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.read(communityFeedProvider(_filterType).notifier).refresh(),
-        child: postsAsync.when(
-          data: (posts) {
-            if (posts.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 100),
-                  Center(child: Text('No posts found. Be the first to start a discussion!')),
-                ]
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _CommunityFeedTab(
+            filterType: _filterType,
+            onFilterChanged: (f) => setState(() => _filterType = f),
+          ),
+          const MarketplaceRequestsScreen(),
+        ],
+      ),
+      floatingActionButton: ListenableBuilder(
+        listenable: _tabController,
+        builder: (context, _) {
+          // Only show FAB on the Community tab
+          if (_tabController.index != 0) return const SizedBox.shrink();
+          return FloatingActionButton(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreatePostScreen()),
               );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                return _PostCard(post: posts[index]);
-              },
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              const SizedBox(height: 100),
-              Center(child: Text('Error loading feed: $err')),
-            ]
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()));
-          // Refresh list when returning
-          ref.read(communityFeedProvider(_filterType).notifier).refresh();
+              ref.read(communityFeedProvider(_filterType).notifier).refresh();
+            },
+            child: const Icon(Icons.edit),
+          );
         },
-        child: const Icon(Icons.edit),
       ),
     );
   }
@@ -152,25 +125,129 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   }
 }
 
+// ─── Community Feed Tab ─────────────────────────────────────────────────────
+
+class _CommunityFeedTab extends ConsumerWidget {
+  final String filterType;
+  final ValueChanged<String> onFilterChanged;
+
+  const _CommunityFeedTab({
+    required this.filterType,
+    required this.onFilterChanged,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postsAsync = ref.watch(communityFeedProvider(filterType));
+
+    return Column(
+      children: [
+        // Filter chips
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _FilterChip(
+                  label: 'All',
+                  isSelected: filterType == 'all',
+                  onTap: () => onFilterChanged('all'),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Discussions',
+                  isSelected: filterType == 'discussions',
+                  onTap: () => onFilterChanged('discussions'),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Order Offers',
+                  isSelected: filterType == 'jobs',
+                  onTap: () => onFilterChanged('jobs'),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Showroom',
+                  isSelected: filterType == 'showroom',
+                  onTap: () => onFilterChanged('showroom'),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Feed
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async =>
+                ref.read(communityFeedProvider(filterType).notifier).refresh(),
+            child: postsAsync.when(
+              data: (posts) {
+                if (posts.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 100),
+                      Center(
+                        child: Text(
+                            'No posts found. Be the first to start a discussion!'),
+                      ),
+                    ],
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) =>
+                      _PostCard(post: posts[index]),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  const SizedBox(height: 100),
+                  Center(child: Text('Error loading feed: $err')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Shared Widgets ──────────────────────────────────────────────────────────
+
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _FilterChip({required this.label, required this.isSelected, required this.onTap});
+  const _FilterChip(
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return ActionChip(
       label: Text(label),
-      backgroundColor: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
+      backgroundColor: isSelected
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.surfaceContainerHighest,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+        color: isSelected
+            ? Colors.white
+            : Theme.of(context).colorScheme.onSurfaceVariant,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
       onPressed: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      side: BorderSide(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent),
+      side: BorderSide(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent),
     );
   }
 }
@@ -183,13 +260,16 @@ class _PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isJob = post.postType == 'job_offer';
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-           Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailsScreen(post: post)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => PostDetailsScreen(post: post)));
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -213,12 +293,23 @@ class _PostCard extends StatelessWidget {
                     },
                     child: CircleAvatar(
                       radius: 16,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                      backgroundImage: post.authorLogoUrl != null ? NetworkImage(post.authorLogoUrl!) : null,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.2),
+                      backgroundImage: post.authorLogoUrl != null
+                          ? NetworkImage(post.authorLogoUrl!)
+                          : null,
                       child: post.authorLogoUrl == null
                           ? Text(
-                              post.authorName != null && post.authorName!.isNotEmpty ? post.authorName![0].toUpperCase() : '?',
-                              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                              post.authorName != null &&
+                                      post.authorName!.isNotEmpty
+                                  ? post.authorName![0].toUpperCase()
+                                  : '?',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      Theme.of(context).colorScheme.primary),
                             )
                           : null,
                     ),
@@ -240,46 +331,63 @@ class _PostCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(post.authorName ?? 'Unknown Tailor', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text(DateFormat.yMMMd().format(post.createdAt), style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                          Text(post.authorName ?? 'Unknown Tailor',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text(DateFormat.yMMMd().format(post.createdAt),
+                              style: const TextStyle(
+                                  fontSize: 11, color: Colors.grey)),
                         ],
                       ),
                     ),
                   ),
                   if (isJob)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.orange),
                       ),
-                      child: const Text('ORDER OFFER', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text('ORDER OFFER',
+                          style: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold)),
                     ),
                   if (post.postType == 'showroom')
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.blue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.blue),
                       ),
-                      child: const Text('MARKETPLACE', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text('SHOWROOM',
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold)),
                     ),
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Content
-              Text(post.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(post.title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(
                 post.content,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
-              
+
               if (post.imageUrls.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 SizedBox(
@@ -303,23 +411,28 @@ class _PostCard extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 12),
-              
+
               // Footer
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (isJob && post.budget > 0)
-                     Text('Budget: ₦${post.budget.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green))
+                    Text('Budget: ₦${post.budget.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green))
                   else
-                     const SizedBox.shrink(),
-                     
+                    const SizedBox.shrink(),
                   const Row(
                     children: [
-                      Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey),
+                      Icon(Icons.chat_bubble_outline,
+                          size: 16, color: Colors.grey),
                       SizedBox(width: 4),
-                      Text('Discuss', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      Text('Discuss',
+                          style:
+                              TextStyle(color: Colors.grey, fontSize: 13)),
                     ],
                   ),
                 ],
