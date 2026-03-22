@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:tailorsync_v2/core/auth/auth_provider.dart';
 import '../models/app_user.dart';
 
 part 'profile_provider.g.dart';
@@ -11,6 +12,9 @@ class ProfileNotifier extends _$ProfileNotifier {
 
   @override
   Future<AppUser?> build() async {
+    // Watch AuthState so this provider recalculates on login/logout
+    ref.watch(authControllerProvider);
+    
     final user = _supabase.auth.currentUser;
     if (user == null) return null;
 

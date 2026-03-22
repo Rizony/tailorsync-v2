@@ -1,5 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:tailorsync_v2/features/customers/models/customer.dart';
+import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
 import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
 
 part 'auth_repository.g.dart';
@@ -46,6 +50,12 @@ class AuthRepository extends _$AuthRepository {
   }
 
   Future<void> signOut() async {
+    try {
+      if (Hive.isBoxOpen('customers')) await Hive.box<Customer>('customers').clear();
+      if (Hive.isBoxOpen('orders')) await Hive.box<OrderModel>('orders').clear();
+      if (Hive.isBoxOpen('sync_queue')) await Hive.box<SyncAction>('sync_queue').clear();
+    } catch (_) {}
+
     try {
       await _supabase.auth.signOut();
     } catch (e, stack) {
