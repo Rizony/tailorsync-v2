@@ -1,6 +1,16 @@
 -- Phase 7 Supplemental: Atomic Withdrawals and KYC Storage
 -- This script adds the missing RPC and profile security columns.
 
+-- 0. Ensure essential tables exist
+CREATE TABLE IF NOT EXISTS public.admins (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  role TEXT DEFAULT 'admin',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admins can view admins" ON public.admins FOR SELECT USING (auth.uid() = id);
+
 -- 1. Add Security Columns to Profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS withdrawal_pin TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kyc_status TEXT DEFAULT 'none'; -- 'none', 'pending', 'verified', 'rejected'
