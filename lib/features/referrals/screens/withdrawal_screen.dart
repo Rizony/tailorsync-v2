@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import '../../monetization/providers/wallet_provider.dart';
 
 class WithdrawalScreen extends ConsumerStatefulWidget {
   const WithdrawalScreen({
@@ -72,13 +73,10 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
 
       final bankDetails = '${_bankCtrl.text.trim()} | ${_accNumberCtrl.text.trim()} | ${_accNameCtrl.text.trim()}';
 
-      await Supabase.instance.client.rpc(
-        'request_withdrawal',
-        params: {
-          'req_amount': amount,
-          'req_bank_details': bankDetails,
-          'req_pin': _pinCtrl.text.trim(),
-        },
+      await ref.read(walletStateProvider.notifier).requestWithdrawal(
+        amount: amount,
+        bankDetails: bankDetails,
+        pin: _pinCtrl.text.trim(),
       );
 
       ref.invalidate(profileNotifierProvider);
@@ -88,10 +86,11 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
       }
     } catch (e) {
       if (mounted) {
-        // Safe casting the error to get the Postgres message if available
         final errorMsg = e.toString().contains('Insufficient balance') 
             ? 'Insufficient balance' 
-            : 'Request failed. Please try again.';
+            : e.toString().contains('Incorrect withdrawal PIN')
+                ? 'Incorrect withdrawal PIN'
+                : 'Request failed. Please try again.';
         _snack(errorMsg, isError: true);
       }
     } finally {

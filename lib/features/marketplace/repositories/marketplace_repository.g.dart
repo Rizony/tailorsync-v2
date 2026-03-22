@@ -7,7 +7,7 @@ part of 'marketplace_repository.dart';
 // **************************************************************************
 
 String _$marketplaceRepositoryHash() =>
-    r'a93041f0fbf0b7aab300b2b99b1c7fb1e5319424';
+    r'52a7c735816f3a0752ee3820b97775e5af71f3f8';
 
 /// See also [marketplaceRepository].
 @ProviderFor(marketplaceRepository)

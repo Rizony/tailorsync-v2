@@ -88,7 +88,11 @@ mixin _$AppUser {
   @JsonKey(name: 'years_of_experience')
   int get yearsOfExperience => throw _privateConstructorUsedError;
   @JsonKey(name: 'portfolio_urls')
-  List<String> get portfolioUrls => throw _privateConstructorUsedError;
+  List<String> get portfolioUrls => throw _privateConstructorUsedError; // KYC
+  @JsonKey(name: 'kyc_status')
+  String get kycStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'kyc_document_url')
+  String? get kycDocumentUrl => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -137,7 +141,9 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'rating') double rating,
       @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
       @JsonKey(name: 'years_of_experience') int yearsOfExperience,
-      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls});
+      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
+      @JsonKey(name: 'kyc_status') String kycStatus,
+      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl});
 }
 
 /// @nodoc
@@ -188,6 +194,8 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? publicProfileEnabled = null,
     Object? yearsOfExperience = null,
     Object? portfolioUrls = null,
+    Object? kycStatus = null,
+    Object? kycDocumentUrl = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -322,6 +330,14 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.portfolioUrls
           : portfolioUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      kycStatus: null == kycStatus
+          ? _value.kycStatus
+          : kycStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      kycDocumentUrl: freezed == kycDocumentUrl
+          ? _value.kycDocumentUrl
+          : kycDocumentUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -366,7 +382,9 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'rating') double rating,
       @JsonKey(name: 'public_profile_enabled') bool publicProfileEnabled,
       @JsonKey(name: 'years_of_experience') int yearsOfExperience,
-      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls});
+      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
+      @JsonKey(name: 'kyc_status') String kycStatus,
+      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl});
 }
 
 /// @nodoc
@@ -415,6 +433,8 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? publicProfileEnabled = null,
     Object? yearsOfExperience = null,
     Object? portfolioUrls = null,
+    Object? kycStatus = null,
+    Object? kycDocumentUrl = freezed,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -549,6 +569,14 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value._portfolioUrls
           : portfolioUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      kycStatus: null == kycStatus
+          ? _value.kycStatus
+          : kycStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      kycDocumentUrl: freezed == kycDocumentUrl
+          ? _value.kycDocumentUrl
+          : kycDocumentUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -592,7 +620,9 @@ class _$AppUserImpl implements _AppUser {
       this.publicProfileEnabled = false,
       @JsonKey(name: 'years_of_experience') this.yearsOfExperience = 0,
       @JsonKey(name: 'portfolio_urls')
-      final List<String> portfolioUrls = const []})
+      final List<String> portfolioUrls = const [],
+      @JsonKey(name: 'kyc_status') this.kycStatus = 'none',
+      @JsonKey(name: 'kyc_document_url') this.kycDocumentUrl})
       : _specialties = specialties,
         _portfolioUrls = portfolioUrls;
 
@@ -715,9 +745,17 @@ class _$AppUserImpl implements _AppUser {
     return EqualUnmodifiableListView(_portfolioUrls);
   }
 
+// KYC
+  @override
+  @JsonKey(name: 'kyc_status')
+  final String kycStatus;
+  @override
+  @JsonKey(name: 'kyc_document_url')
+  final String? kycDocumentUrl;
+
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls, kycStatus: $kycStatus, kycDocumentUrl: $kycDocumentUrl)';
   }
 
   @override
@@ -784,7 +822,11 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.yearsOfExperience, yearsOfExperience) ||
                 other.yearsOfExperience == yearsOfExperience) &&
             const DeepCollectionEquality()
-                .equals(other._portfolioUrls, _portfolioUrls));
+                .equals(other._portfolioUrls, _portfolioUrls) &&
+            (identical(other.kycStatus, kycStatus) ||
+                other.kycStatus == kycStatus) &&
+            (identical(other.kycDocumentUrl, kycDocumentUrl) ||
+                other.kycDocumentUrl == kycDocumentUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -823,7 +865,9 @@ class _$AppUserImpl implements _AppUser {
         rating,
         publicProfileEnabled,
         yearsOfExperience,
-        const DeepCollectionEquality().hash(_portfolioUrls)
+        const DeepCollectionEquality().hash(_portfolioUrls),
+        kycStatus,
+        kycDocumentUrl
       ]);
 
   /// Create a copy of AppUser
@@ -877,8 +921,10 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'rating') final double rating,
       @JsonKey(name: 'public_profile_enabled') final bool publicProfileEnabled,
       @JsonKey(name: 'years_of_experience') final int yearsOfExperience,
-      @JsonKey(name: 'portfolio_urls')
-      final List<String> portfolioUrls}) = _$AppUserImpl;
+      @JsonKey(name: 'portfolio_urls') final List<String> portfolioUrls,
+      @JsonKey(name: 'kyc_status') final String kycStatus,
+      @JsonKey(name: 'kyc_document_url')
+      final String? kycDocumentUrl}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
@@ -978,7 +1024,13 @@ abstract class _AppUser implements AppUser {
   int get yearsOfExperience;
   @override
   @JsonKey(name: 'portfolio_urls')
-  List<String> get portfolioUrls;
+  List<String> get portfolioUrls; // KYC
+  @override
+  @JsonKey(name: 'kyc_status')
+  String get kycStatus;
+  @override
+  @JsonKey(name: 'kyc_document_url')
+  String? get kycDocumentUrl;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

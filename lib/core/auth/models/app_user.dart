@@ -50,6 +50,10 @@ class AppUser with _$AppUser {
     @JsonKey(name: 'public_profile_enabled') @Default(false) bool publicProfileEnabled,
     @JsonKey(name: 'years_of_experience') @Default(0) int yearsOfExperience,
     @JsonKey(name: 'portfolio_urls') @Default([]) List<String> portfolioUrls,
+    
+    // KYC
+    @JsonKey(name: 'kyc_status') @Default('none') String kycStatus,
+    @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl,
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);

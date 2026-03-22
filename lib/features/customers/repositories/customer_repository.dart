@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tailorsync_v2/core/ads/ad_service.dart';
+import 'package:tailorsync_v2/core/auth/auth_provider.dart';
 import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
 import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
 import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';

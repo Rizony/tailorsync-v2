@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tailorsync_v2/core/theme/app_theme.dart';
 
@@ -44,23 +45,36 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     }
   }
 
-  Future<void> _simulateUpload() async {
-    // In a real app, use image_picker and supabase storage.
-    // For this demonstration, we'll simulate a successful upload.
+  Future<void> _pickAndUpload() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    
+    if (image == null) return;
+
     setState(() => _uploading = true);
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
 
-      const mockUrl = "https://example.com/mock-kyc-document.jpg";
-      
+      final fileBytes = await image.readAsBytes();
+      final fileExt = image.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final path = '${user.id}/$fileName';
+
+      await Supabase.instance.client.storage
+          .from('kyc-documents')
+          .uploadBinary(path, fileBytes, fileOptions: FileOptions(contentType: 'image/$fileExt'));
+
+      final publicUrl = Supabase.instance.client.storage
+          .from('kyc-documents')
+          .getPublicUrl(path);
+
       await Supabase.instance.client.from('profiles').update({
-        'kyc_document_url': mockUrl,
+        'kyc_document_url': publicUrl,
+        'kyc_status': 'pending',
       }).eq('id', user.id);
 
-      _documentUrl = mockUrl;
+      _documentUrl = publicUrl;
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +174,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                      )
                   else
                      ElevatedButton.icon(
-                       onPressed: _uploading ? null : _simulateUpload,
+                       onPressed: _uploading ? null : _pickAndUpload,
                        icon: _uploading 
                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                          : const Icon(Icons.upload_file),
