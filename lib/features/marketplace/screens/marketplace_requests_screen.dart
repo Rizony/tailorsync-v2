@@ -163,15 +163,11 @@ class _RequestCard extends ConsumerWidget {
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
-                              ref.invalidate(marketplaceRequestsProvider);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Counter-offer accepted. Quote updated.')),
-                                );
-                              }
+                              // Also convert to order immediately
+                              await _updateStatus(context, ref, 'accepted', forceAmount: request.counterOfferAmount);
                             },
                             icon: const Icon(Icons.check_circle_outline, size: 18),
-                            label: const Text('Accept counter'),
+                            label: const Text('Accept counter', style: TextStyle(fontSize: 12)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -319,27 +315,42 @@ class _RequestCard extends ConsumerWidget {
             ),
             if (isPending) ...[
               const SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _updateStatus(context, ref, 'rejected'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
+              if (quoteStatus == 'accepted')
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _updateStatus(context, ref, 'accepted'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    icon: const Icon(Icons.receipt_long),
+                    label: const Text('Client Accepted Quote - Convert to Order', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => _updateStatus(context, ref, 'rejected'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                        ),
+                        child: const Text('Reject'),
                       ),
-                      child: const Text('Reject'),
                     ),
-                  ),
-                  const SizedBox(width: 12.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _updateStatus(context, ref, 'accepted'),
-                      child: const Text('Accept Request'),
+                    const SizedBox(width: 12.0),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _updateStatus(context, ref, 'accepted'),
+                        child: const Text('Accept Request'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
             if (!isPending && !isAccepted && hasQuote && !isPaid) ...[
               const SizedBox(height: 12),
@@ -420,13 +431,13 @@ class _RequestCard extends ConsumerWidget {
     }
   }
 
-  Future<void> _updateStatus(BuildContext context, WidgetRef ref, String status) async {
+  Future<void> _updateStatus(BuildContext context, WidgetRef ref, String status, {double? forceAmount}) async {
     if (status == 'accepted') {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Accept Request?'),
-          content: Text('This will create a new order for ${request.customerName}.'),
+          title: const Text('Convert to Order?'),
+          content: Text('This will create a new order and invoice for ${request.customerName}.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -434,7 +445,7 @@ class _RequestCard extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Accept & Create Order'),
+              child: const Text('Create Order'),
             ),
           ],
         ),
@@ -465,6 +476,7 @@ class _RequestCard extends ConsumerWidget {
       }
 
       // 2. Create the order
+      final finalAmount = forceAmount ?? request.quoteAmount ?? 0;
       final order = OrderModel(
         id: const Uuid().v4(),
         userId: '', // Repository handles this
@@ -472,8 +484,8 @@ class _RequestCard extends ConsumerWidget {
         title: request.description.length > 30 
             ? '${request.description.substring(0, 27)}...' 
             : request.description,
-        price: request.quoteAmount ?? 0,
-        balanceDue: request.quoteAmount ?? 0,
+        price: finalAmount,
+        balanceDue: finalAmount,
         dueDate: DateTime.now().add(const Duration(days: 7)), // Default 1 week
         createdAt: DateTime.now(),
         notes: 'Marketplace Request: ${request.description}',

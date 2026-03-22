@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { supabase, supabaseUrl } from "@/lib/supabase";
 import { signOut } from "@/lib/auth";
-import { ArrowRight, CreditCard, LogOut, RefreshCw, Scissors, Star } from "lucide-react";
+import { ArrowRight, CreditCard, LogOut, RefreshCw, Scissors, Star, CheckCircle2 } from "lucide-react";
 
 type RequestStatus = "pending" | "accepted" | "rejected" | "completed" | string;
 
@@ -382,6 +382,22 @@ export default function ClientDashboardPage() {
     }
   }
 
+  async function confirmDelivery(r: MarketplaceRequest) {
+    if (!r.orders || !r.order_id) return;
+    setSubmittingQuoteAction(true);
+    setError(null);
+    try {
+      const resp = await supabase.rpc('escrow_release_pending', { p_order_id: r.order_id });
+      if (resp.error) throw resp.error;
+      
+      await fetchRequests(email);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to confirm delivery. " + (err?.details || ""));
+    } finally {
+      setSubmittingQuoteAction(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -397,13 +413,16 @@ export default function ClientDashboardPage() {
           <Link href="/" className="flex items-center gap-3">
             <Image src="/logo.png" alt="Needlix Logo" width={140} height={40} className="h-8 w-auto object-contain" />
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/marketplace" className="text-sm font-semibold text-slate-600 hover:text-[#0076B6]">
+          <div className="flex items-center gap-4 pl-4 ml-auto">
+            <Link href="/marketplace" className="hidden sm:block text-sm font-bold text-slate-600 hover:text-[#0076B6]">
               Marketplace
+            </Link>
+            <Link href="/client/profile" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF] px-3 py-1.5 rounded-full bg-[#00AEEF]/10">
+              My Profile & Measurements
             </Link>
             <button
               onClick={onLogout}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
             >
               <LogOut className="h-4 w-4" />
               Logout
@@ -534,23 +553,36 @@ export default function ClientDashboardPage() {
 
                     {String(r.status || "").toLowerCase() === "completed" &&
                     String(r.payment_status || "").toLowerCase() === "paid" ? (
-                      ratingsByRequestId[r.id] ? (
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-700 text-center">
-                          Rated: {ratingsByRequestId[r.id].rating}/5
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setRatingTarget(r);
-                            setRatingValue(5);
-                            setRatingReview("");
-                          }}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100"
-                        >
-                          <Star className="h-4 w-4" />
-                          Rate tailor
-                        </button>
-                      )
+                      <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-100">
+                        {r.orders?.status === 'completed' && (
+                          <button
+                            onClick={() => confirmDelivery(r)}
+                            disabled={submittingQuoteAction}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-60 shadow-md"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            Confirm Delivery & Release Escrow
+                          </button>
+                        )}
+                        
+                        {ratingsByRequestId[r.id] ? (
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-700 text-center">
+                            Rated: {ratingsByRequestId[r.id].rating}/5
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setRatingTarget(r);
+                              setRatingValue(5);
+                              setRatingReview("");
+                            }}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100"
+                          >
+                            <Star className="h-4 w-4" />
+                            Rate tailor
+                          </button>
+                        )}
+                      </div>
                     ) : null}
                   </div>
                 </div>

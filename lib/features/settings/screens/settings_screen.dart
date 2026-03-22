@@ -11,6 +11,8 @@ import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart'
 import 'package:tailorsync_v2/features/referrals/screens/referral_dashboard_screen.dart';
 import 'package:tailorsync_v2/features/auth/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tailorsync_v2/features/monetization/screens/wallet_dashboard_screen.dart';
+import 'package:tailorsync_v2/features/monetization/screens/kyc_verification_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -136,6 +138,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const ReferralDashboardScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.account_balance_wallet, color: Colors.blue),
+                  title: const Text('Escrow Wallet', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Pending Escrow & Available Payouts'),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WalletDashboardScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.verified_user_outlined, color: Colors.green),
+                  title: const Text('KYC Verification', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Upload ID to enable full payouts'),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const KycVerificationScreen()),
                     );
                   },
                 ),

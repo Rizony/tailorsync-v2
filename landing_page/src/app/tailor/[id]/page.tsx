@@ -46,6 +46,8 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [savedMeasurements, setSavedMeasurements] = useState<any>(null);
 
   useEffect(() => {
     fetchTailor();
@@ -64,6 +66,13 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       setName(((s.user.user_metadata as any)?.full_name ?? "").toString());
       setEmail((s.user.email ?? "").toString());
       setWhatsapp((((s.user.user_metadata as any)?.whatsapp ?? "") as string).toString());
+
+      // Fetch saved measurements if any
+      supabase.from("customer_profiles").select("measurements").eq("user_id", s.user.id).single().then(({ data }) => {
+        if (data?.measurements && Object.keys(data.measurements).some(k => data.measurements[k])) {
+          setSavedMeasurements(data.measurements);
+        }
+      });
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -97,6 +106,10 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
     if (!tailor) return;
     if (!tailor.is_available) {
       setFormError("This designer is currently not accepting orders.");
+      return;
+    }
+    if (!termsAccepted) {
+      setFormError("You must agree to the Terms & Conditions before sending a request.");
       return;
     }
 
@@ -144,13 +157,25 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
       .map((s) => s.trim())
       .filter(Boolean);
 
+    let finalDescription = String(formData.get("description") || "");
+    if (savedMeasurements) {
+      const formattedM = Object.entries(savedMeasurements)
+        .filter(([_, v]) => v)
+        .map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}"`)
+        .join(", ");
+      
+      if (formattedM.length > 0) {
+        finalDescription += `\n\n📌 **Saved Measurements:**\n${formattedM}`;
+      }
+    }
+
     const requestDataBase = {
       tailor_id: tailor.id,
       customer_name: name,
       customer_email: email,
       customer_phone: whatsapp,
       customer_whatsapp: whatsapp,
-      description: formData.get("description"),
+      description: finalDescription,
       item_quantity: Number.isFinite(quantity) ? quantity : null,
       image_urls: [...uploadedUrls, ...imageUrls],
       reference_links: referenceLinks,
@@ -301,6 +326,12 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                     PREMIUM
                   </span>
                 )}
+                {tailor.is_kyc_verified && (
+                   <span className="flex items-center gap-1 rounded-full bg-blue-500 px-3 py-1 text-[10px] font-bold text-white shadow-md" title="Needlix Verified Tailor">
+                    <ShieldCheck className="h-3 w-3" />
+                    VERIFIED
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
                 <div className="flex items-center gap-1.5">
@@ -419,7 +450,10 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">What do you need?</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase flex justify-between">
+                      <span>What do you need?</span>
+                      {savedMeasurements && <span className="text-[#00AEEF]">Measurements auto-attached 📏</span>}
+                    </label>
                     <textarea name="description" required rows={4} placeholder="e.g. I need two traditional outfits and a suit for a wedding next month..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm resize-none" />
                   </div>
 
@@ -476,10 +510,27 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                     />
                   </div>
 
+                  <div className="flex items-start gap-3 mt-6 mb-4 p-4 bg-amber-50 rounded-2xl border border-amber-200">
+                    <input
+                      type="checkbox"
+                      id="terms"
+                      checked={termsAccepted}
+                      onChange={(e) => {
+                        setTermsAccepted(e.target.checked);
+                        setFormError(null);
+                      }}
+                      className="mt-1 flex-shrink-0 h-5 w-5 rounded border-amber-300 text-[#0076B6] focus:ring-[#00AEEF] cursor-pointer"
+                    />
+                    <label htmlFor="terms" className="text-xs text-amber-900 leading-relaxed cursor-pointer">
+                      <span className="font-bold block mb-1">Terms & Conditions</span>
+                      By submitting this request, I authorize this tailor to create my garment based on the provided details. I understand and agree that <b>Needlix is a marketplace platform and is not liable for style errors, wrong measurements, or fitting issues</b>.
+                    </label>
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={formLoading}
-                    className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available ? 'bg-slate-300' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'} ${formLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    disabled={formLoading || !termsAccepted}
+                    className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available || !termsAccepted ? 'bg-slate-300' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'} ${formLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     <span>{formLoading ? "Sending..." : "Send Order Request"}</span>
                     {!formLoading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}

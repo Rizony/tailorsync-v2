@@ -60,10 +60,17 @@ serve(async (req) => {
           .update({ payment_status: 'paid', paid_at: new Date().toISOString() })
           .eq('id', marketplaceRequestId)
 
-        // Credit tailor wallet with net amount
-        await supabase.rpc('increment_wallet_balance', {
-          user_id: marketplaceTailorId,
-          amount: netAmount,
+        // Escrow split definition
+        const availableAmount = Math.round((netAmount / 2) * 100) / 100;
+        const pendingAmount = netAmount - availableAmount;
+
+        // Credit tailor escrow wallet
+        await supabase.rpc('escrow_credit_wallet', {
+          p_tailor_id: marketplaceTailorId,
+          p_available_amount: availableAmount,
+          p_pending_amount: pendingAmount,
+          p_reference: reference,
+          p_request_id: marketplaceRequestId
         })
 
         // Record platform revenue (commission)
