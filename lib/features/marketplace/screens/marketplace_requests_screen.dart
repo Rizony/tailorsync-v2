@@ -484,6 +484,7 @@ class _RequestCard extends ConsumerWidget {
       // 3. Update request status
       await ref.read(marketplaceRepositoryProvider).acceptAndCreateOrder(
         request: request,
+        orderId: order.id,
         customerId: customerId,
         title: order.title,
         dueDate: order.dueDate,

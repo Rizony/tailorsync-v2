@@ -27,6 +27,8 @@ interface MarketplaceRequest {
   counter_offer_amount?: number | null;
   counter_offer_message?: string | null;
   created_at: string;
+  order_id?: string | null;
+  orders?: { status: string; title: string; due_date?: string } | null;
 }
 
 interface MarketplaceRating {
@@ -41,6 +43,65 @@ function statusBadge(status: RequestStatus) {
   if (s === "rejected") return "bg-red-50 text-red-700 border-red-200";
   if (s === "completed") return "bg-green-50 text-green-700 border-green-200";
   return "bg-amber-50 text-amber-700 border-amber-200";
+}
+
+function OrderTrackingTimeline({ status }: { status: string }) {
+  const norm = status.toLowerCase();
+  if (norm === 'canceled') {
+    return (
+      <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+        <p className="text-sm font-bold text-red-700 text-center">This order was canceled.</p>
+      </div>
+    );
+  }
+
+  const stages = [
+    { key: "pending", label: "Confirmed" },
+    { key: "in_progress", label: "Tailoring" },
+    { key: "fitting", label: "Fitting" }, // We merge 'adjustment' into this stage visually
+    { key: "completed", label: "Ready" },
+    { key: "delivered", label: "Delivered" },
+  ];
+
+  let currentIndex = 0;
+  if (norm === "in_progress") currentIndex = 1;
+  else if (norm === "fitting" || norm === "adjustment") currentIndex = 2;
+  else if (norm === "completed") currentIndex = 3;
+  else if (norm === "delivered") currentIndex = 4;
+
+  return (
+    <div className="mt-6 border-t border-slate-100 pt-5">
+      <h4 className="text-xs font-extrabold text-[#0076B6] uppercase tracking-wider mb-4">
+        Live Order Tracking
+      </h4>
+      <div className="flex items-center justify-between relative">
+        <div className="absolute left-0 top-3 w-full h-1 bg-slate-100 rounded-full" />
+        <div 
+          className="absolute left-0 top-3 h-1 bg-[#0076B6] rounded-full transition-all duration-500 ease-in-out" 
+          style={{ width: `${(currentIndex / (stages.length - 1)) * 100}%` }} 
+        />
+        
+        {stages.map((stage, idx) => {
+          const isCompleted = idx <= currentIndex;
+          const isCurrent = idx === currentIndex;
+          return (
+            <div key={stage.key} className="relative z-10 flex flex-col items-center gap-2 group">
+              <div 
+                className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-colors ${
+                  isCompleted ? "bg-[#0076B6] border-[#0076B6] text-white" : "bg-white border-slate-200 text-transparent"
+                } ${isCurrent ? "ring-4 ring-[#0076B6]/20" : ""}`}
+              >
+                {isCompleted && <span className="text-[10px] font-bold">✓</span>}
+              </div>
+              <span className={`text-[10px] sm:text-xs font-bold ${isCurrent ? "text-[#0A1128]" : isCompleted ? "text-slate-600" : "text-slate-400"}`}>
+                {stage.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default function ClientDashboardPage() {
@@ -99,14 +160,26 @@ export default function ClientDashboardPage() {
     //
     // Until that’s applied, we fall back to a best-effort email match,
     // which should be replaced with the secure customer_id policy.
-    const { data, error } = await supabase
-      .from("marketplace_requests")
-      .select("*")
-      .eq("customer_email", userEmail)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    const reqs = (data as MarketplaceRequest[]) ?? [];
+    let reqs: MarketplaceRequest[] = [];
+    try {
+      // Try joining with orders table (requires SQL migration to be run)
+      const { data, error } = await supabase
+        .from("marketplace_requests")
+        .select("*, orders(status, title, due_date)")
+        .eq("customer_email", userEmail)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      reqs = (data as unknown as MarketplaceRequest[]) ?? [];
+    } catch (e) {
+      // Fallback if the SQL migration isn't run yet (orders foreign key missing)
+      const { data, error } = await supabase
+        .from("marketplace_requests")
+        .select("*")
+        .eq("customer_email", userEmail)
+        .order("created_at", { ascending: false });
+      if (!error) reqs = (data as MarketplaceRequest[]) ?? [];
+    }
     setRequests(reqs);
 
     // Fetch ratings (if table exists)
@@ -481,6 +554,11 @@ export default function ClientDashboardPage() {
                     ) : null}
                   </div>
                 </div>
+
+                {/* If the order is created and linked, show the live tracking timeline */}
+                {r.orders?.status && (
+                  <OrderTrackingTimeline status={r.orders.status} />
+                )}
               </div>
             ))}
           </div>

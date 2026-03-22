@@ -84,13 +84,17 @@ class MarketplaceRepository {
 
   Future<void> acceptAndCreateOrder({
     required MarketplaceRequest request,
+    required String orderId,
     required String customerId,
     required String title,
     required DateTime dueDate,
     required double price,
   }) async {
-    // 1. Update the request status
-    await updateRequestStatus(request.id, 'accepted');
+    // 1. Update the request status and link the created order
+    await _client.from('marketplace_requests').update({
+      'status': 'accepted',
+      'order_id': orderId,
+    }).eq('id', request.id);
   }
 }
 
