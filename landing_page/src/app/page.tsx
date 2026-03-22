@@ -139,7 +139,7 @@ export default function LandingPage() {
                     <div className="flex-1">
                       <p className="text-sm font-extrabold text-[#0A1128]">Client Portal (Web)</p>
                       <p className="text-sm text-slate-600 mt-1">
-                        Sign up to track requests, pay securely, and rate your tailor — right from your browser.
+                        Sign up to track orders, pay securely, and review your tailor — right from your browser.
                       </p>
                       <div className="mt-4 flex flex-col sm:flex-row gap-3">
                         <Link
@@ -266,14 +266,14 @@ export default function LandingPage() {
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0076B6] to-[#00AEEF]">Near You.</span>
                 </h2>
                 <p className="text-lg text-slate-600 leading-relaxed mb-8">
-                  Browse verified, professional tailors and fashion designers. Filter by specialty, check real ratings, and send a job request directly — all from your browser. No app needed.
+                  Browse verified, professional tailors and fashion designers. Filter by specialty, check real ratings, and send an order request directly from the Needlix Client Portal. No app needed.
                 </p>
 
                 <div className="space-y-4 mb-10">
                   {[
                     { text: 'Search by specialty (suits, ankara, wedding, etc.)', icon: CheckCircle2 },
                     { text: 'View real tailor profiles with bio & availability', icon: CheckCircle2 },
-                    { text: 'Send job requests — tailors respond via the app', icon: CheckCircle2 },
+                    { text: 'Send order requests — tailors respond via the app', icon: CheckCircle2 },
                     { text: 'Premium & verified designers listed first', icon: Star },
                   ].map((item) => (
                     <div key={item.text} className="flex items-center gap-3">
@@ -418,7 +418,7 @@ export default function LandingPage() {
                 </div>
               </button>
             </div>
-            <p className="mt-8 text-sm text-slate-500 opacity-60">Web Dashboard available for Subscribed members.</p>
+            <p className="mt-8 text-sm text-slate-500 opacity-60">Complimentary Web App available for both Tailors and Clients.</p>
           </div>
         </section>
       </main>

@@ -394,7 +394,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
               <>
                 <h3 className="text-xl font-bold mb-2">Hire this Designer</h3>
                 <p className="text-sm text-slate-500 mb-6">
-                  Send a job request and get a professional quote instantly.
+                  Send an order request and get a professional quote instantly.
                 </p>
 
                 <form
@@ -481,7 +481,7 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
                     disabled={formLoading}
                     className={`group w-full py-4 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg transition-all ${!tailor.is_available ? 'bg-slate-300' : 'bg-[#0076B6] hover:bg-[#00AEEF] active:translate-y-1'} ${formLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    <span>{formLoading ? "Sending..." : "Send Job Request"}</span>
+                    <span>{formLoading ? "Sending..." : "Send Order Request"}</span>
                     {!formLoading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                   </button>
 
