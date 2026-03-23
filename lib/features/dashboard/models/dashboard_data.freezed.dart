@@ -19,7 +19,8 @@ mixin _$DashboardData {
   int get activeOrders => throw _privateConstructorUsedError;
   int get completedOrders => throw _privateConstructorUsedError;
   int get totalCustomers => throw _privateConstructorUsedError;
-  double get totalRevenue => throw _privateConstructorUsedError;
+  double get weeklyRevenue => throw _privateConstructorUsedError;
+  double get lifetimeRevenue => throw _privateConstructorUsedError;
   List<OrderModel> get recentOrders => throw _privateConstructorUsedError;
   List<OrderModel> get urgentOrders => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
@@ -41,7 +42,8 @@ abstract class $DashboardDataCopyWith<$Res> {
       {int activeOrders,
       int completedOrders,
       int totalCustomers,
-      double totalRevenue,
+      double weeklyRevenue,
+      double lifetimeRevenue,
       List<OrderModel> recentOrders,
       List<OrderModel> urgentOrders,
       String userName});
@@ -65,7 +67,8 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
     Object? activeOrders = null,
     Object? completedOrders = null,
     Object? totalCustomers = null,
-    Object? totalRevenue = null,
+    Object? weeklyRevenue = null,
+    Object? lifetimeRevenue = null,
     Object? recentOrders = null,
     Object? urgentOrders = null,
     Object? userName = null,
@@ -83,9 +86,13 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
           ? _value.totalCustomers
           : totalCustomers // ignore: cast_nullable_to_non_nullable
               as int,
-      totalRevenue: null == totalRevenue
-          ? _value.totalRevenue
-          : totalRevenue // ignore: cast_nullable_to_non_nullable
+      weeklyRevenue: null == weeklyRevenue
+          ? _value.weeklyRevenue
+          : weeklyRevenue // ignore: cast_nullable_to_non_nullable
+              as double,
+      lifetimeRevenue: null == lifetimeRevenue
+          ? _value.lifetimeRevenue
+          : lifetimeRevenue // ignore: cast_nullable_to_non_nullable
               as double,
       recentOrders: null == recentOrders
           ? _value.recentOrders
@@ -115,7 +122,8 @@ abstract class _$$DashboardDataImplCopyWith<$Res>
       {int activeOrders,
       int completedOrders,
       int totalCustomers,
-      double totalRevenue,
+      double weeklyRevenue,
+      double lifetimeRevenue,
       List<OrderModel> recentOrders,
       List<OrderModel> urgentOrders,
       String userName});
@@ -137,7 +145,8 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
     Object? activeOrders = null,
     Object? completedOrders = null,
     Object? totalCustomers = null,
-    Object? totalRevenue = null,
+    Object? weeklyRevenue = null,
+    Object? lifetimeRevenue = null,
     Object? recentOrders = null,
     Object? urgentOrders = null,
     Object? userName = null,
@@ -155,9 +164,13 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
           ? _value.totalCustomers
           : totalCustomers // ignore: cast_nullable_to_non_nullable
               as int,
-      totalRevenue: null == totalRevenue
-          ? _value.totalRevenue
-          : totalRevenue // ignore: cast_nullable_to_non_nullable
+      weeklyRevenue: null == weeklyRevenue
+          ? _value.weeklyRevenue
+          : weeklyRevenue // ignore: cast_nullable_to_non_nullable
+              as double,
+      lifetimeRevenue: null == lifetimeRevenue
+          ? _value.lifetimeRevenue
+          : lifetimeRevenue // ignore: cast_nullable_to_non_nullable
               as double,
       recentOrders: null == recentOrders
           ? _value._recentOrders
@@ -182,7 +195,8 @@ class _$DashboardDataImpl implements _DashboardData {
       {required this.activeOrders,
       required this.completedOrders,
       required this.totalCustomers,
-      required this.totalRevenue,
+      required this.weeklyRevenue,
+      required this.lifetimeRevenue,
       required final List<OrderModel> recentOrders,
       required final List<OrderModel> urgentOrders,
       required this.userName})
@@ -196,7 +210,9 @@ class _$DashboardDataImpl implements _DashboardData {
   @override
   final int totalCustomers;
   @override
-  final double totalRevenue;
+  final double weeklyRevenue;
+  @override
+  final double lifetimeRevenue;
   final List<OrderModel> _recentOrders;
   @override
   List<OrderModel> get recentOrders {
@@ -218,7 +234,7 @@ class _$DashboardDataImpl implements _DashboardData {
 
   @override
   String toString() {
-    return 'DashboardData(activeOrders: $activeOrders, completedOrders: $completedOrders, totalCustomers: $totalCustomers, totalRevenue: $totalRevenue, recentOrders: $recentOrders, urgentOrders: $urgentOrders, userName: $userName)';
+    return 'DashboardData(activeOrders: $activeOrders, completedOrders: $completedOrders, totalCustomers: $totalCustomers, weeklyRevenue: $weeklyRevenue, lifetimeRevenue: $lifetimeRevenue, recentOrders: $recentOrders, urgentOrders: $urgentOrders, userName: $userName)';
   }
 
   @override
@@ -232,8 +248,10 @@ class _$DashboardDataImpl implements _DashboardData {
                 other.completedOrders == completedOrders) &&
             (identical(other.totalCustomers, totalCustomers) ||
                 other.totalCustomers == totalCustomers) &&
-            (identical(other.totalRevenue, totalRevenue) ||
-                other.totalRevenue == totalRevenue) &&
+            (identical(other.weeklyRevenue, weeklyRevenue) ||
+                other.weeklyRevenue == weeklyRevenue) &&
+            (identical(other.lifetimeRevenue, lifetimeRevenue) ||
+                other.lifetimeRevenue == lifetimeRevenue) &&
             const DeepCollectionEquality()
                 .equals(other._recentOrders, _recentOrders) &&
             const DeepCollectionEquality()
@@ -248,7 +266,8 @@ class _$DashboardDataImpl implements _DashboardData {
       activeOrders,
       completedOrders,
       totalCustomers,
-      totalRevenue,
+      weeklyRevenue,
+      lifetimeRevenue,
       const DeepCollectionEquality().hash(_recentOrders),
       const DeepCollectionEquality().hash(_urgentOrders),
       userName);
@@ -267,7 +286,8 @@ abstract class _DashboardData implements DashboardData {
       {required final int activeOrders,
       required final int completedOrders,
       required final int totalCustomers,
-      required final double totalRevenue,
+      required final double weeklyRevenue,
+      required final double lifetimeRevenue,
       required final List<OrderModel> recentOrders,
       required final List<OrderModel> urgentOrders,
       required final String userName}) = _$DashboardDataImpl;
@@ -279,7 +299,9 @@ abstract class _DashboardData implements DashboardData {
   @override
   int get totalCustomers;
   @override
-  double get totalRevenue;
+  double get weeklyRevenue;
+  @override
+  double get lifetimeRevenue;
   @override
   List<OrderModel> get recentOrders;
   @override

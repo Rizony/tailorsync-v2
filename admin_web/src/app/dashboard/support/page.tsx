@@ -56,44 +56,65 @@ export default function SupportTicketsPage() {
             </div>
 
             <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-                <ul className="divide-y divide-gray-200">
-                    {loading ? (
-                        <li className="p-6 text-center text-sm text-gray-500">Loading tickets...</li>
-                    ) : tickets.length === 0 ? (
-                        <li className="p-6 text-center text-sm text-gray-500">No support tickets found.</li>
-                    ) : (
-                        tickets.map((ticket) => (
-                            <li key={ticket.id} className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-lg font-medium text-gray-900">{ticket.subject}</h3>
-                                        <p className="mt-1 text-sm text-gray-500">From: <span className="font-semibold text-gray-700">{ticket.profiles?.full_name}</span> ({ticket.profiles?.shop_name})</p>
-                                    </div>
-                                    <div>
-                                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ticket.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {loading ? (
+                            <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500">Loading tickets...</td></tr>
+                        ) : tickets.length === 0 ? (
+                            <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500">No support tickets found.</td></tr>
+                        ) : (
+                            tickets.map((ticket) => (
+                                <tr key={ticket.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm font-medium text-gray-900">{ticket.subject}</div>
+                                        <div className="text-xs text-gray-500">#{ticket.id.substring(0, 8).toUpperCase()}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm text-gray-900">{ticket.profiles?.full_name}</div>
+                                        <div className="text-xs text-gray-500">{ticket.profiles?.shop_name}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                            ticket.status === 'resolved' ? 'bg-green-100 text-green-800' : 
+                                            ticket.status === 'open' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                                        }`}>
                                             {ticket.status.toUpperCase()}
                                         </span>
-                                    </div>
-                                </div>
-                                <div className="mt-4 bg-gray-50 p-4 rounded-md border border-gray-100">
-                                    <p className="text-sm text-gray-800 whitespace-pre-wrap">{ticket.description}</p>
-                                </div>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <p className="text-xs text-gray-400">Created: {new Date(ticket.created_at).toLocaleString()}</p>
-
-                                    {ticket.status === 'open' && (
-                                        <button
-                                            onClick={() => markResolved(ticket.id)}
-                                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none"
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`text-xs font-medium ${
+                                            ticket.priority === 'high' ? 'text-red-600' : 
+                                            ticket.priority === 'medium' ? 'text-orange-600' : 'text-blue-600'
+                                        }`}>
+                                            {ticket.priority.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                        {new Date(ticket.updated_at).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-right text-sm font-medium">
+                                        <button 
+                                            onClick={() => window.location.href = `/dashboard/support/${ticket.id}`}
+                                            className="text-blue-600 hover:text-blue-900"
                                         >
-                                            <CheckCircle className="w-4 h-4 mr-1" /> Mark Resolved
+                                            View & Reply
                                         </button>
-                                    )}
-                                </div>
-                            </li>
-                        ))
-                    )}
-                </ul>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

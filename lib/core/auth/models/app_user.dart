@@ -54,6 +54,7 @@ class AppUser with _$AppUser {
     // KYC
     @JsonKey(name: 'kyc_status') @Default('none') String kycStatus,
     @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl,
+    @JsonKey(name: 'is_admin') @Default(false) bool isAdmin,
   }) = _AppUser;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);

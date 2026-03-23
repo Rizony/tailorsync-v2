@@ -324,5 +324,22 @@ class _OrdersByCustomerProviderElement
   @override
   String get customerId => (origin as OrdersByCustomerProvider).customerId;
 }
+
+String _$allOrdersHash() => r'9f1e6db882ff198590dfe0aa05cfca5078463e9e';
+
+/// See also [allOrders].
+@ProviderFor(allOrders)
+final allOrdersProvider = AutoDisposeFutureProvider<List<OrderModel>>.internal(
+  allOrders,
+  name: r'allOrdersProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$allOrdersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AllOrdersRef = AutoDisposeFutureProviderRef<List<OrderModel>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

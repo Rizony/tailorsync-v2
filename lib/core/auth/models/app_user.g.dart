@@ -51,6 +51,7 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
           const [],
       kycStatus: json['kyc_status'] as String? ?? 'none',
       kycDocumentUrl: json['kyc_document_url'] as String?,
+      isAdmin: json['is_admin'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
@@ -91,6 +92,7 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'portfolio_urls': instance.portfolioUrls,
       'kyc_status': instance.kycStatus,
       'kyc_document_url': instance.kycDocumentUrl,
+      'is_admin': instance.isAdmin,
     };
 
 const _$SubscriptionTierEnumMap = {

@@ -93,6 +93,8 @@ mixin _$AppUser {
   String get kycStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'kyc_document_url')
   String? get kycDocumentUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_admin')
+  bool get isAdmin => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -143,7 +145,8 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'years_of_experience') int yearsOfExperience,
       @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
       @JsonKey(name: 'kyc_status') String kycStatus,
-      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl});
+      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl,
+      @JsonKey(name: 'is_admin') bool isAdmin});
 }
 
 /// @nodoc
@@ -196,6 +199,7 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? portfolioUrls = null,
     Object? kycStatus = null,
     Object? kycDocumentUrl = freezed,
+    Object? isAdmin = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -338,6 +342,10 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.kycDocumentUrl
           : kycDocumentUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      isAdmin: null == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -384,7 +392,8 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'years_of_experience') int yearsOfExperience,
       @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
       @JsonKey(name: 'kyc_status') String kycStatus,
-      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl});
+      @JsonKey(name: 'kyc_document_url') String? kycDocumentUrl,
+      @JsonKey(name: 'is_admin') bool isAdmin});
 }
 
 /// @nodoc
@@ -435,6 +444,7 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? portfolioUrls = null,
     Object? kycStatus = null,
     Object? kycDocumentUrl = freezed,
+    Object? isAdmin = null,
   }) {
     return _then(_$AppUserImpl(
       id: null == id
@@ -577,6 +587,10 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.kycDocumentUrl
           : kycDocumentUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      isAdmin: null == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -622,7 +636,8 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'portfolio_urls')
       final List<String> portfolioUrls = const [],
       @JsonKey(name: 'kyc_status') this.kycStatus = 'none',
-      @JsonKey(name: 'kyc_document_url') this.kycDocumentUrl})
+      @JsonKey(name: 'kyc_document_url') this.kycDocumentUrl,
+      @JsonKey(name: 'is_admin') this.isAdmin = false})
       : _specialties = specialties,
         _portfolioUrls = portfolioUrls;
 
@@ -752,10 +767,13 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey(name: 'kyc_document_url')
   final String? kycDocumentUrl;
+  @override
+  @JsonKey(name: 'is_admin')
+  final bool isAdmin;
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls, kycStatus: $kycStatus, kycDocumentUrl: $kycDocumentUrl)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls, kycStatus: $kycStatus, kycDocumentUrl: $kycDocumentUrl, isAdmin: $isAdmin)';
   }
 
   @override
@@ -826,7 +844,8 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.kycStatus, kycStatus) ||
                 other.kycStatus == kycStatus) &&
             (identical(other.kycDocumentUrl, kycDocumentUrl) ||
-                other.kycDocumentUrl == kycDocumentUrl));
+                other.kycDocumentUrl == kycDocumentUrl) &&
+            (identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -867,7 +886,8 @@ class _$AppUserImpl implements _AppUser {
         yearsOfExperience,
         const DeepCollectionEquality().hash(_portfolioUrls),
         kycStatus,
-        kycDocumentUrl
+        kycDocumentUrl,
+        isAdmin
       ]);
 
   /// Create a copy of AppUser
@@ -923,8 +943,8 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'years_of_experience') final int yearsOfExperience,
       @JsonKey(name: 'portfolio_urls') final List<String> portfolioUrls,
       @JsonKey(name: 'kyc_status') final String kycStatus,
-      @JsonKey(name: 'kyc_document_url')
-      final String? kycDocumentUrl}) = _$AppUserImpl;
+      @JsonKey(name: 'kyc_document_url') final String? kycDocumentUrl,
+      @JsonKey(name: 'is_admin') final bool isAdmin}) = _$AppUserImpl;
 
   factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
 
@@ -1031,6 +1051,9 @@ abstract class _AppUser implements AppUser {
   @override
   @JsonKey(name: 'kyc_document_url')
   String? get kycDocumentUrl;
+  @override
+  @JsonKey(name: 'is_admin')
+  bool get isAdmin;
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.

@@ -14,6 +14,10 @@ import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
 import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
+import 'package:needlix/features/monetization/screens/revenue_history_screen.dart';
+import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
+import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
+import 'package:needlix/features/support/screens/support_list_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -53,6 +57,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
          profile.phoneNumber == null || profile.phoneNumber!.isEmpty);
 
     return Scaffold(
+      key: GlobalKey<ScaffoldState>(),
+      drawer: _buildDrawer(context, profile, currencySymbol),
       body: dashboardAsync.when(
         data: (data) {
           final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -121,20 +127,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ],
         ),
-        IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SettingsScreen()),
-            );
-          },
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
+        Builder(
+          builder: (context) => IconButton(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.menu_rounded, 
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black
+              ),
             ),
-            child: const Icon(Icons.settings, color: Colors.black),
           ),
         ),
       ],
@@ -223,11 +233,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         _buildStatCard(
           context, 
-          'Revenue', 
-          '$currencySymbol${data.totalRevenue}', 
-          Icons.attach_money, 
+          'This Week', 
+          '$currencySymbol${data.weeklyRevenue.toStringAsFixed(0)}', 
+          Icons.payments_outlined, 
           Colors.green,
-          onTap: () => ref.read(navigationProvider.notifier).state = AppTabs.orders, 
+          onTap: () {
+             Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()),
+            );
+          }, 
         ),
       ],
     );
@@ -486,73 +501,203 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  Widget _buildMarketplaceWidget(BuildContext context, WidgetRef ref) {
-    final pendingCount = ref.watch(pendingMarketplaceRequestsCountProvider);
-    if (pendingCount == 0) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.blue.shade700,
-            Colors.blue.shade500,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MarketplaceRequestsScreen()),
-          );
-        },
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.shopping_bag, color: Colors.white, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$pendingCount New Inquiries!',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    'Potential customers are reaching out from the website.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
+  Widget _buildDrawer(BuildContext context, dynamic profile, String currencySymbol) {
+    return Drawer(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
+        children: [
+          // Drawer Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 60, bottom: 24, left: 24, right: 24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white),
-          ],
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.white24,
+                  backgroundImage: profile?.logoUrl != null ? NetworkImage(profile!.logoUrl!) : null,
+                  child: profile?.logoUrl == null ? const Icon(Icons.store, size: 35, color: Colors.white) : null,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  profile?.shopName ?? 'TailorSync Shop',
+                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  profile?.email ?? '',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerItem(
+                  context, 
+                  Icons.dashboard_outlined, 
+                  'Dashboard', 
+                  isActive: true,
+                  onTap: () => Navigator.pop(context),
+                ),
+                _buildDrawerItem(
+                  context, 
+                  Icons.style_outlined, 
+                  'Orders', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    ref.read(navigationProvider.notifier).state = 1; // AppTabs.orders
+                  },
+                ),
+                _buildDrawerItem(
+                  context, 
+                  Icons.people_outline, 
+                  'Customers', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    ref.read(navigationProvider.notifier).state = 2; // AppTabs.customers
+                  },
+                ),
+                _buildDrawerItem(
+                  context, 
+                  Icons.forum_outlined, 
+                  'Community', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    ref.read(navigationProvider.notifier).state = 3; // AppTabs.community
+                  },
+                ),
+                const Divider(indent: 16, endIndent: 16),
+                _buildDrawerItem(
+                  context, 
+                  Icons.history_edu, 
+                  'Revenue History', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()));
+                  },
+                ),
+                _buildDrawerItem(
+                  context, 
+                  Icons.account_balance_wallet_outlined, 
+                  'Escrow Wallet', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDashboardScreen()));
+                  },
+                ),
+                _buildDrawerItem(
+                   context, 
+                   Icons.handshake_outlined, 
+                   'Partner Program', 
+                   onTap: () {
+                     Navigator.pop(context);
+                     Navigator.push(context, MaterialPageRoute(builder: (_) => const ReferralDashboardScreen()));
+                   },
+                 ),
+                const Divider(indent: 16, endIndent: 16),
+                _buildDrawerItem(
+                  context, 
+                  Icons.settings_outlined, 
+                  'Settings', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                  },
+                ),
+                _buildDrawerItem(
+                  context, 
+                  Icons.help_outline, 
+                  'Help & Support', 
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportListScreen()));
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          const Divider(height: 1),
+          _buildDrawerItem(
+            context, 
+            Icons.logout, 
+            'Logout', 
+            textColor: Colors.red,
+            iconColor: Colors.red,
+            onTap: () {
+              Navigator.pop(context);
+              // Handle logout logic from SettingsScreen or shared utility
+              _showLogoutDialog(context);
+            },
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
+  }
+
+  Widget _buildDrawerItem(
+    BuildContext context, 
+    IconData icon, 
+    String title, 
+    {bool isActive = false, VoidCallback? onTap, Color? iconColor, Color? textColor}
+  ) {
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? (isActive ? Theme.of(context).colorScheme.primary : Colors.grey)),
+      title: Text(
+        title, 
+        style: TextStyle(
+          color: textColor ?? (isActive ? Theme.of(context).colorScheme.primary : null),
+          fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) async {
+     // This matches the logic in SettingsScreen
+     // For simplicity, we trigger the log out via ref directly if needed, 
+     // or just navigate to settings and let it handle? 
+     // Re-implementing here for immediate access.
+     final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      await Supabase.instance.client.auth.signOut();
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    }
   }
 }
 

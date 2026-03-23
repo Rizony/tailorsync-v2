@@ -100,6 +100,50 @@ class OrderRepository {
     }
   }
 
+  Future<Either<Failure, List<OrderModel>>> getAllOrders() async {
+    // 1. Return cached data immediately if available
+    final cached = _orderBox.values.toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    
+    if (cached.isNotEmpty) {
+      // SECURITY: Validate cache belongs to current user
+      final currentUserId = _supabase.auth.currentUser?.id;
+      if (currentUserId != null && cached.first.userId != currentUserId) {
+        await _orderBox.clear();
+        return _fetchAllRemote();
+      }
+
+      // Background fetch
+      _fetchAllRemote();
+      return Right(cached);
+    }
+
+    return _fetchAllRemote();
+  }
+
+  Future<Either<Failure, List<OrderModel>>> _fetchAllRemote() async {
+    try {
+      final response = await _supabase
+          .from('orders')
+          .select('*, customers(full_name)')
+          .order('created_at', ascending: false);
+      
+      final orders = (response as List).map((e) => OrderModel.fromJson(e)).toList();
+      
+      // Update cache
+      for (var order in orders) {
+        await _orderBox.put(order.id, order);
+      }
+      
+      return Right(orders);
+    } catch (e, stack) {
+      if (_orderBox.isNotEmpty) {
+        return Right(_orderBox.values.toList());
+      }
+      return Left(ErrorHandler.handle(e, stack));
+    }
+  }
+
   Future<Either<Failure, Map<String, int>>> getStats() async {
     // Local stats for offline use
     final activeCount = _orderBox.values
@@ -262,6 +306,16 @@ Future<List<OrderModel>> ordersByStatuses(Ref ref, List<String> statuses) async 
 Future<List<OrderModel>> ordersByCustomer(Ref ref, String customerId) async {
   final repository = ref.watch(orderRepositoryProvider);
   final result = await repository.getOrdersByCustomerId(customerId);
+  return result.fold(
+    (failure) => throw failure,
+    (orders) => orders,
+  );
+}
+
+@riverpod
+Future<List<OrderModel>> allOrders(Ref ref) async {
+  final repository = ref.watch(orderRepositoryProvider);
+  final result = await repository.getAllOrders();
   return result.fold(
     (failure) => throw failure,
     (orders) => orders,

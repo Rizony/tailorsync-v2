@@ -13,6 +13,8 @@ import 'package:needlix/features/auth/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
 import 'package:needlix/features/monetization/screens/kyc_verification_screen.dart';
+import 'package:needlix/features/monetization/screens/revenue_history_screen.dart';
+import 'package:needlix/features/support/screens/support_list_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -143,6 +145,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: const Icon(Icons.history_edu, color: Colors.blue),
+                  title: const Text('Revenue History', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Lifetime earnings & periodic breakdown'),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.account_balance_wallet, color: Colors.blue),
                   title: const Text('Escrow Wallet', style: TextStyle(fontWeight: FontWeight.w500)),
                   subtitle: const Text('Pending Escrow & Available Payouts'),
@@ -182,8 +197,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Help & Support'),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Help center coming soon')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SupportListScreen()),
                     );
                   },
                 ),
