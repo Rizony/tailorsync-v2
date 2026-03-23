@@ -13,6 +13,7 @@ class KycVerificationScreen extends StatefulWidget {
 class _KycVerificationScreenState extends State<KycVerificationScreen> {
   bool _loading = true;
   bool _isVerified = false;
+  bool _uploading = false;
   String? _documentUrl;
   final _nameController = TextEditingController();
 
