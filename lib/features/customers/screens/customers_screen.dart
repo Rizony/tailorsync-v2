@@ -29,16 +29,26 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search customers...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                 ),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: Theme.of(context).cardTheme.color,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
               onChanged: (value) {
                 setState(() {
@@ -73,31 +83,55 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   );
                 }
 
-                return ListView.separated(
+                return ListView.builder(
                   itemCount: filteredCustomers.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemBuilder: (context, index) {
                     final customer = filteredCustomers[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.purple.shade100,
-                        backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
-                        child: customer.photoUrl == null 
-                            ? Text(customer.fullName[0].toUpperCase())
-                            : null,
-                      ),
-                      title: Text(customer.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(customer.phoneNumber ?? 'No phone number'),
-                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CustomerDetailsScreen(customer: customer),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardTheme.color,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                        );
-                      },
-                    ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideX(begin: 0.1);
+                        ],
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        leading: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), width: 2),
+                          ),
+                          child: CircleAvatar(
+                            radius: 22,
+                            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                            backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
+                            child: customer.photoUrl == null 
+                                ? Text(customer.fullName[0].toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold))
+                                : null,
+                          ),
+                        ),
+                        title: Text(customer.fullName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.5)),
+                        subtitle: Text(customer.phoneNumber ?? 'No phone number', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                        trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CustomerDetailsScreen(customer: customer),
+                            ),
+                          );
+                        },
+                      ),
+                    ).animate().fadeIn(duration: 400.ms, delay: (index * 30).ms).slideX(begin: 0.05);
                   },
                 );
               },

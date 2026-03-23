@@ -130,87 +130,121 @@ class _OrdersList extends ConsumerWidget {
         }
         return ListView.builder(
           itemCount: filteredOrders.length,
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80), // Added bottom padding for FAB
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80, top: 8), 
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
-            return Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: ListTile(
-                  isThreeLine: true,
-                  title: Text(order.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (order.customerName != null) 
-                         Text(order.customerName!, style: Theme.of(context).textTheme.bodyMedium),
-                      Row(
-                        children: [
-                          Text(DateFormat.yMMMd().format(order.createdAt), style: Theme.of(context).textTheme.bodySmall),
-                          if (statuses.contains(OrderModel.statusPending) || 
-                              statuses.contains(OrderModel.statusInProgress)) ...[
-                            Text(' • ', style: Theme.of(context).textTheme.bodySmall),
-                            Text(
-                              'Due: ${DateFormat.MMMd().format(order.dueDate)}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: _isOverdue(order) ? Theme.of(context).colorScheme.error : null,
-                                fontWeight: _isOverdue(order) ? FontWeight.bold : null,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      _buildStatusChip(context, order.status),
-                    ],
+            final currency = profile?.currencySymbol ?? '₦';
+            
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${profile?.currencySymbol ?? '₦'}${order.price}', 
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      if (order.balanceDue > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
-                          child: Text(
-                            'Bal: ${profile?.currencySymbol ?? '₦'}${order.balanceDue.toStringAsFixed(0)}',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      else if (order.price > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
-                          child: Text(
-                            'PAID',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  onTap: () {
-                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OrderDetailsScreen(order: order),
-                      ),
-                    );
-                  },
+                ],
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                title: Text(
+                  order.title, 
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.5),
                 ),
-              ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideX(begin: 0.1),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (order.customerName != null) 
+                       Padding(
+                         padding: const EdgeInsets.only(top: 2.0),
+                         child: Text(order.customerName!, style: TextStyle(color: Colors.grey[800], fontSize: 13, fontWeight: FontWeight.w500)),
+                       ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text(DateFormat.yMMMd().format(order.createdAt), style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                        if (OrderModel.activeStatuses.contains(order.status)) ...[
+                          const SizedBox(width: 8),
+                          Icon(Icons.access_time, size: 12, color: _isOverdue(order) ? Colors.red : Colors.grey[600]),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Due: ${DateFormat.MMMd().format(order.dueDate)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: _isOverdue(order) ? Colors.red : Colors.grey[600],
+                              fontWeight: _isOverdue(order) ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _buildStatusChip(context, order.status),
+                  ],
+                ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$currency${NumberFormat('#,###').format(order.price)}', 
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    if (order.balanceDue > 0)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Bal: $currency${NumberFormat('#,###').format(order.balanceDue)}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    else if (order.price > 0)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'PAID',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                onTap: () {
+                   Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OrderDetailsScreen(order: order),
+                    ),
+                  );
+                },
+              ).animate().fadeIn(duration: 400.ms, delay: (index * 30).ms).slideX(begin: 0.05),
             );
           },
         );
@@ -247,12 +281,15 @@ class _OrdersList extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         status.replaceAll('_', ' ').toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: color, 
+          fontSize: 9, 
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }

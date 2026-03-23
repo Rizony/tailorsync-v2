@@ -107,47 +107,60 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildHeader(BuildContext context, String name) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hello, $name 👋',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hello, $name 👋',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
               ),
-            ),
-            const Text(
-              'Here is your daily summary',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
-        Builder(
-          builder: (context) => IconButton(
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
+              Text(
+                'Your business at a glance',
+                style: TextStyle(
+                  fontSize: 14, 
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: Icon(
-                Icons.menu_rounded, 
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black
+            ],
+          ),
+          Builder(
+            builder: (context) => InkWell(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.menu_rounded, 
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 26,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -251,47 +264,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(24),
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           boxShadow: [
-            if (Theme.of(context).brightness == Brightness.light)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
           ],
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark 
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.white.withValues(alpha: 0.5),
-            width: 1.5,
-          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color, size: 28),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: -1,
                   ),
                 ),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -457,9 +473,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '$currencySymbol${order.price}',
+                        '$currencySymbol${NumberFormat('#,###').format(order.price)}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
+                      const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -470,8 +487,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           order.status.toUpperCase(),
                           style: TextStyle(
                             color: _getStatusColor(order.status),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ),
@@ -516,27 +533,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                  Theme.of(context).colorScheme.secondary,
                 ],
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Colors.white24,
-                  backgroundImage: profile?.logoUrl != null ? NetworkImage(profile!.logoUrl!) : null,
-                  child: profile?.logoUrl == null ? const Icon(Icons.store, size: 35, color: Colors.white) : null,
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Colors.white24,
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircleAvatar(
+                    radius: 35,
+                    backgroundColor: Colors.white24,
+                    backgroundImage: profile?.logoUrl != null ? NetworkImage(profile!.logoUrl!) : null,
+                    child: profile?.logoUrl == null ? const Icon(Icons.store, size: 35, color: Colors.white) : null,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   profile?.shopName ?? 'TailorSync Shop',
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.5),
                 ),
                 Text(
                   profile?.email ?? '',
-                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w400),
                 ),
               ],
             ),
@@ -815,13 +839,18 @@ class _UrgentOrderCardState extends State<_UrgentOrderCard> {
           },
           child: Container(
             width: 260,
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? baseColor.withValues(alpha: 0.15)
-                  : baseColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: baseColor.withValues(alpha: 0.3), width: 1.5),
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: baseColor.withValues(alpha: 0.2), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: baseColor.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -833,10 +862,9 @@ class _UrgentOrderCardState extends State<_UrgentOrderCard> {
                     Expanded(
                       child: Text(
                         widget.order.title,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, 
                             fontSize: 16, 
-                            color: baseColor.shade700
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -854,26 +882,20 @@ class _UrgentOrderCardState extends State<_UrgentOrderCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${widget.currencySymbol}${widget.order.balanceDue} due',
+                      '${widget.currencySymbol}${NumberFormat('#,###').format(widget.order.balanceDue)} due',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 4,
-                          )
-                        ]
+                        color: baseColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         widget.order.status.toUpperCase(),
                         style: TextStyle(
                           color: baseColor,
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w900,
                         ),
                       ),

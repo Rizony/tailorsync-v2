@@ -58,25 +58,78 @@ class _AppShellState extends ConsumerState<AppShell> {
             onTap: (index) {
               ref.read(navigationProvider.notifier).state = index;
             },
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
             items: [
-              const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
+              const BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.dashboard_outlined),
+                ), 
+                activeIcon: Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.dashboard),
+                ),
+                label: 'Home',
+              ),
               BottomNavigationBarItem(
-                icon: Icon(key: TutorialService.ordersTabKey, Icons.style),
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(key: TutorialService.ordersTabKey, Icons.style_outlined),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.style),
+                ),
                 label: 'Orders',
               ),
-              const BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
+              const BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.people_outline),
+                ), 
+                activeIcon: Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.people),
+                ),
+                label: 'Customers',
+              ),
               BottomNavigationBarItem(
-                icon: Badge(
-                  label: ref.watch(pendingMarketplaceRequestsCountProvider) > 0 
-                      ? Text(ref.watch(pendingMarketplaceRequestsCountProvider).toString()) 
-                      : null,
-                  isLabelVisible: ref.watch(pendingMarketplaceRequestsCountProvider) > 0,
-                  child: const Icon(Icons.forum),
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Badge(
+                    label: ref.watch(pendingMarketplaceRequestsCountProvider) > 0 
+                        ? Text(ref.watch(pendingMarketplaceRequestsCountProvider).toString()) 
+                        : null,
+                    isLabelVisible: ref.watch(pendingMarketplaceRequestsCountProvider) > 0,
+                    child: const Icon(Icons.forum_outlined),
+                  ),
+                ), 
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Badge(
+                    label: ref.watch(pendingMarketplaceRequestsCountProvider) > 0 
+                        ? Text(ref.watch(pendingMarketplaceRequestsCountProvider).toString()) 
+                        : null,
+                    isLabelVisible: ref.watch(pendingMarketplaceRequestsCountProvider) > 0,
+                    child: const Icon(Icons.forum),
+                  ),
                 ), 
                 label: 'Community',
               ),
               BottomNavigationBarItem(
-                icon: Icon(key: TutorialService.settingsTabKey, Icons.settings),
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(key: TutorialService.settingsTabKey, Icons.settings_outlined),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.settings),
+                ),
                 label: 'Settings',
               ),
             ],
