@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:needlix/core/terms/terms_content.dart';
 import 'package:needlix/features/auth/repositories/auth_repository.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/auth/screens/forgot_password_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,9 +22,10 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
   bool _isLoading = false;
   bool _isLogin = true;
 
-  // Signup agreement checkboxes
   bool _agreedToS = false;
   bool _agreedPrivacy = false;
+
+  bool _obscurePassword = true;
 
   Future<void> _handleAuth() async {
     if (!_formKey.currentState!.validate()) return;
@@ -229,12 +231,37 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _passwordController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Password',
-                            prefixIcon: Icon(Icons.lock),
+                            prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: _obscurePassword,
                         ),
+                        
+                        if (_isLogin)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: const Text('Forgot Password?', style: TextStyle(fontSize: 13)),
+                            ),
+                          ),
 
                         // --- T&C Checkboxes (signup only) ---
                         if (!_isLogin) ...[
