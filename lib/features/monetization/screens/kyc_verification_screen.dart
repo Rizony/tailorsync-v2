@@ -105,6 +105,8 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEmailVerified = Supabase.instance.client.auth.currentUser?.emailConfirmedAt != null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -121,27 +123,84 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Icon(
-                    _isVerified ? Icons.verified : Icons.admin_panel_settings_outlined,
+                    (_isVerified && isEmailVerified) ? Icons.verified : Icons.admin_panel_settings_outlined,
                     size: 80,
-                    color: _isVerified ? Colors.green : AppTheme.brandDark,
+                    color: (_isVerified && isEmailVerified) ? Colors.green : AppTheme.brandDark,
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    _isVerified ? 'You are Verified! ✅' : 'Tailor Trust & Safety',
+                    (_isVerified && isEmailVerified) ? 'You are Verified! ✅' : 'Tailor Trust & Safety',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _isVerified 
+                    (_isVerified && isEmailVerified)
                       ? 'Your identity has been verified by the Needlix Admin team. You now have the blue verified badge on your marketplace profile.'
-                      : 'To build trust with clients and enable Escrow withdrawals, you need to verify your identity. Please upload a valid Government ID (Passport, Driver\'s License, or NIN).',
+                      : (!isEmailVerified) 
+                          ? 'You must verify your email address before you can upload identity documents.'
+                          : 'To build trust with clients and enable Escrow withdrawals, you need to verify your identity. Please upload a valid Government ID (Passport, Driver\'s License, or NIN).',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.5),
                   ),
                   const SizedBox(height: 48),
 
-                  if (!_isVerified && _documentUrl == null) ...[
+                  if (!isEmailVerified)
+                     Container(
+                       padding: const EdgeInsets.all(16),
+                       decoration: BoxDecoration(
+                         color: Colors.orange.shade50,
+                         borderRadius: BorderRadius.circular(16),
+                         border: Border.all(color: Colors.orange.shade200),
+                       ),
+                       child: Column(
+                         children: [
+                           const Icon(Icons.mark_email_unread_outlined, color: Colors.orange, size: 40),
+                           const SizedBox(height: 12),
+                           const Text(
+                             'Email Verification Required',
+                             style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16),
+                           ),
+                           const SizedBox(height: 8),
+                           const Text(
+                             'Please check your inbox and verify your email address to proceed with identity verification.',
+                             textAlign: TextAlign.center,
+                             style: TextStyle(color: Colors.black87),
+                           ),
+                           const SizedBox(height: 16),
+                           ElevatedButton(
+                             onPressed: () async {
+                               try {
+                                 final email = Supabase.instance.client.auth.currentUser?.email;
+                                 if (email != null) {
+                                   await Supabase.instance.client.auth.resend(
+                                     type: OtpType.signup,
+                                     email: email,
+                                   );
+                                   if (context.mounted) {
+                                     ScaffoldMessenger.of(context).showSnackBar(
+                                       const SnackBar(content: Text('Verification email resent!')),
+                                     );
+                                   }
+                                 }
+                               } catch (e) {
+                                 if (context.mounted) {
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                     SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                                   );
+                                 }
+                               }
+                             },
+                             style: ElevatedButton.styleFrom(
+                               backgroundColor: Colors.orange,
+                               foregroundColor: Colors.white,
+                             ),
+                             child: const Text('Resend Verification Email'),
+                           ),
+                         ],
+                       ),
+                     )
+                  else if (!_isVerified && _documentUrl == null) ...[
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(
@@ -154,7 +213,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  if (_isVerified)
+                  else if (_isVerified && isEmailVerified)
                      Container(
                        padding: const EdgeInsets.all(16),
                        decoration: BoxDecoration(

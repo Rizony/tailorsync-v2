@@ -157,7 +157,7 @@ class _PublicProfileProviderElement
   String get userId => (origin as PublicProfileProvider).userId;
 }
 
-String _$profileNotifierHash() => r'87e4b9f74ee53eecc06e3ec636f4c2795d82a5e0';
+String _$profileNotifierHash() => r'95d90f60af34eeb6ecc1ec1ee84a37d7b145ea80';
 
 /// See also [ProfileNotifier].
 @ProviderFor(ProfileNotifier)

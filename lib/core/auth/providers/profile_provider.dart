@@ -40,7 +40,8 @@ class ProfileNotifier extends _$ProfileNotifier {
       subscription.cancel();
     });
 
-    return AppUser.fromJson(data);
+    final isVerified = user.emailConfirmedAt != null;
+    return AppUser.fromJson(data).copyWith(isEmailVerified: isVerified);
   }
 
   Future<void> fetchProfile() async {
@@ -53,7 +54,8 @@ class ProfileNotifier extends _$ProfileNotifier {
         .eq('id', user.id)
         .single();
         
-    state = AsyncValue.data(AppUser.fromJson(data));
+    final isVerified = user.emailConfirmedAt != null;
+    state = AsyncValue.data(AppUser.fromJson(data).copyWith(isEmailVerified: isVerified));
   }
 
   Future<void> updateProfile(AppUser updatedUser) async {
