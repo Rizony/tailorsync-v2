@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:needlix/core/auth/screens/login_screen.dart';
 import 'package:needlix/core/terms/terms_gate.dart';
 import 'package:needlix/features/monetization/screens/daily_ad_gate_screen.dart';
+import 'package:needlix/core/auth/email_verification_gate.dart';
 import 'auth_provider.dart';
 
 class AuthGate extends ConsumerWidget {
@@ -16,10 +17,13 @@ class AuthGate extends ConsumerWidget {
     return authState.when(
       data: (state) {
         if (state.session != null) {
+          // EmailVerificationGate blocks until email is verified
           // TermsGate blocks the app until T&Cs are accepted,
           // then DailyAdGateScreen handles the ad logic.
-          return TermsGate(
-            child: DailyAdGateScreen(child: child),
+          return EmailVerificationGate(
+            child: TermsGate(
+              child: DailyAdGateScreen(child: child),
+            ),
           );
         }
         return const LoginScreen();
