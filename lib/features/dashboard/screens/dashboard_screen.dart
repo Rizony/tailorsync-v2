@@ -194,7 +194,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       mainAxisSpacing: 16,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.5,
+      childAspectRatio: 1.4,
       children: [
         _buildStatCard(
           context, 
@@ -237,7 +237,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(16),

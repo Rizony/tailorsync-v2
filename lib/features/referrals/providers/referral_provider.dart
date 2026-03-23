@@ -28,6 +28,15 @@ final referralStatsProvider = FutureProvider<ReferralStats>((ref) async {
         totalReferrals: 0, totalEarned: 0, thisMonthEarned: 0, transactions: []);
   }
 
+  // 1. Fetch total users referred by this user from the profiles table
+  final referredUsersRows = await Supabase.instance.client
+      .from('profiles')
+      .select('id')
+      .eq('referrer_id', uid);
+  
+  final totalReferrals = referredUsersRows.length;
+
+  // 2. Fetch the commission transactions
   final txRows = await Supabase.instance.client
       .from('referral_transactions')
       .select()
@@ -39,7 +48,6 @@ final referralStatsProvider = FutureProvider<ReferralStats>((ref) async {
 
   double totalEarned = 0;
   double thisMonthEarned = 0;
-  final Set<String> uniqueReferred = {};
 
   for (final row in txRows) {
     final amount = (row['commission_amount'] as num?)?.toDouble() ?? 0.0;
@@ -49,13 +57,10 @@ final referralStatsProvider = FutureProvider<ReferralStats>((ref) async {
         ? DateTime.tryParse(row['created_at'].toString()) ?? DateTime(2000)
         : DateTime(2000);
     if (createdAt.isAfter(startOfMonth)) thisMonthEarned += amount;
-
-    final referredId = row['referred_user_id']?.toString();
-    if (referredId != null) uniqueReferred.add(referredId);
   }
 
   return ReferralStats(
-    totalReferrals: uniqueReferred.length,
+    totalReferrals: totalReferrals,
     totalEarned: totalEarned,
     thisMonthEarned: thisMonthEarned,
     transactions: List<Map<String, dynamic>>.from(txRows),
