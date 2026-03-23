@@ -211,6 +211,19 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                       textCapitalization: TextCapitalization.words,
                     ),
                     const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _uploading ? null : _pickAndUpload,
+                      icon: _uploading 
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Icon(Icons.upload_file),
+                      label: Text(_uploading ? 'Uploading...' : 'Upload Government ID', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandDark,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
                   ] else if (_isVerified && isEmailVerified)
                      Container(
                        padding: const EdgeInsets.all(16),
@@ -251,20 +264,6 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                              ),
                            ),
                          ],
-                       ),
-                     )
-                  else
-                     ElevatedButton.icon(
-                       onPressed: _uploading ? null : _pickAndUpload,
-                       icon: _uploading 
-                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                         : const Icon(Icons.upload_file),
-                       label: Text(_uploading ? 'Uploading...' : 'Upload Government ID', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                       style: ElevatedButton.styleFrom(
-                         backgroundColor: AppTheme.brandDark,
-                         foregroundColor: Colors.white,
-                         padding: const EdgeInsets.symmetric(vertical: 16),
-                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                        ),
                      ),
 
