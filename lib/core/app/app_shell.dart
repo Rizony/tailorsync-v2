@@ -81,8 +81,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Icon(key: TutorialService.ordersTabKey, Icons.style_outlined),
                 ),
-                activeIcon: Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                activeIcon: const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
                   child: Icon(Icons.style),
                 ),
                 label: 'Orders',
@@ -126,8 +126,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Icon(key: TutorialService.settingsTabKey, Icons.settings_outlined),
                 ),
-                activeIcon: Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                activeIcon: const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
                   child: Icon(Icons.settings),
                 ),
                 label: 'Settings',

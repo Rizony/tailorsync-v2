@@ -106,9 +106,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                       onPressed: () async {
                         try {
                           await Supabase.instance.client.auth.resend(type: OtpType.signup, email: user!.email!);
-                          if (mounted) showSuccessSnackBar(context, 'Verification email sent!');
+                          if (!context.mounted) return;
+                          showSuccessSnackBar(context, 'Verification email sent!');
                         } catch (e) {
-                          if (mounted) showErrorSnackBar(context, e);
+                          if (!context.mounted) return;
+                          showErrorSnackBar(context, e);
                         }
                       },
                       child: const Text('Verify Now'),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:needlix/features/dashboard/providers/dashboard_provider.dart';
 import 'package:needlix/features/dashboard/models/dashboard_data.dart';
 import 'package:needlix/features/orders/models/order_model.dart';
 import 'package:needlix/features/orders/repositories/order_repository.dart';

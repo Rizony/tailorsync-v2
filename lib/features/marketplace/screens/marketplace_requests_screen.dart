@@ -163,6 +163,7 @@ class _RequestCard extends ConsumerWidget {
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
+                              if (!context.mounted) return;
                               // Also convert to order immediately
                               await _updateStatus(context, ref, 'accepted', forceAmount: request.counterOfferAmount);
                             },

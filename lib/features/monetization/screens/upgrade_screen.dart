@@ -83,10 +83,6 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
         );
         if (success && mounted) {
           await ref.read(profileNotifierProvider.notifier).fetchProfile();
-          final newTier = SubscriptionTier.values.firstWhere(
-            (t) => t.name.toLowerCase() == plan.title.toLowerCase(),
-            orElse: () => SubscriptionTier.standard,
-          );
           _navigateToSuccess(plan.title);
         }
       } else {

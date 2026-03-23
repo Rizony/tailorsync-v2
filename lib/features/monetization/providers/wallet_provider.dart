@@ -54,8 +54,8 @@ Future<List<WalletTransaction>> walletTransactions(WalletTransactionsRef ref) as
   final wallet = await ref.watch(walletStateProvider.future);
   if (wallet == null) return [];
 
-  final _supabase = Supabase.instance.client;
-  final res = await _supabase
+  final supabaseClient = Supabase.instance.client;
+  final res = await supabaseClient
       .from('wallet_transactions')
       .select()
       .eq('wallet_id', wallet.id)
