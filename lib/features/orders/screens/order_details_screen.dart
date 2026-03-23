@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/customers/repositories/customer_repository.dart';
 
 
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
+import 'package:needlix/features/customers/models/customer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tailorsync_v2/features/orders/controllers/order_controller.dart';
-import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
-import 'package:tailorsync_v2/features/invoicing/screens/invoice_preview_screen.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
-import 'package:tailorsync_v2/core/notifications/whatsapp_service.dart';
-import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
-import 'package:tailorsync_v2/features/community/models/community_post.dart';
+import 'package:needlix/features/orders/controllers/order_controller.dart';
+import 'package:needlix/features/orders/screens/create_order_screen.dart';
+import 'package:needlix/features/invoicing/screens/invoice_preview_screen.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/core/notifications/whatsapp_service.dart';
+import 'package:needlix/features/community/repositories/community_repository.dart';
+import 'package:needlix/features/community/models/community_post.dart';
 
 class OrderDetailsScreen extends ConsumerStatefulWidget {
   final OrderModel order;

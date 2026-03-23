@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/terms/terms_content.dart';
-import 'package:tailorsync_v2/core/terms/terms_service.dart';
-import 'package:tailorsync_v2/features/auth/repositories/auth_repository.dart';
+import 'package:needlix/core/terms/terms_content.dart';
+import 'package:needlix/core/terms/terms_service.dart';
+import 'package:needlix/features/auth/repositories/auth_repository.dart';
 
 /// Blocks access to [child] until the current user has accepted the T&Cs.
 /// Existing users who have never agreed are shown the full-screen agreement.

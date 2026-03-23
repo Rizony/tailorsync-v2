@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
-import 'package:tailorsync_v2/core/sync/sync_manager.dart';
+import 'package:needlix/core/network/connectivity_provider.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
+import 'package:needlix/core/sync/sync_manager.dart';
 
 class OfflineWrapper extends ConsumerWidget {
   final Widget child;

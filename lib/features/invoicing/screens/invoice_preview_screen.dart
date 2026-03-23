@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
-import 'package:tailorsync_v2/core/auth/models/app_user.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/invoicing/services/invoice_service.dart';
+import 'package:needlix/core/auth/models/app_user.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/invoicing/services/invoice_service.dart';
 import 'dart:typed_data';
 
 class InvoicePreviewScreen extends ConsumerStatefulWidget {

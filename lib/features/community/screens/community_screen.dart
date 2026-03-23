@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
-import 'package:tailorsync_v2/features/community/providers/community_provider.dart';
-import 'package:tailorsync_v2/features/community/models/community_post.dart';
-import 'package:tailorsync_v2/features/community/screens/create_post_screen.dart';
-import 'package:tailorsync_v2/features/community/screens/post_details_screen.dart';
-import 'package:tailorsync_v2/features/community/screens/tailor_profile_screen.dart';
-import 'package:tailorsync_v2/features/marketplace/screens/marketplace_requests_screen.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/features/community/providers/community_provider.dart';
+import 'package:needlix/features/community/models/community_post.dart';
+import 'package:needlix/features/community/screens/create_post_screen.dart';
+import 'package:needlix/features/community/screens/post_details_screen.dart';
+import 'package:needlix/features/community/screens/tailor_profile_screen.dart';
+import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});

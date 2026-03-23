@@ -4,13 +4,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
-import 'package:tailorsync_v2/core/errors/failures.dart';
-import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
-import 'package:tailorsync_v2/core/sync/sync_manager.dart';
+import 'package:needlix/core/errors/failures.dart';
+import 'package:needlix/core/utils/error_handler_util.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
+import 'package:needlix/core/sync/sync_manager.dart';
 import '../models/order_model.dart';
 
-import 'package:tailorsync_v2/core/auth/auth_provider.dart';
+import 'package:needlix/core/auth/auth_provider.dart';
 
 part 'order_repository.g.dart';
 

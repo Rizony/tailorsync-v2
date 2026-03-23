@@ -2,17 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/settings/screens/shop_settings_screen.dart';
-import 'package:tailorsync_v2/core/theme/app_theme.dart';
-import 'package:tailorsync_v2/core/theme/theme_provider.dart';
-import 'package:tailorsync_v2/core/auth/auth_provider.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
-import 'package:tailorsync_v2/features/referrals/screens/referral_dashboard_screen.dart';
-import 'package:tailorsync_v2/features/auth/repositories/auth_repository.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/settings/screens/shop_settings_screen.dart';
+import 'package:needlix/core/theme/app_theme.dart';
+import 'package:needlix/core/theme/theme_provider.dart';
+import 'package:needlix/core/auth/auth_provider.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
+import 'package:needlix/features/auth/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/features/monetization/screens/wallet_dashboard_screen.dart';
-import 'package:tailorsync_v2/features/monetization/screens/kyc_verification_screen.dart';
+import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
+import 'package:needlix/features/monetization/screens/kyc_verification_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});

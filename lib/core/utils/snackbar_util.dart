@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tailorsync_v2/core/errors/failures.dart';
+import 'package:needlix/core/errors/failures.dart';
 
 void showErrorSnackBar(BuildContext context, Object error) {
   String message = 'An unexpected error occurred';

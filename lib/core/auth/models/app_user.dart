@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
 
 part 'app_user.freezed.dart';
 part 'app_user.g.dart';

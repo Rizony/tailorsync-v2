@@ -1,7 +1,7 @@
 import 'package:hive_ce/hive.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
 
 class CustomerAdapter extends TypeAdapter<Customer> {
   @override

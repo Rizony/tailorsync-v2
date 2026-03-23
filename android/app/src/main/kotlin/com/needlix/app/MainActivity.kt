@@ -1,5 +1,5 @@
 // 👇 THIS LINE MUST MATCH THE FOLDER PATH
-package com.tailorsync.app.tailorsync_v2
+package com.needlix.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

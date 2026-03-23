@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/features/dashboard/screens/dashboard_screen.dart';
-import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
-import 'package:tailorsync_v2/features/orders/screens/orders_list_screen.dart';
-import 'package:tailorsync_v2/features/customers/screens/customers_screen.dart';
-import 'package:tailorsync_v2/features/community/screens/community_screen.dart';
-import 'package:tailorsync_v2/core/app/offline_wrapper.dart';
-import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
-import 'package:tailorsync_v2/core/widgets/subscription_banner.dart';
-import 'package:tailorsync_v2/core/providers/navigation_provider.dart';
-import 'package:tailorsync_v2/features/marketplace/services/marketplace_notification_service.dart';
-import 'package:tailorsync_v2/features/marketplace/repositories/marketplace_repository.dart';
-import 'package:tailorsync_v2/core/sync/sync_manager.dart';
-import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
+import 'package:needlix/features/dashboard/screens/dashboard_screen.dart';
+import 'package:needlix/features/settings/screens/settings_screen.dart';
+import 'package:needlix/features/orders/screens/orders_list_screen.dart';
+import 'package:needlix/features/customers/screens/customers_screen.dart';
+import 'package:needlix/features/community/screens/community_screen.dart';
+import 'package:needlix/core/app/offline_wrapper.dart';
+import 'package:needlix/core/utils/tutorial_service.dart';
+import 'package:needlix/core/widgets/subscription_banner.dart';
+import 'package:needlix/core/providers/navigation_provider.dart';
+import 'package:needlix/features/marketplace/services/marketplace_notification_service.dart';
+import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
+import 'package:needlix/core/sync/sync_manager.dart';
+import 'package:needlix/core/network/connectivity_provider.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});

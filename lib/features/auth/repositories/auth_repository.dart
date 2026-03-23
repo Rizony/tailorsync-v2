@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
-import 'package:tailorsync_v2/core/utils/error_handler_util.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
+import 'package:needlix/core/utils/error_handler_util.dart';
 
 part 'auth_repository.g.dart';
 

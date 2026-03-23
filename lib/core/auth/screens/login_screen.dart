@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/core/terms/terms_content.dart';
-import 'package:tailorsync_v2/features/auth/repositories/auth_repository.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
+import 'package:needlix/core/terms/terms_content.dart';
+import 'package:needlix/features/auth/repositories/auth_repository.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

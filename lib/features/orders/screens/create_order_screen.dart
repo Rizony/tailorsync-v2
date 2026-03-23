@@ -5,15 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
+import 'package:needlix/features/customers/screens/add_edit_customer_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/notifications/notification_service.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/notifications/notification_service.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/customers/repositories/customer_repository.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/repositories/order_repository.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
 
 class CreateOrderScreen extends ConsumerStatefulWidget {
   final OrderModel? order;

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
 
 part 'dashboard_data.freezed.dart';
 

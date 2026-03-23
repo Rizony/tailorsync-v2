@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/features/orders/controllers/order_controller.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
+import 'package:needlix/features/orders/controllers/order_controller.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/repositories/order_repository.dart';
 
 // Mock the repository class directly
 class MockOrderRepository extends Mock implements OrderRepository {}

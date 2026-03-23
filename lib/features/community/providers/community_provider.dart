@@ -1,9 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tailorsync_v2/features/community/models/community_post.dart';
-import 'package:tailorsync_v2/features/community/models/community_application.dart';
-import 'package:tailorsync_v2/features/community/models/community_comment.dart';
-import 'package:tailorsync_v2/features/community/models/community_rating.dart';
-import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
+import 'package:needlix/features/community/models/community_post.dart';
+import 'package:needlix/features/community/models/community_application.dart';
+import 'package:needlix/features/community/models/community_comment.dart';
+import 'package:needlix/features/community/models/community_rating.dart';
+import 'package:needlix/features/community/repositories/community_repository.dart';
 
 part 'community_provider.g.dart';
 

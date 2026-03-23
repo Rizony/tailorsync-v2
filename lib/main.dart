@@ -3,16 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:tailorsync_v2/core/sync/hive_adapters.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
-import 'package:tailorsync_v2/core/app/app_shell.dart';
-import 'package:tailorsync_v2/core/auth/auth_gate.dart';
-import 'package:tailorsync_v2/core/notifications/notification_service.dart';
-import 'package:tailorsync_v2/core/theme/app_theme.dart';
-import 'package:tailorsync_v2/core/theme/theme_provider.dart';
-import 'package:tailorsync_v2/core/sync/sync_manager.dart';
+import 'package:needlix/core/sync/hive_adapters.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
+import 'package:needlix/core/app/app_shell.dart';
+import 'package:needlix/core/auth/auth_gate.dart';
+import 'package:needlix/core/notifications/notification_service.dart';
+import 'package:needlix/core/theme/app_theme.dart';
+import 'package:needlix/core/theme/theme_provider.dart';
+import 'package:needlix/core/sync/sync_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

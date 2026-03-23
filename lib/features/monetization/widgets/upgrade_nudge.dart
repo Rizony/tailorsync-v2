@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 
 /// A compact bottom-sheet that nudges freemium users to upgrade.
 /// Call [UpgradeNudge.show] from anywhere in the app.

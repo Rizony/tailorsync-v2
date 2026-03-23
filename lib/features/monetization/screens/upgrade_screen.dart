@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tailorsync_v2/core/billing/billing_service.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/models/plan_data.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/core/billing/billing_service.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/monetization/models/plan_data.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/flutterwave_payment_widget.dart';
+import 'payment_success_screen.dart';
 
 class UpgradeScreen extends ConsumerStatefulWidget {
   const UpgradeScreen({super.key});
@@ -86,7 +87,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
             (t) => t.name.toLowerCase() == plan.title.toLowerCase(),
             orElse: () => SubscriptionTier.standard,
           );
-          _showWelcomeDialog(newTier);
+          _navigateToSuccess(plan.title);
         }
       } else {
         // Generate a reference we can use to verify later
@@ -154,7 +155,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
             (t) => t.name == newTierStr, 
             orElse: () => SubscriptionTier.standard
           );
-          _showWelcomeDialog(newTier);
+          _navigateToSuccess(newTier.label);
         }
       } else {
         if (mounted) {
@@ -201,78 +202,11 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
   bool _isCurrent(PlanPricing plan) =>
       plan.title.toLowerCase() == _currentTier().name.toLowerCase();
 
-  void _showWelcomeDialog(SubscriptionTier newTier) {
-    final features = kPlanFeatures.where((f) {
-      if (newTier == SubscriptionTier.premium) return f.premium && !f.standard;
-      if (newTier == SubscriptionTier.standard) return f.standard && !f.freemium;
-      return false;
-    }).map((f) => f.label).toList();
-
-    var displayFeatures = features.isNotEmpty 
-        ? features 
-        : kPlanFeatures.where((f) => newTier == SubscriptionTier.premium ? f.premium : f.standard).map((f) => f.label).toList();
-    if (displayFeatures.length > 5) {
-      displayFeatures = displayFeatures.take(5).toList()..add('And much more...');
-    }
-
-    final tierName = newTier.label.toUpperCase();
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Column(
-          children: [
-            const Icon(Icons.celebration, color: Colors.orange, size: 48),
-            const SizedBox(height: 12),
-            Text(
-              'Welcome to $tierName!',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Your account has been successfully upgraded. Here is what you just unlocked:',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            ...displayFeatures.map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(f, style: const TextStyle(fontSize: 13))),
-                    ],
-                  ),
-                )),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                Navigator.of(context).pop(); // Go back to original screen
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E78D2),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text('Start Exploring', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
+  void _navigateToSuccess(String planName) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentSuccessScreen(planName: planName),
       ),
     );
   }

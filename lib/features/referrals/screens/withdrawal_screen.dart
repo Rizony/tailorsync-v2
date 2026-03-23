@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
 import '../../monetization/providers/wallet_provider.dart';
 
 class WithdrawalScreen extends ConsumerStatefulWidget {

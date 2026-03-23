@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/auth/auth_provider.dart';
+import 'package:needlix/core/auth/auth_provider.dart';
 import '../models/monetization_models.dart';
 
 part 'wallet_provider.g.dart';

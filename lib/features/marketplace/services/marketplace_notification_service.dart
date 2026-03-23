@@ -1,7 +1,7 @@
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/core/notifications/notification_service.dart';
-import 'package:tailorsync_v2/features/marketplace/repositories/marketplace_repository.dart';
+import 'package:needlix/core/notifications/notification_service.dart';
+import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
 
 final marketplaceNotificationServiceProvider = Provider<MarketplaceNotificationService>((ref) {
   return MarketplaceNotificationService(ref);

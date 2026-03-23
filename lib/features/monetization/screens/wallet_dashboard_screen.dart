@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/core/theme/app_theme.dart';
-import 'package:tailorsync_v2/features/referrals/screens/withdrawal_screen.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:needlix/core/theme/app_theme.dart';
+import 'package:needlix/features/referrals/screens/withdrawal_screen.dart';
+import 'package:needlix/core/widgets/premium_empty_state.dart';
 import '../providers/wallet_provider.dart';
 
 class WalletDashboardScreen extends ConsumerWidget {
@@ -107,7 +108,7 @@ class WalletDashboardScreen extends ConsumerWidget {
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
-                                ),
+                                ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.2),
                               ),
                             ],
                           ),
@@ -141,7 +142,7 @@ class WalletDashboardScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                        ),
+                        ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.1),
                         const SizedBox(height: 24),
                         const Text('Transaction History', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 12),
@@ -150,11 +151,10 @@ class WalletDashboardScreen extends ConsumerWidget {
                           error: (err, stack) => Text('Error loading transactions: $err'),
                           data: (transactions) {
                             if (transactions.isEmpty) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(32.0),
-                                  child: Text('No transactions yet', style: TextStyle(color: Colors.grey)),
-                                ),
+                              return const PremiumEmptyState(
+                                icon: Icons.history_edu_outlined,
+                                title: 'No Transactions',
+                                message: 'Your financial history will appear here once you start receiving payments or making withdrawals.',
                               );
                             }
                             return ListView.separated(

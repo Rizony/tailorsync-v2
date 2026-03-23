@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:tailorsync_v2/core/auth/models/app_user.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
+import 'package:needlix/core/auth/models/app_user.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 

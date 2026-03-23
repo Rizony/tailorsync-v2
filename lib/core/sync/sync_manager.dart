@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/network/connectivity_provider.dart';
-import 'package:tailorsync_v2/core/sync/models/sync_action.dart';
+import 'package:needlix/core/network/connectivity_provider.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
 
 final syncManagerProvider = Provider<SyncManager>((ref) {
   final manager = SyncManager(ref);

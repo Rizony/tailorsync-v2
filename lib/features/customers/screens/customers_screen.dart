@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:needlix/core/widgets/premium_empty_state.dart';
 
-import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
-import 'package:tailorsync_v2/features/customers/screens/customer_details_screen.dart';
-import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
+import 'package:needlix/features/customers/repositories/customer_repository.dart';
+import 'package:needlix/features/customers/screens/customer_details_screen.dart';
+import 'package:needlix/features/customers/screens/add_edit_customer_screen.dart';
 
 class CustomersScreen extends ConsumerStatefulWidget {
   const CustomersScreen({super.key});
@@ -55,18 +56,19 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                 }).toList();
 
                 if (filteredCustomers.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.person_off, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isEmpty ? 'No customers yet' : 'No customers found',
-                          style: const TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ],
-                    ),
+                  return PremiumEmptyState(
+                    icon: Icons.person_add_alt_1_outlined,
+                    title: _searchQuery.isEmpty ? 'Your Customer List' : 'No Results Found',
+                    message: _searchQuery.isEmpty 
+                      ? 'Add your regular customers to keep track of their measurements and orders.' 
+                      : 'Try a different search term or check your spelling.',
+                    actionLabel: _searchQuery.isEmpty ? 'Add Customer' : null,
+                    onAction: _searchQuery.isEmpty ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AddEditCustomerScreen()),
+                      );
+                    } : null,
                   );
                 }
 
@@ -83,8 +85,9 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                             ? Text(customer.fullName[0].toUpperCase())
                             : null,
                       ),
-                      title: Text(customer.fullName),
+                      title: Text(customer.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(customer.phoneNumber ?? 'No phone number'),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -93,7 +96,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                           ),
                         );
                       },
-                    );
+                    ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideX(begin: 0.1);
                   },
                 );
               },

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
 
 class UserSubscription {
   final SubscriptionTier tier;

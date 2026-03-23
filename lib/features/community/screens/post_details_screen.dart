@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
-import 'package:tailorsync_v2/features/community/models/community_post.dart';
-import 'package:tailorsync_v2/features/community/providers/community_provider.dart';
-import 'package:tailorsync_v2/features/community/repositories/community_repository.dart';
-import 'package:tailorsync_v2/features/community/screens/tailor_profile_screen.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/features/community/models/community_post.dart';
+import 'package:needlix/features/community/providers/community_provider.dart';
+import 'package:needlix/features/community/repositories/community_repository.dart';
+import 'package:needlix/features/community/screens/tailor_profile_screen.dart';
 
 class PostDetailsScreen extends ConsumerStatefulWidget {
   final CommunityPost post;

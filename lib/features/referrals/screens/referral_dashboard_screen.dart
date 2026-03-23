@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
-import 'package:tailorsync_v2/features/referrals/providers/referral_provider.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/features/referrals/providers/referral_provider.dart';
+import 'package:needlix/core/widgets/premium_empty_state.dart';
 import 'withdrawal_screen.dart';
 
 class ReferralDashboardScreen extends ConsumerWidget {
@@ -141,14 +142,14 @@ class ReferralDashboardScreen extends ConsumerWidget {
                           data: (stats) => _StatsRow(
                             stats: stats,
                             currencySymbol: currencySymbol,
-                          ),
+                          ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
                         ),
                         const SizedBox(height: 20),
 
                         // ── Referral Code ─────────────────────
                         _sectionLabel('Your Referral Code'),
                         const SizedBox(height: 8),
-                        _ReferralCodeCard(referralCode: referralCode),
+                        _ReferralCodeCard(referralCode: referralCode).animate().fadeIn(delay: 100.ms, duration: 400.ms),
                         const SizedBox(height: 16),
 
                         // ── Referral Link ─────────────────────
@@ -161,7 +162,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
                                 'Sign up with my referral link and get started:\n$referralLink',
                             subject: 'Join NEEDLIX',
                           )),
-                        ),
+                        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
                         const SizedBox(height: 20),
 
                         // ── Commission Info ───────────────────
@@ -309,10 +310,19 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFF0076B6).withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: const Color(0xFF0076B6).withValues(alpha: 0.2)),
+              color: const Color(0xFF0076B6).withValues(alpha: 0.2),
+              width: 1.5),
+          boxShadow: [
+            if (Theme.of(context).brightness == Brightness.light)
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
         child: Column(
           children: [
@@ -485,19 +495,10 @@ class _CommissionRow extends StatelessWidget {
 class _EmptyHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          Icon(Icons.receipt_long_outlined, size: 48, color: Colors.grey[300]),
-          const SizedBox(height: 8),
-          Text('No commissions yet',
-              style: TextStyle(color: Colors.grey[500])),
-          Text('Share your link to start earning!',
-              style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-        ],
-      ),
+    return const PremiumEmptyState(
+      icon: Icons.receipt_long_outlined,
+      title: 'No Commissions Yet',
+      message: 'Share your unique referral link to start earning passive income from other tailors!',
     );
   }
 }

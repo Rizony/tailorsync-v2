@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
-import 'package:tailorsync_v2/features/monetization/models/subscription_tier.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ShopSettingsScreen extends ConsumerStatefulWidget {

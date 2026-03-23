@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/features/community/models/community_post.dart';
-import 'package:tailorsync_v2/features/community/models/community_application.dart';
-import 'package:tailorsync_v2/features/community/models/community_rating.dart';
-import 'package:tailorsync_v2/features/community/models/community_comment.dart';
+import 'package:needlix/features/community/models/community_post.dart';
+import 'package:needlix/features/community/models/community_application.dart';
+import 'package:needlix/features/community/models/community_rating.dart';
+import 'package:needlix/features/community/models/community_comment.dart';
 
 final communityRepositoryProvider = Provider<CommunityRepository>((ref) {
   return CommunityRepository(Supabase.instance.client);

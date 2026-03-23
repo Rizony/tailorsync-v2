@@ -1,7 +1,7 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/repositories/order_repository.dart';
 
 part 'order_controller.g.dart';
 

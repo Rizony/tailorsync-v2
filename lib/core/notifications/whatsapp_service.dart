@@ -76,7 +76,7 @@ class WhatsAppService {
     String? currency,
     DateTime? dueDate,
   }) {
-    final shop = shopName ?? 'TailorSync';
+    final shop = shopName ?? 'Needlix';
     final dueStr = dueDate != null ? ' Expected delivery: ${dueDate.day}/${dueDate.month}/${dueDate.year}.' : '';
     final balanceStr = (balance != null && balance != '0' && balance != '0.0') 
         ? ' Outstanding balance: ${currency ?? '₦'}$balance.' 

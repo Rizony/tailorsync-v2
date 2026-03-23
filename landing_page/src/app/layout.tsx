@@ -13,9 +13,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Needlix — Find Tailors, Track Jobs, Pay Securely",
+  title: "Needlix — Professional Tailoring Management & Marketplace",
   description:
-    "Needlix connects clients with verified tailors. Browse the marketplace, request a quote, track progress, pay securely, and rate your tailor.",
+    "Needlix is the all-in-one platform for professional tailors and their clients. Track orders, manage measurements, pay securely, and find the best tailors in our marketplace.",
+  keywords: ["tailor shop management", "fashion designer app", "tailor marketplace", "measurement tracker", "secure tailor payments", "Needlix"],
+  openGraph: {
+    title: "Needlix — Professional Tailoring & Marketplace",
+    description: "The #1 platform for modern tailors. Manage your shop, track jobs, and find clients.",
+    url: "https://needlix.com",
+    siteName: "Needlix",
+    images: [
+      {
+        url: "/og-image.png", // Ensure this exists or I'll need to help create a placeholder
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Needlix — Professional Tailoring & Marketplace",
+    description: "The #1 platform for modern tailors. Manage your shop, track jobs, and find clients.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

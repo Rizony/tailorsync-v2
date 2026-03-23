@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/orders/repositories/order_repository.dart';
-import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
-import 'package:tailorsync_v2/features/orders/screens/order_details_screen.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/repositories/order_repository.dart';
+import 'package:needlix/features/orders/screens/create_order_screen.dart';
+import 'package:needlix/features/orders/screens/order_details_screen.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
 
 class OrdersListScreen extends ConsumerStatefulWidget {
   const OrdersListScreen({super.key});
@@ -111,7 +111,20 @@ class _OrdersList extends ConsumerWidget {
         }).toList();
 
         if (filteredOrders.isEmpty) {
-          return const Center(child: Text('No orders found'));
+          return PremiumEmptyState(
+            icon: Icons.shopping_bag_outlined,
+            title: searchQuery.isEmpty ? 'No Orders Yet' : 'No Results Found',
+            message: searchQuery.isEmpty 
+              ? 'Start by creating your first order. Your business is about to grow!' 
+              : 'Try a different search term or check your spelling.',
+            actionLabel: searchQuery.isEmpty ? 'New Order' : null,
+            onAction: searchQuery.isEmpty ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
+              );
+            } : null,
+          );
         }
         return ListView.builder(
           itemCount: filteredOrders.length,
@@ -119,11 +132,13 @@ class _OrdersList extends ConsumerWidget {
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
             return Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
               child: Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: ListTile(
                   isThreeLine: true,
-                  title: Text(order.title, style: Theme.of(context).textTheme.titleMedium),
+                  title: Text(order.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -193,7 +208,7 @@ class _OrdersList extends ConsumerWidget {
                     );
                   },
                 ),
-              ),
+              ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideX(begin: 0.1),
             );
           },
         );

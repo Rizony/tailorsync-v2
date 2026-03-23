@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/features/customers/models/customer.dart';
-import 'package:tailorsync_v2/features/customers/repositories/customer_repository.dart';
-import 'package:tailorsync_v2/core/utils/snackbar_util.dart';
-import 'package:tailorsync_v2/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/customers/repositories/customer_repository.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 
-import 'package:tailorsync_v2/features/customers/utils/smart_measurement_engine.dart';
-import 'package:tailorsync_v2/features/customers/utils/measurement_guides.dart';
+import 'package:needlix/features/customers/utils/smart_measurement_engine.dart';
+import 'package:needlix/features/customers/utils/measurement_guides.dart';
 
 class AddEditCustomerScreen extends ConsumerStatefulWidget {
   final Customer? customer;

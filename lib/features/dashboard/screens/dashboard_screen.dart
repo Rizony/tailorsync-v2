@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
-import 'package:tailorsync_v2/features/dashboard/providers/dashboard_provider.dart';
-import 'package:tailorsync_v2/features/orders/models/order_model.dart';
-import 'package:tailorsync_v2/features/orders/screens/create_order_screen.dart';
-import 'package:tailorsync_v2/features/orders/screens/order_details_screen.dart';
-import 'package:tailorsync_v2/features/settings/screens/settings_screen.dart';
-import 'package:tailorsync_v2/features/customers/screens/add_edit_customer_screen.dart';
-import 'package:tailorsync_v2/core/auth/providers/profile_provider.dart';
-import 'package:tailorsync_v2/core/utils/tutorial_service.dart';
-import 'package:tailorsync_v2/core/providers/navigation_provider.dart';
+import 'package:needlix/features/dashboard/providers/dashboard_provider.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
+import 'package:needlix/features/orders/screens/create_order_screen.dart';
+import 'package:needlix/features/orders/screens/order_details_screen.dart';
+import 'package:needlix/features/settings/screens/settings_screen.dart';
+import 'package:needlix/features/customers/screens/add_edit_customer_screen.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/utils/tutorial_service.dart';
+import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tailorsync_v2/features/marketplace/repositories/marketplace_repository.dart';
-import 'package:tailorsync_v2/features/marketplace/screens/marketplace_requests_screen.dart';
+import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
+import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -71,23 +71,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40), // Top padding for status bar
-                  _buildHeader(context, data.userName),
+                  _buildHeader(context, data.userName).animate().fadeIn(duration: 600.ms).slideX(begin: -0.2),
                   if (isProfileIncomplete) ...[
                     const SizedBox(height: 16),
                     _buildProfileCompletionCard(context),
                   ],
                   const SizedBox(height: 24),
-                  _buildStatsGrid(context, data, currencySymbol),
+                  _buildStatsGrid(context, data, currencySymbol).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.1),
                   const SizedBox(height: 24),
                   _buildMarketplaceWidget(context, ref),
                   const SizedBox(height: 24),
-                  _buildQuickActions(context),
+                  _buildQuickActions(context).animate().fadeIn(delay: 400.ms, duration: 600.ms).scale(begin: const Offset(0.9, 0.9)),
                   const SizedBox(height: 24),
                   if (data.urgentOrders.isNotEmpty) ...[
                     _buildUrgentOrders(context, data.urgentOrders, currencySymbol),
                     const SizedBox(height: 24),
                   ],
-                  _buildRecentActivity(data.recentOrders, currencySymbol),
+                  _buildRecentActivity(data.recentOrders, currencySymbol).animate().fadeIn(delay: 600.ms, duration: 600.ms),
                 ],
               ),
             ),
@@ -239,19 +239,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             if (Theme.of(context).brightness == Brightness.light)
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
           ],
-          border: Theme.of(context).brightness == Brightness.dark 
-              ? Border.all(color: Colors.white.withValues(alpha: 0.1))
-              : null,
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark 
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.white.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
