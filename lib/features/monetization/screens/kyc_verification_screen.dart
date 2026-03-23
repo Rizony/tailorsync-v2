@@ -211,9 +211,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                       textCapitalization: TextCapitalization.words,
                     ),
                     const SizedBox(height: 16),
-                  ],
-
-                  else if (_isVerified && isEmailVerified)
+                  ] else if (_isVerified && isEmailVerified)
                      Container(
                        padding: const EdgeInsets.all(16),
                        decoration: BoxDecoration(
