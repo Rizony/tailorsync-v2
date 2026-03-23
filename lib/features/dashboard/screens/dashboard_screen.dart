@@ -14,7 +14,7 @@ import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
 import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
-import 'package:needlix/features/monetization/screens/revenue_history_screen.dart';
+import 'package:needlix/features/monetization/screens/report_center_screen.dart';
 import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
 import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
 import 'package:needlix/features/support/screens/support_list_screen.dart';
@@ -233,14 +233,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         _buildStatCard(
           context, 
-          'This Week', 
-          '$currencySymbol${data.weeklyRevenue.toStringAsFixed(0)}', 
-          Icons.payments_outlined, 
+          'Report Center', 
+          '${data.weeklyRevenue.toStringAsFixed(0)}', 
+          Icons.analytics_outlined, 
           Colors.green,
           onTap: () {
              Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()),
+              MaterialPageRoute(builder: (_) => const ReportCenterScreen()),
             );
           }, 
         ),
@@ -583,11 +583,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 const Divider(indent: 16, endIndent: 16),
                 _buildDrawerItem(
                   context, 
-                  Icons.history_edu, 
-                  'Revenue History', 
+                  Icons.analytics_outlined, 
+                  'Report Center', 
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportCenterScreen()));
                   },
                 ),
                 _buildDrawerItem(

@@ -11,6 +11,8 @@ class DashboardData with _$DashboardData {
     required int totalCustomers,
     required double weeklyRevenue,
     required double lifetimeRevenue,
+    required int newCustomers,
+    required int inquiryCount,
     required List<OrderModel> recentOrders,
     required List<OrderModel> urgentOrders,
     required String userName,

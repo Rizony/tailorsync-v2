@@ -3,9 +3,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:needlix/core/auth/models/app_user.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/customers/repositories/customer_repository.dart';
+import 'package:needlix/features/customers/models/customer.dart';
+import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
 import 'package:needlix/features/orders/models/order_model.dart';
 import 'package:needlix/features/orders/repositories/order_repository.dart';
-import '../models/dashboard_data.dart';
+import 'package:needlix/features/dashboard/models/dashboard_data.dart';
 
 part 'dashboard_provider.g.dart';
 
@@ -15,16 +17,19 @@ Future<DashboardData> dashboardStats(Ref ref) async {
   final ordersFuture = ref.watch(allOrdersProvider.future);
   final customersFuture = ref.watch(customerRepositoryProvider.future);
   final profileFuture = ref.watch(profileNotifierProvider.future);
+  final inquiriesFuture = ref.watch(marketplaceRequestsProvider.future);
 
   final results = await Future.wait([
     ordersFuture,
     customersFuture,
     profileFuture,
+    inquiriesFuture,
   ]);
   
   final orders = (results[0] as List<OrderModel>);
   final customers = results[1] as List; // List<Customer>
   final profile = results[2] as AppUser?;
+  final inquiries = results[3] as List; // List<MarketplaceRequest>
 
   // Calculate stats
   final activeOrders = orders.where((order) => OrderModel.activeStatuses.contains(order.status)).length;
@@ -45,6 +50,12 @@ Future<DashboardData> dashboardStats(Ref ref) async {
       }
     }
   }
+
+  // New Customers this week
+  final newCustomers = customers.where((c) {
+    if (c is! Customer || c.createdAt == null) return false;
+    return c.createdAt!.isAfter(sevenDaysAgo);
+  }).length;
 
   // Calculate urgent orders (due in less than 48 hours, active status check)
   final fortyEightHoursFromNow = now.add(const Duration(hours: 48));
@@ -68,6 +79,8 @@ Future<DashboardData> dashboardStats(Ref ref) async {
     totalCustomers: customers.length,
     weeklyRevenue: weeklyRevenue,
     lifetimeRevenue: lifetimeRevenue,
+    newCustomers: newCustomers,
+    inquiryCount: inquiries.length,
     recentOrders: List.from(recentOrders), 
     urgentOrders: List.from(urgentOrders),
     userName: profile?.fullName ?? 'Tailor',

@@ -13,7 +13,7 @@ import 'package:needlix/features/auth/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
 import 'package:needlix/features/monetization/screens/kyc_verification_screen.dart';
-import 'package:needlix/features/monetization/screens/revenue_history_screen.dart';
+import 'package:needlix/features/monetization/screens/report_center_screen.dart';
 import 'package:needlix/features/support/screens/support_list_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -145,14 +145,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.history_edu, color: Colors.blue),
-                  title: const Text('Revenue History', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Lifetime earnings & periodic breakdown'),
+                  leading: const Icon(Icons.analytics_outlined, color: Colors.blue),
+                  title: const Text('Report Center', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Business performance & AI insights'),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const RevenueHistoryScreen()),
+                      MaterialPageRoute(builder: (_) => const ReportCenterScreen()),
                     );
                   },
                 ),
