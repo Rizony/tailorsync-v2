@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:needlix/features/dashboard/providers/dashboard_provider.dart';
+import 'package:needlix/features/dashboard/models/dashboard_data.dart';
+import 'package:needlix/features/orders/models/order_model.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/auth/models/app_user.dart';
 
 class RevenueHistoryScreen extends ConsumerWidget {
   const RevenueHistoryScreen({super.key});
@@ -27,7 +30,7 @@ class RevenueHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, dynamic data, String currency) {
+  Widget _buildBody(BuildContext context, DashboardData data, String currency) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -115,7 +118,7 @@ class RevenueHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBreakdownGrid(BuildContext context, dynamic data, String currency) {
+  Widget _buildBreakdownGrid(BuildContext context, DashboardData data, String currency) {
     return Row(
       children: [
         Expanded(
@@ -167,7 +170,7 @@ class RevenueHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentTransactions(BuildContext context, dynamic orders, String currency) {
+  Widget _buildRecentTransactions(BuildContext context, List<OrderModel> orders, String currency) {
     final earningsOrders = orders.where((o) => o.payments.isNotEmpty).toList();
     
     if (earningsOrders.isEmpty) {
