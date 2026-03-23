@@ -12,9 +12,9 @@ class KycVerificationScreen extends StatefulWidget {
 
 class _KycVerificationScreenState extends State<KycVerificationScreen> {
   bool _loading = true;
-  bool _uploading = false;
   bool _isVerified = false;
   String? _documentUrl;
+  final _nameController = TextEditingController();
 
   @override
   void initState() {
@@ -37,6 +37,9 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
       if (res != null) {
         _isVerified = res['is_kyc_verified'] == true;
         _documentUrl = res['kyc_document_url'];
+        if (res['full_name'] != null) {
+          _nameController.text = res['full_name'];
+        }
       }
     } catch (e) {
       debugPrint("Error fetching KYC: $e");
@@ -72,6 +75,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
       await Supabase.instance.client.from('profiles').update({
         'kyc_document_url': publicUrl,
         'kyc_status': 'pending',
+        'full_name': _nameController.text.trim(),
       }).eq('id', user.id);
 
       _documentUrl = publicUrl;
@@ -90,6 +94,12 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     } finally {
       if (mounted) setState(() => _uploading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -129,6 +139,19 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.5),
                   ),
                   const SizedBox(height: 48),
+
+                  if (!_isVerified && _documentUrl == null) ...[
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Full Name (as on ID)',
+                        prefixIcon: Icon(Icons.person_outline),
+                        hintText: 'e.g. John Doe',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   if (_isVerified)
                      Container(

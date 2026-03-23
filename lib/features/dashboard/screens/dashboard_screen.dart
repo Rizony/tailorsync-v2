@@ -79,6 +79,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   const SizedBox(height: 40), // Top padding for status bar
                   _buildHeader(context, data.userName).animate().fadeIn(duration: 600.ms).slideX(begin: -0.2),
+                  if (Supabase.instance.client.auth.currentUser?.emailConfirmedAt == null) ...[
+                    const SizedBox(height: 16),
+                    _buildVerificationBanner(context),
+                  ],
                   if (isProfileIncomplete) ...[
                     const SizedBox(height: 16),
                     _buildProfileCompletionCard(context),
@@ -157,6 +161,83 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   size: 26,
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerificationBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.mark_email_unread_outlined, color: Colors.orange, size: 28),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Verify Your Email',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Please check your inbox and verify your email address to enable all features, including secure password recovery and payouts.',
+                  style: TextStyle(fontSize: 13, color: Colors.black87),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        try {
+                          final email = Supabase.instance.client.auth.currentUser?.email;
+                          if (email != null) {
+                            await Supabase.instance.client.auth.resend(
+                              type: OtpType.signup,
+                              email: email,
+                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Verification email resent!')),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text('Resend Email'),
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton(
+                      onPressed: () => ref.refresh(dashboardStatsProvider),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text('I\'ve verified'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

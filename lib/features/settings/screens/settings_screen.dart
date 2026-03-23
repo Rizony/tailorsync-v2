@@ -15,6 +15,7 @@ import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.da
 import 'package:needlix/features/monetization/screens/kyc_verification_screen.dart';
 import 'package:needlix/features/monetization/screens/report_center_screen.dart';
 import 'package:needlix/features/support/screens/support_list_screen.dart';
+import 'package:needlix/features/settings/screens/security_settings_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -179,6 +180,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const KycVerificationScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.security_outlined, color: Colors.redAccent),
+                  title: const Text('Security & Account', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('Password, Email & Verification Status'),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SecuritySettingsScreen()),
                     );
                   },
                 ),
