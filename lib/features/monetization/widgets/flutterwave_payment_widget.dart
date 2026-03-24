@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterwave_standard/flutterwave.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:needlix/core/billing/billing_service.dart';
 
 /// Widget to handle Flutterwave payment
 class FlutterwavePaymentWidget {
@@ -119,29 +120,12 @@ class FlutterwavePaymentWidget {
     required String txRef,
   }) async {
     try {
-      final subscriptionTier = planId.contains('premium')
-          ? 'premium'
-          : planId.contains('standard')
-              ? 'standard'
-              : 'freemium';
-
-      final isAnnual = planId.contains('annual');
-      final now = DateTime.now();
-      final expiresAt = now.add(Duration(days: isAnnual ? 365 : 30));
-
-      final response = await Supabase.instance.client
-          .from('profiles')
-          .update({
-            'subscription_tier': subscriptionTier,
-            'subscription_started_at': now.toIso8601String(),
-            'subscription_expires_at': expiresAt.toIso8601String(),
-            'last_payment_provider': 'flutterwave',
-            'last_transaction_ref': txRef,
-          })
-          .eq('id', userId)
-          .select();
-
-      return response.isNotEmpty;
+      return await BillingService.verifyAndActivateSubscription(
+        userId: userId,
+        planId: planId,
+        transactionReference: txRef,
+        paymentProvider: 'flutterwave',
+      );
     } catch (e) {
       debugPrint('Direct DB activation error: $e');
       return false;

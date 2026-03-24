@@ -10,6 +10,9 @@ import 'package:needlix/features/marketplace/repositories/marketplace_repository
 import 'package:needlix/features/marketplace/models/marketplace_request.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/core/utils/business_advisor.dart';
+import 'package:needlix/features/monetization/providers/wallet_provider.dart';
+import 'package:needlix/features/referrals/providers/referral_provider.dart';
+import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 
 enum ReportFilter { sevenDays, thirtyDays, thisMonth, allTime }
 
@@ -45,6 +48,9 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
       ),
       body: allOrdersAsync.when(
         data: (orders) {
+          final walletAsync = ref.watch(walletStateProvider);
+          final referralAsync = ref.watch(referralStatsProvider);
+
           return customersAsync.when(
             data: (customers) {
               return inquiriesAsync.when(
@@ -55,7 +61,14 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
                     inquiries, 
                     profile?.fullName ?? 'Tailor'
                   );
-                  return _buildBody(context, filteredData, currencySymbol);
+                  return _buildBody(
+                    context, 
+                    filteredData, 
+                    currencySymbol,
+                    walletAsync.valueOrNull,
+                    referralAsync.valueOrNull,
+                    profile?.subscriptionTier ?? SubscriptionTier.freemium,
+                  );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, _) => Center(child: Text('Error inquiries: $err')),
@@ -181,7 +194,14 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, DashboardData data, String currency) {
+  Widget _buildBody(
+    BuildContext context, 
+    DashboardData data, 
+    String currency,
+    Wallet? wallet,
+    ReferralStats? referral,
+    SubscriptionTier currentTier,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -191,17 +211,190 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
           const SizedBox(height: 12),
           _buildFilterChips(),
           const SizedBox(height: 24),
+          
+          _buildSectionHeader('Wallet Status'),
+          const SizedBox(height: 16),
+          _buildWalletSection(context, wallet, currency),
+          const SizedBox(height: 24),
+
+          if (currentTier == SubscriptionTier.premium) ...[
+            _buildSectionHeader('Partner Account'),
+            const SizedBox(height: 16),
+            _buildPartnerSection(context, referral, currency),
+            const SizedBox(height: 24),
+          ],
+
           _buildSectionHeader('Performance Details'),
           const SizedBox(height: 16),
           _buildPerformanceGrid(context, data, currency),
           const SizedBox(height: 24),
-          _buildSectionHeader('TailorSync Insights (AI Advise)'),
+
+          _buildSectionHeader('Needlix Subscription'),
+          const SizedBox(height: 16),
+          _buildSubscriptionSection(context, currentTier),
+          const SizedBox(height: 24),
+
+          _buildSectionHeader('Needlix Insights (AI Advise)'),
           const SizedBox(height: 16),
           _buildAdviceList(context, data),
           const SizedBox(height: 24),
+
           _buildSectionHeader('Recent Orders/Inquiries'),
           const SizedBox(height: 16),
           _buildRecentTransactions(context, data.recentOrders, currency),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWalletSection(BuildContext context, Wallet? wallet, String currency) {
+    final available = wallet?.availableBalance ?? 0.0;
+    final pending = wallet?.pendingBalance ?? 0.0;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildBalanceCard(
+            context, 
+            'Available to Withdraw', 
+            '$currency${NumberFormat('#,###').format(available)}', 
+            Icons.account_balance_wallet, 
+            Colors.green
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildBalanceCard(
+            context, 
+            'Locked in Escrow', 
+            '$currency${NumberFormat('#,###').format(pending)}', 
+            Icons.lock_clock, 
+            Colors.orange
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPartnerSection(BuildContext context, ReferralStats? referral, String currency) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.indigo.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.indigo.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildPartnerStat('Total Partners', '${referral?.totalReferrals ?? 0}'),
+              _buildPartnerStat('Total Earned', '$currency${NumberFormat('#,###').format(referral?.totalEarned ?? 0)}'),
+              _buildPartnerStat('This Month', '$currency${NumberFormat('#,###').format(referral?.thisMonthEarned ?? 0)}'),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              // Copy referral link or navigate to referral dashboard
+            },
+            icon: const Icon(Icons.share, size: 18),
+            label: const Text('Share Referral Link'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPartnerStat(String label, String value) {
+    return Column(
+      children: [
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo)),
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  Widget _buildSubscriptionSection(BuildContext context, SubscriptionTier currentTier) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: (currentTier == SubscriptionTier.premium ? Colors.orange : Colors.blue).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              currentTier == SubscriptionTier.premium ? Icons.workspace_premium : Icons.star_border,
+              color: currentTier == SubscriptionTier.premium ? Colors.orange : Colors.blue,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${currentTier.label} Plan',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  currentTier == SubscriptionTier.freemium 
+                    ? 'Upgrade for more tools' 
+                    : 'Active Subscription',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (_) => const UpgradeScreen())
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(currentTier == SubscriptionTier.freemium ? 'Upgrade' : 'Renew'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBalanceCard(BuildContext context, String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 12),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(title, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         ],
       ),
     );

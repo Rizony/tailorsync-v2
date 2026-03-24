@@ -12,7 +12,13 @@ export default function AdminDashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [tailors, setTailors] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"withdrawals" | "kyc">("withdrawals");
+  const [reports, setReports] = useState<{
+    totalReferrals: number;
+    totalEscrow: number;
+    totalRevenue: number;
+    totalTailors: number;
+  } | null>(null);
+  const [activeTab, setActiveTab] = useState<"withdrawals" | "kyc" | "reports">("withdrawals");
 
   useEffect(() => {
     verifyAdmin();
@@ -35,7 +41,7 @@ export default function AdminDashboardPage() {
       }
 
       setIsAdmin(true);
-      await Promise.all([fetchWithdrawals(), fetchTailors()]);
+      await Promise.all([fetchWithdrawals(), fetchTailors(), fetchReports()]);
     } catch (err) {
       console.error("Admin verification failed:", err);
     } finally {
@@ -46,7 +52,7 @@ export default function AdminDashboardPage() {
   async function fetchWithdrawals() {
     const { data } = await supabase
       .from("withdrawal_requests")
-      .select("*, profiles:tailor_id(full_name, email, shop_name)")
+      .select("*, profiles(full_name, email, shop_name)")
       .order("created_at", { ascending: false });
     if (data) setWithdrawals(data);
   }
@@ -57,6 +63,30 @@ export default function AdminDashboardPage() {
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setTailors(data);
+  }
+
+  async function fetchReports() {
+    try {
+      const [referrals, wallets, revenue, tailorsCount] = await Promise.all([
+        supabase.from("referral_transactions").select("commission_amount"),
+        supabase.from("wallets").select("available_balance, pending_balance"),
+        supabase.from("platform_revenue").select("amount"),
+        supabase.from("profiles").select("id", { count: 'exact', head: true })
+      ]);
+
+      const totalReferrals = (referrals.data || []).reduce((sum: number, r: any) => sum + (Number(r.commission_amount) || 0), 0);
+      const totalEscrow = (wallets.data || []).reduce((sum: number, w: any) => sum + (Number(w.available_balance) || 0) + (Number(w.pending_balance) || 0), 0);
+      const totalRevenue = (revenue.data || []).reduce((sum: number, r: any) => sum + (Number(r.amount) || 0), 0);
+      
+      setReports({
+        totalReferrals,
+        totalEscrow,
+        totalRevenue,
+        totalTailors: tailorsCount.count || 0
+      });
+    } catch (err) {
+      console.error("Failed to fetch reports:", err);
+    }
   }
 
   async function updateWithdrawalStatus(id: string, newStatus: string) {
@@ -114,17 +144,26 @@ export default function AdminDashboardPage() {
           <button onClick={() => setActiveTab("kyc")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-left transition-colors ${activeTab === 'kyc' ? 'bg-[#0076B6] text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>
             <UserCircle className="h-5 w-5" /> Tailor KYC
           </button>
+          <button onClick={() => setActiveTab("reports")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-left transition-colors ${activeTab === 'reports' ? 'bg-[#0076B6] text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>
+            <ShieldCheck className="h-5 w-5" /> Report Center
+          </button>
         </div>
 
         <div className="lg:col-span-3">
           <div className="flex justify-between items-end mb-6">
             <div>
               <h1 className="text-2xl font-extrabold text-[#0A1128]">
-                {activeTab === 'withdrawals' ? "Escrow Payouts" : "Tailor Verifications"}
+                {activeTab === 'withdrawals' ? "Escrow Payouts" : activeTab === 'kyc' ? "Tailor Verifications" : "Platform Reports"}
               </h1>
-              <p className="text-sm text-slate-500 mt-1">Manage platform funds and user trust safely.</p>
+              <p className="text-sm text-slate-500 mt-1">
+                {activeTab === 'reports' ? "Financial summary and platform health statistics." : "Manage platform funds and user trust safely."}
+              </p>
             </div>
-            <button onClick={() => { activeTab === 'withdrawals' ? fetchWithdrawals() : fetchTailors() }} className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600">
+            <button onClick={() => { 
+              if (activeTab === 'withdrawals') fetchWithdrawals();
+              else if (activeTab === 'kyc') fetchTailors();
+              else fetchReports();
+            }} className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600">
               <RefreshCw className="h-5 w-5" />
             </button>
           </div>
@@ -192,6 +231,46 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {activeTab === 'reports' && reports && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mb-2">Total Referral Payouts</p>
+                <p className="text-4xl font-extrabold text-[#0A1128]">₦{reports.totalReferrals.toLocaleString()}</p>
+                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-green-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="text-xs font-bold">Paid to partners</span>
+                </div>
+              </div>
+
+              <div className="bg-[#0A1128] rounded-3xl p-8 shadow-xl text-white">
+                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Escrow Funds (Held)</p>
+                <p className="text-4xl font-extrabold">₦{reports.totalEscrow.toLocaleString()}</p>
+                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 text-slate-400">
+                  <Wallet className="h-4 w-4" />
+                  <span className="text-xs font-bold">Secured by Needlix</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mb-2">Platform Revenue</p>
+                <p className="text-4xl font-extrabold text-[#0076B6]">₦{reports.totalRevenue.toLocaleString()}</p>
+                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-blue-600">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span className="text-xs font-bold">10% Marketplace commissions</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mb-2">Total Registered Tailors</p>
+                <p className="text-4xl font-extrabold text-[#0A1128]">{reports.totalTailors.toLocaleString()}</p>
+                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-slate-500">
+                  <UserCircle className="h-4 w-4" />
+                  <span className="text-xs font-bold">Community size</span>
+                </div>
+              </div>
             </div>
           )}
         </div>

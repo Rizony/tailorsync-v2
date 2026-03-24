@@ -170,7 +170,7 @@ class PlanCard extends StatelessWidget {
                   // CTA button
                   SizedBox(
                     width: double.infinity,
-                    child: isCurrent
+                    child: isCurrent && onUpgrade == null
                         ? OutlinedButton.icon(
                             onPressed: null,
                             icon: const Icon(Icons.check),
@@ -184,6 +184,29 @@ class PlanCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10)),
                             ),
                           )
+                        : isCurrent && onUpgrade != null
+                            ? ElevatedButton.icon(
+                                onPressed: isProcessing ? null : onUpgrade,
+                                icon: isProcessing
+                                    ? const SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white))
+                                    : const Icon(Icons.refresh, size: 16),
+                                label: const Text('Renew Plan',
+                                    style: TextStyle(fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10)),
+                                ),
+                              )
                         : plan.monthlyNaira == 0
                             ? OutlinedButton(
                                 onPressed: null,

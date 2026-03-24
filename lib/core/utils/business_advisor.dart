@@ -63,6 +63,16 @@ class BusinessAdvisor {
       ));
     }
 
+    // Partner/Referral Advice (New)
+    if (data.totalCustomers > 0 && data.lifetimeRevenue > 0) {
+      adviceList.add(BusinessAdvice(
+        title: 'Earn as a Partner',
+        message: 'Invite fellow tailors using your referral code. You earn 40% of their first subscription!',
+        icon: Icons.share_arrival_time_outlined,
+        color: Colors.indigo,
+      ));
+    }
+
     // General Tips
     adviceList.add(BusinessAdvice(
       title: 'Pro Tip: Photos Matter',

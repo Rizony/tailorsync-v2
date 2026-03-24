@@ -186,13 +186,18 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
     }
   }
 
-  bool _canUpgradeTo(PlanPricing plan) {
-    final currentWeight = _tierWeight(_currentTier());
+  bool _canUpgradeOrRenew(PlanPricing plan) {
+    final currentTier = _currentTier();
+    final currentWeight = _tierWeight(currentTier);
     final planTier = SubscriptionTier.values.firstWhere(
       (t) => t.name.toLowerCase() == plan.title.toLowerCase(),
       orElse: () => SubscriptionTier.freemium,
     );
-    return _tierWeight(planTier) > currentWeight;
+    final planWeight = _tierWeight(planTier);
+    
+    // Allow upgrade OR renewal of same plan (except freemium)
+    if (planTier == SubscriptionTier.freemium) return false;
+    return planWeight >= currentWeight;
   }
 
   bool _isCurrent(PlanPricing plan) =>
@@ -285,7 +290,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
                         isCurrent: _isCurrent(plan),
                         isProcessing:
                             _isProcessing && _pendingPlan == plan,
-                        onUpgrade: _canUpgradeTo(plan)
+                        onUpgrade: _canUpgradeOrRenew(plan)
                             ? () => _showPaymentPicker(plan)
                             : null,
                       )),
