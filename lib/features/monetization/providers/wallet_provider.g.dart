@@ -7,7 +7,7 @@ part of 'wallet_provider.dart';
 // **************************************************************************
 
 String _$walletTransactionsHash() =>
-    r'0c42eed1f36b69049777a1ebd357fc5e2949fe6a';
+    r'26f32d988993aed9d95e0898625341fdcf081690';
 
 /// See also [walletTransactions].
 @ProviderFor(walletTransactions)

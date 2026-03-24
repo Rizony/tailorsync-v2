@@ -59,6 +59,10 @@ mixin _$MarketplaceRequest {
   String? get counterOfferMessage => throw _privateConstructorUsedError;
   @JsonKey(name: 'counter_offered_at')
   DateTime? get counterOfferedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'order_id')
+  String? get orderId => throw _privateConstructorUsedError;
+  @JsonKey(readValue: _readCustomerRating)
+  double? get customerRating => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -99,6 +103,8 @@ abstract class $MarketplaceRequestCopyWith<$Res> {
       @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
       @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
       @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
+      @JsonKey(name: 'order_id') String? orderId,
+      @JsonKey(readValue: _readCustomerRating) double? customerRating,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -137,6 +143,8 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
     Object? counterOfferAmount = freezed,
     Object? counterOfferMessage = freezed,
     Object? counterOfferedAt = freezed,
+    Object? orderId = freezed,
+    Object? customerRating = freezed,
     Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
@@ -220,6 +228,14 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
           ? _value.counterOfferedAt
           : counterOfferedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      orderId: freezed == orderId
+          ? _value.orderId
+          : orderId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerRating: freezed == customerRating
+          ? _value.customerRating
+          : customerRating // ignore: cast_nullable_to_non_nullable
+              as double?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -257,6 +273,8 @@ abstract class _$$MarketplaceRequestImplCopyWith<$Res>
       @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
       @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
       @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
+      @JsonKey(name: 'order_id') String? orderId,
+      @JsonKey(readValue: _readCustomerRating) double? customerRating,
       @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
@@ -293,6 +311,8 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
     Object? counterOfferAmount = freezed,
     Object? counterOfferMessage = freezed,
     Object? counterOfferedAt = freezed,
+    Object? orderId = freezed,
+    Object? customerRating = freezed,
     Object? createdAt = null,
   }) {
     return _then(_$MarketplaceRequestImpl(
@@ -376,6 +396,14 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
           ? _value.counterOfferedAt
           : counterOfferedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      orderId: freezed == orderId
+          ? _value.orderId
+          : orderId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerRating: freezed == customerRating
+          ? _value.customerRating
+          : customerRating // ignore: cast_nullable_to_non_nullable
+              as double?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -410,6 +438,8 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
       @JsonKey(name: 'counter_offer_amount') this.counterOfferAmount,
       @JsonKey(name: 'counter_offer_message') this.counterOfferMessage,
       @JsonKey(name: 'counter_offered_at') this.counterOfferedAt,
+      @JsonKey(name: 'order_id') this.orderId,
+      @JsonKey(readValue: _readCustomerRating) this.customerRating,
       @JsonKey(name: 'created_at') required this.createdAt})
       : _imageUrls = imageUrls,
         _referenceLinks = referenceLinks;
@@ -489,12 +519,18 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
   @JsonKey(name: 'counter_offered_at')
   final DateTime? counterOfferedAt;
   @override
+  @JsonKey(name: 'order_id')
+  final String? orderId;
+  @override
+  @JsonKey(readValue: _readCustomerRating)
+  final double? customerRating;
+  @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, customerWhatsapp: $customerWhatsapp, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, quoteMessage: $quoteMessage, quoteStatus: $quoteStatus, counterOfferAmount: $counterOfferAmount, counterOfferMessage: $counterOfferMessage, counterOfferedAt: $counterOfferedAt, createdAt: $createdAt)';
+    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, customerWhatsapp: $customerWhatsapp, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, quoteMessage: $quoteMessage, quoteStatus: $quoteStatus, counterOfferAmount: $counterOfferAmount, counterOfferMessage: $counterOfferMessage, counterOfferedAt: $counterOfferedAt, orderId: $orderId, customerRating: $customerRating, createdAt: $createdAt)';
   }
 
   @override
@@ -540,6 +576,9 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
                 other.counterOfferMessage == counterOfferMessage) &&
             (identical(other.counterOfferedAt, counterOfferedAt) ||
                 other.counterOfferedAt == counterOfferedAt) &&
+            (identical(other.orderId, orderId) || other.orderId == orderId) &&
+            (identical(other.customerRating, customerRating) ||
+                other.customerRating == customerRating) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -568,6 +607,8 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
         counterOfferAmount,
         counterOfferMessage,
         counterOfferedAt,
+        orderId,
+        customerRating,
         createdAt
       ]);
 
@@ -610,6 +651,8 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
       @JsonKey(name: 'counter_offer_amount') final double? counterOfferAmount,
       @JsonKey(name: 'counter_offer_message') final String? counterOfferMessage,
       @JsonKey(name: 'counter_offered_at') final DateTime? counterOfferedAt,
+      @JsonKey(name: 'order_id') final String? orderId,
+      @JsonKey(readValue: _readCustomerRating) final double? customerRating,
       @JsonKey(name: 'created_at')
       required final DateTime createdAt}) = _$MarketplaceRequestImpl;
 
@@ -673,6 +716,12 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
   @override
   @JsonKey(name: 'counter_offered_at')
   DateTime? get counterOfferedAt;
+  @override
+  @JsonKey(name: 'order_id')
+  String? get orderId;
+  @override
+  @JsonKey(readValue: _readCustomerRating)
+  double? get customerRating;
   @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;

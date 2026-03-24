@@ -1,34 +1,23 @@
--- Quotes + client ratings for marketplace requests
+-- Migration to enable Tailor -> Client ratings
+-- Run this in Supabase SQL Editor
 
-ALTER TABLE public.marketplace_requests
-ADD COLUMN IF NOT EXISTS quote_amount numeric, -- major currency units (e.g., Naira)
-ADD COLUMN IF NOT EXISTS quote_currency text DEFAULT 'NGN',
-ADD COLUMN IF NOT EXISTS quote_message text,
-ADD COLUMN IF NOT EXISTS quoted_at timestamp with time zone,
-ADD COLUMN IF NOT EXISTS quoted_by uuid REFERENCES public.profiles(id),
-ADD COLUMN IF NOT EXISTS quote_status text DEFAULT 'pending', -- pending, accepted, declined, countered
-ADD COLUMN IF NOT EXISTS counter_offer_amount numeric,
-ADD COLUMN IF NOT EXISTS counter_offer_message text,
-ADD COLUMN IF NOT EXISTS counter_offered_at timestamp with time zone,
-ADD COLUMN IF NOT EXISTS order_id uuid REFERENCES public.orders(id);
-
--- Add client rating to profiles
+-- 1. Add customer_rating to profiles
 ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS customer_rating numeric DEFAULT 5.0;
 
--- Modify marketplace_ratings to support bidirectional ratings
--- 1. Remove the unique constraint on request_id (since there can be two ratings: tailor and client)
+-- 2. Modify marketplace_ratings
 ALTER TABLE public.marketplace_ratings DROP CONSTRAINT IF EXISTS marketplace_ratings_request_id_key;
 
--- 2. Add rater_role to distinguish who is rating whom
 ALTER TABLE public.marketplace_ratings 
 ADD COLUMN IF NOT EXISTS rater_role text CHECK (rater_role IN ('client', 'tailor')) DEFAULT 'client';
 
--- 3. Add a composite unique constraint to allow one rating per role per request
+ALTER TABLE public.marketplace_ratings 
+DROP CONSTRAINT IF EXISTS unique_request_rater_role;
+
 ALTER TABLE public.marketplace_ratings 
 ADD CONSTRAINT unique_request_rater_role UNIQUE (request_id, rater_role);
 
--- 4. Update recompute functions for both roles
+-- 3. Recompute Tailor Rating (Rated by Client)
 CREATE OR REPLACE FUNCTION public.recompute_tailor_rating(p_tailor_id uuid)
 RETURNS void AS $$
 BEGIN
@@ -42,10 +31,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 4. Recompute Client Rating (Rated by Tailor)
 CREATE OR REPLACE FUNCTION public.recompute_client_rating(p_customer_id uuid)
 RETURNS void AS $$
 BEGIN
-  -- We link the rating to the profile matching the auth.user_id (customer_id)
   UPDATE public.profiles
   SET customer_rating = COALESCE((
     SELECT AVG(r.rating)::numeric(10,2)
@@ -56,6 +45,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 5. Updated Trigger Function
 CREATE OR REPLACE FUNCTION public.on_marketplace_rating_change()
 RETURNS trigger AS $$
 BEGIN
@@ -68,9 +58,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS trg_marketplace_rating_change ON public.marketplace_ratings;
-CREATE TRIGGER trg_marketplace_rating_change
-AFTER INSERT OR UPDATE ON public.marketplace_ratings
-FOR EACH ROW
-EXECUTE FUNCTION public.on_marketplace_rating_change();
-
+-- 6. Add policy for Tailors to rate
+DROP POLICY IF EXISTS "Tailors can rate their clients" ON public.marketplace_ratings;
+CREATE POLICY "Tailors can rate their clients" ON public.marketplace_ratings
+  FOR INSERT WITH CHECK (auth.uid() = tailor_id AND rater_role = 'tailor');

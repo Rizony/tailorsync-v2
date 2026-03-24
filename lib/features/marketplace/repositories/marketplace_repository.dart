@@ -16,7 +16,7 @@ class MarketplaceRepository {
 
     final response = await _client
         .from('marketplace_requests')
-        .select()
+        .select('*, profiles!tailor_id(full_name, rating), customer_profile:profiles!customer_id(customer_rating)')
         .eq('tailor_id', userId)
         .order('created_at', ascending: false);
 
@@ -96,6 +96,23 @@ class MarketplaceRepository {
       'status': 'accepted',
       'order_id': orderId,
     }).eq('id', request.id);
+  }
+
+  Future<void> submitClientRating({
+    required String requestId,
+    required String tailorId,
+    required String customerId,
+    required int rating,
+    String? review,
+  }) async {
+    await _client.from('marketplace_ratings').insert({
+      'request_id': requestId,
+      'tailor_id': tailorId,
+      'customer_id': customerId,
+      'rating': rating,
+      'review': review,
+      'rater_role': 'tailor',
+    });
   }
 }
 

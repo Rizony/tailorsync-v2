@@ -28,6 +28,7 @@ interface MarketplaceRequest {
   counter_offer_message?: string | null;
   created_at: string;
   order_id?: string | null;
+  customer_id?: string | null;
   orders?: { status: string; title: string; due_date?: string } | null;
 }
 
@@ -588,6 +589,14 @@ export default function ClientDashboardPage() {
                 </div>
 
                 {/* If the order is created and linked, show the live tracking timeline */}
+                {r.order_id && !r.orders && (
+                  <div className="mt-8 pt-6 border-t border-slate-100">
+                    <div className="flex items-center gap-3 text-[#0076B6] bg-[#0076B6]/5 px-4 py-3 rounded-2xl border border-[#0076B6]/10">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      <p className="text-sm font-bold">Tailor is setting up your live tracking. Check back in a moment.</p>
+                    </div>
+                  </div>
+                )}
                 {r.orders?.status && (
                   <OrderTrackingTimeline status={r.orders.status} />
                 )}

@@ -79,9 +79,37 @@ class _RequestCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    request.customerName,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  child: Row(
+                    children: [
+                      Text(
+                        request.customerName,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      if (request.customerRating != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.star, size: 12, color: Colors.amber),
+                              const SizedBox(width: 2),
+                              Text(
+                                request.customerRating!.toStringAsFixed(1),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber.shade900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 _StatusBadge(status: request.status),
@@ -312,6 +340,12 @@ class _RequestCard extends ConsumerWidget {
                       ref.invalidate(marketplaceRequestsProvider);
                     },
                   ),
+                if (request.status == 'completed' && request.customerId != null)
+                  ActionChip(
+                    avatar: const Icon(Icons.star_outline, size: 16),
+                    label: const Text('Rate Client'),
+                    onPressed: () => _showRatingDialog(context, ref),
+                  ),
               ],
             ),
             if (isPending) ...[
@@ -512,6 +546,83 @@ class _RequestCard extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and order created' : 'rejected'}.')),
       );
+    }
+  }
+
+  Future<void> _showRatingDialog(BuildContext context, WidgetRef ref) async {
+    int rating = 5;
+    final reviewController = TextEditingController();
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Rate ${request.customerName}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('How was your experience with this client?'),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    icon: Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 32,
+                    ),
+                    onPressed: () => setState(() => rating = index + 1),
+                  );
+                }),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reviewController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Review (optional)',
+                  hintText: 'e.g. Great communication, clear requirements...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Submit Rating'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (ok != true || request.customerId == null) return;
+
+    try {
+      await ref.read(marketplaceRepositoryProvider).submitClientRating(
+            requestId: request.id,
+            tailorId: request.tailorId,
+            customerId: request.customerId!,
+            rating: rating,
+            review: reviewController.text.trim().isEmpty ? null : reviewController.text.trim(),
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rating submitted successfully!')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit rating: $e')),
+        );
+      }
     }
   }
 }

@@ -26,8 +26,17 @@ class MarketplaceRequest with _$MarketplaceRequest {
     @JsonKey(name: 'counter_offer_amount') double? counterOfferAmount,
     @JsonKey(name: 'counter_offer_message') String? counterOfferMessage,
     @JsonKey(name: 'counter_offered_at') DateTime? counterOfferedAt,
+    @JsonKey(name: 'order_id') String? orderId,
+    @JsonKey(readValue: _readCustomerRating) double? customerRating,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _MarketplaceRequest;
 
   factory MarketplaceRequest.fromJson(Map<String, dynamic> json) => _$MarketplaceRequestFromJson(json);
+}
+
+Object? _readCustomerRating(Map map, String key) {
+  if (map['customer_profile'] is Map) {
+    return map['customer_profile']['customer_rating'];
+  }
+  return null;
 }

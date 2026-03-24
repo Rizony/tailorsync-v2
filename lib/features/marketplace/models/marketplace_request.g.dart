@@ -37,6 +37,9 @@ _$MarketplaceRequestImpl _$$MarketplaceRequestImplFromJson(
       counterOfferedAt: json['counter_offered_at'] == null
           ? null
           : DateTime.parse(json['counter_offered_at'] as String),
+      orderId: json['order_id'] as String?,
+      customerRating:
+          (_readCustomerRating(json, 'customerRating') as num?)?.toDouble(),
       createdAt: DateTime.parse(json['created_at'] as String),
     );
 
@@ -63,5 +66,7 @@ Map<String, dynamic> _$$MarketplaceRequestImplToJson(
       'counter_offer_amount': instance.counterOfferAmount,
       'counter_offer_message': instance.counterOfferMessage,
       'counter_offered_at': instance.counterOfferedAt?.toIso8601String(),
+      'order_id': instance.orderId,
+      'customerRating': instance.customerRating,
       'created_at': instance.createdAt.toIso8601String(),
     };
