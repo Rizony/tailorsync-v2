@@ -35,12 +35,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       await Supabase.instance.client.auth.updateUser(
         UserAttributes(password: password),
       );
-      if (mounted) {
-        showSuccessSnackBar(context, 'Password updated successfully! You can now log in.');
-        // Sign out to force a clean login with the new password
-        await Supabase.instance.client.auth.signOut();
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+      if (!mounted) return;
+      showSuccessSnackBar(context, 'Password updated successfully! You can now log in.');
+      // Sign out to force a clean login with the new password
+      await Supabase.instance.client.auth.signOut();
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (mounted) {
         showErrorSnackBar(context, e);
