@@ -1,24 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-export default function ReferralCapturePage({
-  params,
-}: {
-  params: { code: string };
-}) {
+export default function ReferralCapturePage() {
   const router = useRouter();
+  const params = useParams();
 
   useEffect(() => {
-    if (params.code) {
+    const code = params?.code;
+    if (code) {
       // Save the referral code to localStorage
-      localStorage.setItem("needlix_referrer_id", params.code);
+      localStorage.setItem("needlix_referrer_id", String(code));
       // Redirect to the unified signup page
       router.push("/signup");
     }
-  }, [params.code, router]);
+  }, [params, router]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-600">
