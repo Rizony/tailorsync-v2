@@ -23,7 +23,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
+      // 1. Check if the email is verified in our system
+      final isVerified = await Supabase.instance.client.rpc(
+        'is_email_verified',
+        params: {'email_input': email},
+      );
+
+      if (isVerified != true) {
+        if (mounted) {
+          showErrorSnackBar(
+            context, 
+            'This email is not verified or does not exist. Password recovery is only available for verified accounts.',
+          );
+        }
+        return;
+      }
+
+      // 2. Proceed with reset link
+      await Supabase.instance.client.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'io.supabase.NEEDLIX://reset-password/',
+      );
       if (mounted) {
         showSuccessSnackBar(context, 'Password reset email sent! Please check your inbox.');
         Navigator.pop(context);
