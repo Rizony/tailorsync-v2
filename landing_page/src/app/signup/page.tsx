@@ -18,7 +18,7 @@ export default function ClientSignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<"client" | "tailor">("client");
-  const [success, setSuccess] = useState<CheckCircle2 | string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -208,6 +208,9 @@ export default function ClientSignupPage() {
             <div>
               <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Password</label>
               <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  required
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
