@@ -14,6 +14,7 @@ export default function ClientSignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
+  const [isReferralFromLink, setIsReferralFromLink] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<"client" | "tailor">("client");
@@ -29,6 +30,7 @@ export default function ClientSignupPage() {
     const savedCode = localStorage.getItem("needlix_referrer_id");
     if (savedCode) {
       setReferralCode(savedCode);
+      setIsReferralFromLink(true);
     }
   }, [router, role]);
 
@@ -219,17 +221,33 @@ export default function ClientSignupPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Referral Code (Optional)</label>
+              <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">
+                Referral Code {isReferralFromLink && "(Locked)"}
+              </label>
               <div className="relative">
-                <Ticket className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                {isReferralFromLink ? (
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#0076B6]" />
+                ) : (
+                  <Ticket className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                )}
                 <input
                   type="text"
+                  readOnly={isReferralFromLink}
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl border border-dashed border-[#00AEEF]/50 bg-[#00AEEF]/5 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-bold text-[#0076B6] uppercase tracking-widest placeholder-slate-400 transition-all text-sm"
+                  className={`w-full pl-11 pr-4 py-3 rounded-2xl border border-dashed transition-all text-sm font-bold uppercase tracking-widest ${
+                    isReferralFromLink
+                      ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                      : "border-[#00AEEF]/50 bg-[#00AEEF]/5 text-[#0076B6] focus:outline-none focus:ring-2 focus:ring-[#00AEEF] placeholder-slate-400"
+                  }`}
                   placeholder="e.g. PARTNER123"
                 />
               </div>
+              {isReferralFromLink && (
+                <p className="mt-1 text-[10px] text-slate-400 font-medium italic">
+                  This code was automatically applied from your referral link.
+                </p>
+              )}
             </div>
 
             <button
