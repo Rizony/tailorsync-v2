@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/auth/screens/login_screen.dart';
 import 'package:needlix/core/terms/terms_gate.dart';
 import 'package:needlix/features/monetization/screens/daily_ad_gate_screen.dart';
