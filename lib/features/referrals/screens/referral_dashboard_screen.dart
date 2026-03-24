@@ -6,8 +6,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/features/monetization/providers/wallet_provider.dart';
 import 'package:needlix/features/referrals/providers/referral_provider.dart';
-import 'package:needlix/core/widgets/premium_empty_state.dart';
 import 'withdrawal_screen.dart';
 
 class ReferralDashboardScreen extends ConsumerWidget {
@@ -16,16 +16,19 @@ class ReferralDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileNotifierProvider);
+    final walletAsync = ref.watch(walletStateProvider);
 
     return profileAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (user) {
         final isPremium = user?.subscriptionTier == SubscriptionTier.premium;
-        final currencySymbol = user?.currencySymbol ?? '₦';
-        final walletBalance = user?.walletBalance ?? 0.0;
         final referralCode = user?.referralCode ?? '';
         final referralLink = 'https://needlix.org/ref/$referralCode';
+        final currencySymbol = user?.currencySymbol ?? '₦';
+
+        // Use unified wallet balance if available, fallback to profile field
+        final walletBalance = walletAsync.valueOrNull?.availableBalance ?? user?.walletBalance ?? 0.0;
 
         if (!isPremium) {
           return _PremiumLockedView(onUpgrade: () {
@@ -37,6 +40,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
           body: RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(profileNotifierProvider);
+              ref.invalidate(walletStateProvider);
               ref.invalidate(referralStatsProvider);
             },
             child: CustomScrollView(
@@ -121,6 +125,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
                         ),
                       ).then((_) {
                         ref.invalidate(profileNotifierProvider);
+                        ref.invalidate(walletStateProvider);
                       }),
                       icon: const Icon(Icons.account_balance_wallet,
                           color: Colors.white, size: 18),
