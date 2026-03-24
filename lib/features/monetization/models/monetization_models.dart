@@ -7,7 +7,7 @@ part 'monetization_models.g.dart';
 class Wallet with _$Wallet {
   const factory Wallet({
     required String id,
-    required String tailorId,
+    @JsonKey(name: 'tailor_id') required String tailorId,
     @JsonKey(name: 'available_balance') required double availableBalance,
     @JsonKey(name: 'pending_balance') required double pendingBalance,
     required String currency,

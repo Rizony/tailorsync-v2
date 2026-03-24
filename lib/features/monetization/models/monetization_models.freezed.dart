@@ -21,6 +21,7 @@ Wallet _$WalletFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Wallet {
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tailor_id')
   String get tailorId => throw _privateConstructorUsedError;
   @JsonKey(name: 'available_balance')
   double get availableBalance => throw _privateConstructorUsedError;
@@ -48,7 +49,7 @@ abstract class $WalletCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String tailorId,
+      @JsonKey(name: 'tailor_id') String tailorId,
       @JsonKey(name: 'available_balance') double availableBalance,
       @JsonKey(name: 'pending_balance') double pendingBalance,
       String currency,
@@ -121,7 +122,7 @@ abstract class _$$WalletImplCopyWith<$Res> implements $WalletCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String tailorId,
+      @JsonKey(name: 'tailor_id') String tailorId,
       @JsonKey(name: 'available_balance') double availableBalance,
       @JsonKey(name: 'pending_balance') double pendingBalance,
       String currency,
@@ -188,7 +189,7 @@ class __$$WalletImplCopyWithImpl<$Res>
 class _$WalletImpl implements _Wallet {
   const _$WalletImpl(
       {required this.id,
-      required this.tailorId,
+      @JsonKey(name: 'tailor_id') required this.tailorId,
       @JsonKey(name: 'available_balance') required this.availableBalance,
       @JsonKey(name: 'pending_balance') required this.pendingBalance,
       required this.currency,
@@ -201,6 +202,7 @@ class _$WalletImpl implements _Wallet {
   @override
   final String id;
   @override
+  @JsonKey(name: 'tailor_id')
   final String tailorId;
   @override
   @JsonKey(name: 'available_balance')
@@ -266,7 +268,7 @@ class _$WalletImpl implements _Wallet {
 abstract class _Wallet implements Wallet {
   const factory _Wallet(
       {required final String id,
-      required final String tailorId,
+      @JsonKey(name: 'tailor_id') required final String tailorId,
       @JsonKey(name: 'available_balance')
       required final double availableBalance,
       @JsonKey(name: 'pending_balance') required final double pendingBalance,
@@ -280,6 +282,7 @@ abstract class _Wallet implements Wallet {
   @override
   String get id;
   @override
+  @JsonKey(name: 'tailor_id')
   String get tailorId;
   @override
   @JsonKey(name: 'available_balance')

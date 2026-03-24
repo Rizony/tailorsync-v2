@@ -8,7 +8,7 @@ part of 'monetization_models.dart';
 
 _$WalletImpl _$$WalletImplFromJson(Map<String, dynamic> json) => _$WalletImpl(
       id: json['id'] as String,
-      tailorId: json['tailorId'] as String,
+      tailorId: json['tailor_id'] as String,
       availableBalance: (json['available_balance'] as num).toDouble(),
       pendingBalance: (json['pending_balance'] as num).toDouble(),
       currency: json['currency'] as String,
@@ -19,7 +19,7 @@ _$WalletImpl _$$WalletImplFromJson(Map<String, dynamic> json) => _$WalletImpl(
 Map<String, dynamic> _$$WalletImplToJson(_$WalletImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'tailorId': instance.tailorId,
+      'tailor_id': instance.tailorId,
       'available_balance': instance.availableBalance,
       'pending_balance': instance.pendingBalance,
       'currency': instance.currency,

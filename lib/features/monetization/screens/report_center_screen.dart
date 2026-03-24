@@ -67,21 +67,68 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
                     context, 
                     filteredData, 
                     currencySymbol,
-                    walletAsync.valueOrNull,
-                    referralAsync.valueOrNull,
+                    walletAsync,
+                    referralAsync,
                     profile?.subscriptionTier ?? SubscriptionTier.freemium,
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(child: Text('Error inquiries: $err')),
+                error: (err, _) => _buildErrorView(context, 'Inquiries Error', err),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(child: Text('Error customers: $err')),
+            error: (err, _) => _buildErrorView(context, 'Customers Error', err),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error orders: $err')),
+        error: (err, _) => _buildErrorView(context, 'Orders Error', err),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(BuildContext context, String title, Object error) {
+    String message = error.toString();
+    if (message.contains('Null is not a subtype of String')) {
+      message = "Data mapping error. Please contact support.";
+    } else if (message.contains('SocketException')) {
+      message = "Connection lost. Please check your internet.";
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            ),
+            const SizedBox(height: 24),
+            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[700])),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Go Back'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[800],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -200,8 +247,8 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
     BuildContext context, 
     DashboardData data, 
     String currency,
-    Wallet? wallet,
-    ReferralStats? referral,
+    AsyncValue<Wallet?> walletAsync,
+    AsyncValue<ReferralStats?> referralAsync,
     SubscriptionTier currentTier,
   ) {
     return SingleChildScrollView(
@@ -216,13 +263,29 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
           
           _buildSectionHeader('Wallet Status'),
           const SizedBox(height: 16),
-          _buildWalletSection(context, wallet, currency),
+          walletAsync.when(
+            data: (wallet) => _buildWalletSection(context, wallet, currency),
+            loading: () => const LinearProgressIndicator(),
+            error: (err, _) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text('Wallet Sync Issue: ${err.toString().contains('Null') ? 'Mapping failed' : err}', 
+                style: const TextStyle(color: Colors.orange, fontSize: 12)),
+            ),
+          ),
           const SizedBox(height: 24),
 
           if (currentTier == SubscriptionTier.premium) ...[
             _buildSectionHeader('Partner Account'),
             const SizedBox(height: 16),
-            _buildPartnerSection(context, referral, currency),
+            referralAsync.when(
+              data: (referral) => _buildPartnerSection(context, referral, currency),
+              loading: () => const LinearProgressIndicator(),
+              error: (err, _) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text('Referral Sync Issue', 
+                  style: const TextStyle(color: Colors.orange, fontSize: 12)),
+              ),
+            ),
             const SizedBox(height: 24),
           ],
 
