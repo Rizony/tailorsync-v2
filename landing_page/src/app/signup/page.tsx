@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Mail, Lock, ArrowRight, User, Phone, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, ArrowRight, User, Phone, CheckCircle2, Ticket } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function ClientSignupPage() {
@@ -13,6 +13,7 @@ export default function ClientSignupPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<"client" | "tailor">("client");
@@ -23,7 +24,14 @@ export default function ClientSignupPage() {
       // If user is already logged in, redirect them
       if (data.session) router.replace(role === "client" ? "/client" : "/");
     });
+    
+    // Auto-fill referral code from localStorage
+    const savedCode = localStorage.getItem("needlix_referrer_id");
+    if (savedCode) {
+      setReferralCode(savedCode);
+    }
   }, [router, role]);
+
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +39,7 @@ export default function ClientSignupPage() {
     setError(null);
     setSuccess(null);
     try {
-      const referrerId = localStorage.getItem("needlix_referrer_id") || undefined;
+      const referrerId = referralCode.trim() || undefined;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -206,6 +214,20 @@ export default function ClientSignupPage() {
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] transition-all text-sm"
                   placeholder="At least 8 characters"
                   minLength={8}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase">Referral Code (Optional)</label>
+              <div className="relative">
+                <Ticket className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl border border-dashed border-[#00AEEF]/50 bg-[#00AEEF]/5 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] font-bold text-[#0076B6] uppercase tracking-widest placeholder-slate-400 transition-all text-sm"
+                  placeholder="e.g. PARTNER123"
                 />
               </div>
             </div>
