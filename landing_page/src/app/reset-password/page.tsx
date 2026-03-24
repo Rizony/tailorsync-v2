@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
     });
   }, [router]);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError("Passwords do not match");
