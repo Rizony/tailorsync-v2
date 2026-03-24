@@ -32,7 +32,7 @@ class FlutterwavePaymentWidget {
         customization: Customization(
           title: 'NEEDLIX Subscription',
           description: 'Subscribe to $planName plan - ₦$amountInNaira/month',
-          logo: 'https://needlix.com/logo.png',
+          logo: 'https://needlix.org/logo.png',
         ),
         customer: Customer(
           name: userName,

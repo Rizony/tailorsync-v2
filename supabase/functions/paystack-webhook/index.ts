@@ -81,6 +81,64 @@ serve(async (req) => {
           currency: 'NGN',
         })
 
+        // Process referral commission for this marketplace transaction (40% of the 10% platform fee)
+        // Applies to both the tailor and the customer if they have referrers, up to 5 transactions each.
+        const processMarketplaceReferral = async (userId: string | null) => {
+          if (!userId) return;
+          const { data: userData } = await supabase
+            .from('profiles')
+            .select('referrer_id')
+            .eq('id', userId)
+            .single()
+
+          if (!userData?.referrer_id) return;
+
+          // Must be a Premium Partner to earn referrals
+          const { data: referrerData } = await supabase
+            .from('profiles')
+            .select('subscription_tier')
+            .eq('id', userData.referrer_id)
+            .single()
+
+          if (referrerData?.subscription_tier !== 'premium') return;
+
+          // Check if under 5 completed transactions for this referred user
+          const { count } = await supabase
+            .from('referral_transactions')
+            .select('*', { count: 'exact', head: true })
+            .eq('referred_user_id', userId)
+            .eq('subscription_tier', 'marketplace_payment')
+
+          if (count !== null && count >= 5) return; // Limit reached
+
+          // Partner gets 40% of Needlix's fee
+          const partnerCommission = Math.round(commissionAmount * 0.40 * 100) / 100
+
+          if (partnerCommission > 0) {
+            // Increment referrer's wallet balance
+            await supabase.rpc('increment_wallet_balance', {
+              user_id: userData.referrer_id,
+              amount: partnerCommission,
+            })
+
+            // Record referral transaction (using subscription_tier as type)
+            await supabase.from('referral_transactions').insert({
+              referrer_id: userData.referrer_id,
+              referred_user_id: userId,
+              subscription_tier: 'marketplace_payment',
+              subscription_amount: amountNaira,
+              commission_rate: 0.40,
+              commission_amount: partnerCommission,
+              is_first_month: false,
+              created_at: new Date().toISOString(),
+            })
+            console.log(`Earned ${partnerCommission} NGN referral commission for marketplace pay (User: ${userId})`)
+          }
+        }
+
+        await processMarketplaceReferral(marketplaceTailorId);
+        await processMarketplaceReferral(marketplaceCustomerId);
+
         console.log(`Marketplace payment paid: request=${marketplaceRequestId} tailor=${marketplaceTailorId} amount=${amountNaira}`)
         return new Response(
           JSON.stringify({ received: true }),

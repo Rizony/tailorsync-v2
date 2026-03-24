@@ -33,12 +33,12 @@ class BillingService {
         txRef: txRef,
         amount: amountInNaira.toString(),
         // Required by Flutterwave Standard SDK
-        redirectUrl: "https://needlix.com/payment-callback",
+        redirectUrl: "https://needlix.org/payment-callback",
         paymentOptions: "card, banktransfer, ussd, account",
         customization: Customization(
           title: "NEEDLIX Subscription",
           description: "Subscribe to $planName plan",
-          logo: "https://needlix.com/logo.png", // Add your logo URL
+          logo: "https://needlix.org/logo.png", // Add your logo URL
         ),
         customer: Customer(
           name: userName,

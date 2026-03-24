@@ -703,7 +703,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                           onPressed: () {
                             final userId = Supabase.instance.client.auth.currentUser?.id;
                             if (userId != null) {
-                              final link = 'https://needlix.com/tailor/$userId';
+                              final link = 'https://needlix.org/tailor/$userId';
                               SharePlus.instance.share(ShareParams(
                                 text: 'Check out my tailoring profile on Needlix! 🧵\n$link',
                                 subject: 'My Professional Profile',
