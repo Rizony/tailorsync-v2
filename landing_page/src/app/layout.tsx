@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Needlix — Professional Tailoring & Marketplace",
     description: "The #1 platform for modern tailors. Manage your shop, track jobs, and find clients.",
-    url: "https://needlix.com",
+    url: "https://needlix.org",
     siteName: "Needlix",
     images: [
       {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Mail, Lock, ArrowRight, User, Phone } from "lucide-react";
+import { Mail, Lock, ArrowRight, User, Phone, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function ClientSignupPage() {
@@ -15,13 +15,15 @@ export default function ClientSignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<"client" | "tailor">("client");
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace("/client");
+      // If user is already logged in, redirect them
+      if (data.session) router.replace(role === "client" ? "/client" : "/");
     });
-  }, [router]);
+  }, [router, role]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,20 +31,34 @@ export default function ClientSignupPage() {
     setError(null);
     setSuccess(null);
     try {
+      const referrerId = localStorage.getItem("needlix_referrer_id") || undefined;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: fullName, whatsapp, role: "client" },
+          data: { 
+            full_name: fullName, 
+            whatsapp, 
+            role,
+            referrer_id: referrerId
+          },
         },
       });
       if (error) throw error;
 
-      // If email confirmation is enabled, session may be null.
       if (data.session) {
-        router.push("/client");
+        if (role === "client") {
+          router.push("/client");
+        } else {
+          setSuccess("Tailor account created! Please download the Needlix mobile app to set up your shop and log in.");
+        }
       } else {
-        setSuccess("Account created. Check your email to confirm, then log in.");
+        if (role === "client") {
+          setSuccess("Account created. Check your email to confirm, then log in to the Client Portal.");
+        } else {
+          setSuccess("Tailor account created! Check your email to confirm, then download the Needlix mobile app to log in and set up your shop.");
+        }
       }
     } catch (err: any) {
       setError(err?.message ?? "Signup failed");
@@ -71,21 +87,63 @@ export default function ClientSignupPage() {
 
       <main className="mx-auto max-w-xl px-6 py-14">
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
-          <h1 className="text-2xl font-extrabold text-[#0A1128]">Create client account</h1>
+          <h1 className="text-2xl font-extrabold text-[#0A1128]">
+            {role === "client" ? "Create client account" : "Join as a Tailor"}
+          </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Use this to track jobs, rate tailors, and pay securely on the website.
+            {role === "client" 
+              ? "Use this to track jobs, rate tailors, and pay securely on the website."
+              : "Register here and download the Partner app to grow your fashion business."}
           </p>
+
+          <div className="mt-6 flex bg-slate-100 p-1 rounded-2xl w-full max-w-sm mb-6">
+            <button
+              onClick={() => setRole("client")}
+              className={`flex-1 text-sm font-bold py-2 rounded-xl transition-all ${
+                role === "client"
+                  ? "bg-white text-[#0A1128] shadow-sm ring-1 ring-slate-900/5"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              I am a Client
+            </button>
+            <button
+              onClick={() => setRole("tailor")}
+              className={`flex-1 text-sm font-bold py-2 rounded-xl transition-all ${
+                role === "tailor"
+                  ? "bg-white text-[#0A1128] shadow-sm ring-1 ring-slate-900/5"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              I am a Tailor
+            </button>
+          </div>
 
           {error && (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
-          {success && (
-            <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-              {success}
+          {success ? (
+            <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-6 text-center space-y-4">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-bold text-green-800">Registration Successful!</h3>
+              <p className="text-sm text-green-700 font-medium leading-relaxed">{success}</p>
+              
+              {role === "tailor" && (
+                <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+                  <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-6" />
+                  </button>
+                  <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-6" />
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          ) : (
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
@@ -154,20 +212,23 @@ export default function ClientSignupPage() {
 
             <button
               disabled={loading}
-              className="group w-full py-3.5 rounded-2xl bg-[#0076B6] hover:bg-[#00AEEF] text-white font-bold shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              className="group w-full py-3.5 mt-6 rounded-2xl bg-[#0076B6] hover:bg-[#00AEEF] text-white font-bold shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               <span>{loading ? "Creating..." : "Create account"}</span>
               {!loading && <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />}
             </button>
           </form>
+          )}
 
-          <div className="mt-6 text-sm text-slate-600">
-            Already have an account?{" "}
-            <Link href="/login" className="font-bold text-[#0076B6] hover:text-[#00AEEF]">
-              Sign in
-            </Link>
-            .
-          </div>
+          {!success && (
+            <div className="mt-6 text-sm text-slate-600">
+              Already have an account?{" "}
+              <Link href="/login" className="font-bold text-[#0076B6] hover:text-[#00AEEF]">
+                Sign in
+              </Link>
+              .
+            </div>
+          )}
         </div>
       </main>
     </div>
