@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { supabase, supabaseUrl } from "@/lib/supabase";
+import { supabase, supabaseUrl, supabaseAnonKey } from "@/lib/supabase";
 import { signOut } from "@/lib/auth";
 import { ArrowRight, CreditCard, LogOut, RefreshCw, Scissors, Star, CheckCircle2 } from "lucide-react";
 
@@ -253,6 +253,7 @@ export default function ClientDashboardPage() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
+          apikey: supabaseAnonKey,
         },
         body: JSON.stringify({
           email: session.user.email,

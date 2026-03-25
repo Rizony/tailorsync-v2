@@ -160,7 +160,7 @@ class _RequestCard extends ConsumerWidget {
                             style: TextStyle(
                               color: isPaid ? Colors.white : Colors.grey.shade700,
                               fontSize: 9,
-                              fontWeight: FontWeight.black,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
@@ -546,6 +546,16 @@ class _RequestCard extends ConsumerWidget {
 
   Future<void> _updateStatus(BuildContext context, WidgetRef ref, String status, {double? forceAmount}) async {
     if (status == 'accepted') {
+      // Prevent duplicate orders
+      if (request.orderId != null && request.orderId!.isNotEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('An order has already been created for this request.')),
+          );
+        }
+        return;
+      }
+
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
