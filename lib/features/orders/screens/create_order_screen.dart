@@ -266,6 +266,11 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       
       if (result.isLeft()) throw result.getLeft().toNullable()!;
       
+      // Invalidate list providers to refresh the UI
+      ref.invalidate(allOrdersProvider);
+      ref.invalidate(recentOrdersProvider);
+      ref.invalidate(ordersByStatusesProvider);
+      
       // 4. Schedule Notification (if it's an order)
       if (!isQuote && _dueDate != null) {
         try {

@@ -50,7 +50,7 @@ class OrderCustomerCard extends StatelessWidget {
               onPressed: () => launchUrl(Uri.parse('tel:${customer.phoneNumber}')),
             ),
             IconButton(
-              icon: const Icon(Icons.message, color: const Color(0xFF25D366)),
+              icon: const Icon(Icons.message, color: Color(0xFF25D366)),
               onPressed: () {
                 String phone = PhoneFormatter.formatForExternalApi(customer.phoneNumber!);
                 final message = Uri.encodeComponent("Hello ${customer.fullName.split(' ').first}, your order for '${order.title}' from ${profile?.shopName ?? 'Tailor Shop'} is ready!");

@@ -38,12 +38,21 @@ interface MarketplaceRating {
   review?: string | null;
 }
 
-function statusBadge(status: RequestStatus) {
+function statusBadge(status: RequestStatus, paymentStatus?: string | null, quoteStatus?: string | null) {
   const s = (status || "pending").toLowerCase();
-  if (s === "accepted") return "bg-blue-50 text-blue-700 border-blue-200";
-  if (s === "rejected") return "bg-red-50 text-red-700 border-red-200";
+  const p = (paymentStatus || "unpaid").toLowerCase();
+  const q = (quoteStatus || "pending").toLowerCase();
+
   if (s === "completed") return "bg-green-50 text-green-700 border-green-200";
-  return "bg-amber-50 text-amber-700 border-amber-200";
+  if (s === "rejected") return "bg-red-50 text-red-700 border-red-200";
+  
+  if (p === "paid") return "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm";
+  if (q === "accepted") return "bg-indigo-50 text-indigo-700 border-indigo-200";
+  if (q === "countered") return "bg-amber-50 text-amber-700 border-amber-200";
+  
+  if (s === "accepted") return "bg-blue-50 text-blue-700 border-blue-200"; // Tailor accepted but not paid yet
+  
+  return "bg-slate-50 text-slate-600 border-slate-200";
 }
 
 function OrderTrackingTimeline({ status }: { status: string }) {
@@ -475,8 +484,10 @@ export default function ClientDashboardPage() {
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-bold ${statusBadge(r.status)}`}>
-                        {r.status?.toUpperCase() ?? "PENDING"}
+                      <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-bold ${statusBadge(r.status, r.payment_status, r.quote_status)}`}>
+                        {r.payment_status?.toLowerCase() === 'paid' ? 'PAID & PROCESSING' : 
+                         r.quote_status?.toLowerCase() === 'accepted' ? 'QUOTE ACCEPTED' :
+                         r.status?.toUpperCase() ?? "PENDING"}
                       </span>
                       <span className="text-xs text-slate-400 font-bold">
                         {new Date(r.created_at).toLocaleString()}
@@ -588,15 +599,34 @@ export default function ClientDashboardPage() {
                   </div>
                 </div>
 
-                {/* If the order is created and linked, show the live tracking timeline */}
-                {r.order_id && !r.orders && (
-                  <div className="mt-8 pt-6 border-t border-slate-100">
-                    <div className="flex items-center gap-3 text-[#0076B6] bg-[#0076B6]/5 px-4 py-3 rounded-2xl border border-[#0076B6]/10">
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      <p className="text-sm font-bold">Tailor is setting up your live tracking. Check back in a moment.</p>
+                {/* Dynamic Next Step Indicator */}
+                <div className="mt-8 pt-6 border-t border-slate-100">
+                  <h4 className="text-xs font-extrabold text-[#0076B6] uppercase tracking-wider mb-3">Next Step</h4>
+                  {!r.quote_amount && r.status !== 'rejected' && (
+                    <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                      <p className="text-sm text-slate-600 font-bold">Tailor is reviewing your request and will send a quote soon.</p>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {r.quote_amount && r.quote_status !== 'accepted' && r.payment_status !== 'paid' && (
+                    <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 p-4 rounded-2xl">
+                      <div className="h-2 w-2 rounded-full bg-amber-500" />
+                      <p className="text-sm text-amber-800 font-bold">Review the quote below. You can Accept, Negotiate, or Decline.</p>
+                    </div>
+                  )}
+                  {r.quote_status === 'accepted' && r.payment_status !== 'paid' && (
+                    <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
+                      <div className="h-2 w-2 rounded-full bg-indigo-500 animate-ping" />
+                      <p className="text-sm text-indigo-800 font-bold">Quote accepted! Please complete payment to start the work.</p>
+                    </div>
+                  )}
+                  {r.payment_status === 'paid' && !r.orders && (
+                    <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+                      <RefreshCw className="h-4 w-4 animate-spin text-emerald-600" />
+                      <p className="text-sm text-emerald-800 font-bold">Payment verified! Tailor is setting up your live tracking.</p>
+                    </div>
+                  )}
+                </div>
                 {r.orders?.status && (
                   <OrderTrackingTimeline status={r.orders.status} />
                 )}

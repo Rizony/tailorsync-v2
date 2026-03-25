@@ -114,7 +114,13 @@ class OrderController extends _$OrderController {
       final result = await ref.read(orderRepositoryProvider).deleteOrder(id);
       return result.fold(
         (failure) => throw failure,
-        (_) => null,
+        (_) {
+          // Invalidate list providers to refresh the UI
+          ref.invalidate(allOrdersProvider);
+          ref.invalidate(recentOrdersProvider);
+          ref.invalidate(ordersByStatusesProvider);
+          return null;
+        },
       );
     });
   }

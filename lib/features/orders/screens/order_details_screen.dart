@@ -6,21 +6,19 @@ import 'package:needlix/features/customers/repositories/customer_repository.dart
 
 
 import 'package:needlix/features/customers/models/customer.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'package:needlix/features/orders/controllers/order_controller.dart';
 import 'package:needlix/features/orders/screens/create_order_screen.dart';
 import 'package:needlix/features/invoicing/screens/invoice_preview_screen.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/core/utils/currency_formatter.dart';
-import 'package:needlix/core/utils/phone_formatter.dart';
+
 import 'package:needlix/features/orders/widgets/order_customer_card.dart';
 import 'package:needlix/features/orders/widgets/order_payment_history.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
-import 'package:needlix/core/notifications/whatsapp_service.dart';
-import 'package:needlix/features/community/repositories/community_repository.dart';
-import 'package:needlix/features/community/models/community_post.dart';
+
 
 class OrderDetailsScreen extends ConsumerStatefulWidget {
   final OrderModel order;
@@ -212,9 +210,11 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
     );
 
     if (confirm == true && mounted) {
-      ref.read(orderControllerProvider(_order.id).notifier).deleteOrder(_order.id);
-      Navigator.pop(context); // Go back to orders list
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order deleted')));
+      await ref.read(orderControllerProvider(_order.id).notifier).deleteOrder(_order.id);
+      if (mounted) {
+        Navigator.pop(context); // Go back to orders list
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order deleted')));
+      }
     }
   }
 

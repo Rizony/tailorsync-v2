@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/theme/app_colors.dart';
-import 'package:needlix/core/auth/providers/profile_provider.dart';
+
 
 class KycVerificationScreen extends StatefulWidget {
   const KycVerificationScreen({super.key});

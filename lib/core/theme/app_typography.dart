@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+
 
 class AppTypography {
   static const String fontFamily = 'Inter'; // Assuming Inter, update if google_fonts specifies another

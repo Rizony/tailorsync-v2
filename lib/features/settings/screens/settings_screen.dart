@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/settings/screens/shop_settings_screen.dart';
-import 'package:needlix/core/theme/app_theme.dart';
+
 import 'package:needlix/core/theme/theme_provider.dart';
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/core/auth/auth_provider.dart';

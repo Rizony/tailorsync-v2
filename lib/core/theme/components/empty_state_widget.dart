@@ -10,13 +10,13 @@ class EmptyStateWidget extends StatelessWidget {
   final bool compact;
 
   const EmptyStateWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
     this.actionButton,
     this.compact = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class EmptyStateWidget extends StatelessWidget {
                     ? null
                     : [
                         BoxShadow(
-                          color: AppColors.primaryLight.withOpacity(0.1),
+                          color: AppColors.primaryLight.withValues(alpha: 0.1),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),

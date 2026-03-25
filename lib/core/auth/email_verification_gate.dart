@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
-import 'package:needlix/core/theme/app_theme.dart';
+
 
 class EmailVerificationGate extends StatefulWidget {
   final Widget child;
@@ -187,7 +187,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
                   },
                   child: const Text(
                     'Incorrect Email? Update it here.',
-                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
                   ),
                 ),
               ] else ...[

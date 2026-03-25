@@ -112,7 +112,7 @@ class _RequestCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                _StatusBadge(status: request.status),
+                _StatusBadge(status: request.status, paymentStatus: request.paymentStatus, quoteStatus: request.quoteStatus),
               ],
             ),
             const SizedBox(height: 4.0),
@@ -120,35 +120,75 @@ class _RequestCard extends ConsumerWidget {
               DateFormat('MMM dd, yyyy • hh:mm a').format(request.createdAt),
               style: theme.textTheme.bodySmall,
             ),
+            
+            // --- Quote & Payment Status Row ---
             if (hasQuote) ...[
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Icon(Icons.price_change_outlined, size: 16, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Quote: ₦${request.quoteAmount?.toStringAsFixed(0)} • ${isPaid ? "PAID" : "UNPAID"} • ${quoteStatus.toUpperCase()}',
-                      style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            if (request.quoteMessage != null && request.quoteMessage!.trim().isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12.0),
               Container(
-                width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: isPaid ? Colors.green.withValues(alpha: 0.05) : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: isPaid ? Colors.green.withValues(alpha: 0.2) : theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  ),
                 ),
-                child: Text(
-                  'Tailor note: ${request.quoteMessage}',
-                  style: theme.textTheme.bodySmall,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          isPaid ? Icons.check_circle : Icons.payments_outlined, 
+                          size: 16, 
+                          color: isPaid ? Colors.green : theme.colorScheme.primary
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Quote: ₦${request.quoteAmount?.toStringAsFixed(0)}',
+                            style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isPaid ? Colors.green : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isPaid ? 'PAID' : 'UNPAID',
+                            style: TextStyle(
+                              color: isPaid ? Colors.white : Colors.grey.shade700,
+                              fontSize: 9,
+                              fontWeight: FontWeight.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Text(
+                          'Client Status: ${quoteStatus.toUpperCase()}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: quoteStatus == 'accepted' ? Colors.green : Colors.blueGrey.shade600,
+                            fontWeight: quoteStatus == 'accepted' ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ],
+
+            if (request.quoteMessage != null && request.quoteMessage!.trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Your note: ${request.quoteMessage}',
+                style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
               ),
             ],
             if (hasCounter) ...[
@@ -364,6 +404,20 @@ class _RequestCard extends ConsumerWidget {
                     label: const Text('Client Accepted Quote - Convert to Order', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 )
+              else if (isPaid)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _updateStatus(context, ref, 'accepted'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    icon: const Icon(Icons.play_circle_outline),
+                    label: const Text('Client PAID - Start Order Now', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                )
               else
                 Row(
                   children: [
@@ -380,18 +434,42 @@ class _RequestCard extends ConsumerWidget {
                     const SizedBox(width: 12.0),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () => _updateStatus(context, ref, 'accepted'),
+                        onPressed: () {
+                          if (!hasQuote) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please send a quote first so the client can pay.')),
+                            );
+                            _showQuoteDialog(context, ref);
+                            return;
+                          }
+                          _updateStatus(context, ref, 'accepted');
+                        },
                         child: const Text('Accept Request'),
                       ),
                     ),
                   ],
                 ),
             ],
-            if (!isPending && !isAccepted && hasQuote && !isPaid) ...[
+            if (!isPending && !isAccepted && hasQuote && !isPaid && quoteStatus != 'accepted') ...[
               const SizedBox(height: 12),
-              Text(
-                'Waiting for client payment on website.',
-                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, size: 14, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Waiting for client to accept quote or pay on website.',
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.blue.shade900, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ],
@@ -629,24 +707,40 @@ class _RequestCard extends ConsumerWidget {
 
 class _StatusBadge extends StatelessWidget {
   final String status;
+  final String paymentStatus;
+  final String quoteStatus;
 
-  const _StatusBadge({required this.status});
+  const _StatusBadge({
+    required this.status,
+    required this.paymentStatus,
+    required this.quoteStatus,
+  });
 
   @override
   Widget build(BuildContext context) {
     Color color;
-    switch (status) {
-      case 'accepted':
-        color = Colors.green;
-        break;
-      case 'rejected':
-        color = Colors.red;
-        break;
-      case 'completed':
-        color = Colors.blue;
-        break;
-      default:
-        color = Colors.orange;
+    String label = status.toUpperCase();
+
+    if (paymentStatus == 'paid') {
+      color = Colors.green;
+      label = 'PAID & ACCEPTED';
+    } else if (quoteStatus == 'accepted') {
+      color = Colors.blue;
+      label = 'QUOTE ACCEPTED';
+    } else {
+      switch (status) {
+        case 'accepted':
+          color = Colors.green;
+          break;
+        case 'rejected':
+          color = Colors.red;
+          break;
+        case 'completed':
+          color = Colors.blue;
+          break;
+        default:
+          color = Colors.orange;
+      }
     }
 
     return Container(
@@ -657,7 +751,7 @@ class _StatusBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
-        status.toUpperCase(),
+        label,
         style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );

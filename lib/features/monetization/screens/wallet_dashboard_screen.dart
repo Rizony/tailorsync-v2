@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:needlix/core/theme/app_theme.dart';
+
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/features/monetization/providers/wallet_provider.dart';
 import 'package:needlix/features/referrals/screens/withdrawal_screen.dart';
 import 'package:needlix/core/widgets/premium_empty_state.dart';
-import '../providers/wallet_provider.dart';
+
 
 class WalletDashboardScreen extends ConsumerWidget {
   const WalletDashboardScreen({super.key});
