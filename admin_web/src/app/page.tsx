@@ -4,6 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Lock, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardBody } from '@/components/ui/Card';
+import { ErrorAlert } from '@/components/ui/ErrorAlert';
+import { typography } from '@/theme/typography';
+import { cn } from '@/lib/utils';
+import { colors } from '@/theme/colors';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -39,74 +46,73 @@ export default function LoginPage() {
 
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to login');
+      setError(err.message || 'We could not sign you in with those details. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border border-gray-100">
+    <div className={cn("min-h-screen flex text-center flex-col justify-center py-12 px-4 sm:px-6 lg:px-8", colors.background.DEFAULT)}>
+      {/* Subtle background gradient to make it feel premium */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-blue-50 opacity-70 border-0 -z-10" />
+
+      <div className="max-w-md w-full mx-auto space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className={cn(typography.h2, "text-gray-900 mt-6")}>
             NEEDLIX Admin
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className={cn("mt-2", typography.body, colors.text.secondary)}>
             Sign in to manage the platform
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-md text-sm border border-red-200">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email Address</label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+
+        <Card className="shadow-xl shadow-blue-900/5 ring-1 ring-gray-900/5 text-left border-gray-100/60">
+          <CardBody>
+            <form className="space-y-6" onSubmit={handleLogin}>
+              {error && (
+                <ErrorAlert 
+                  title="Sign In Failed" 
+                  message={error} 
+                />
+              )}
+              
+              <div className="space-y-4">
+                <Input
+                  label="Email Address"
                   type="email"
                   required
                   value={email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 border px-3"
                   placeholder="admin@needlix.com"
+                  icon={<Mail className="h-5 w-5" />}
+                  disabled={loading}
                 />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+
+                <Input
+                  label="Password"
                   type="password"
                   required
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 border px-3"
                   placeholder="••••••••"
+                  icon={<Lock className="h-5 w-5" />}
+                  disabled={loading}
                 />
               </div>
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </div>
-        </form>
+              <Button
+                type="submit"
+                fullWidth
+                size="lg"
+                isLoading={loading}
+                className="mt-6"
+              >
+                Sign In
+              </Button>
+            </form>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

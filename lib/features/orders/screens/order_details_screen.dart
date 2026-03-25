@@ -12,6 +12,10 @@ import 'package:needlix/features/orders/screens/create_order_screen.dart';
 import 'package:needlix/features/invoicing/screens/invoice_preview_screen.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/utils/currency_formatter.dart';
+import 'package:needlix/core/utils/phone_formatter.dart';
+import 'package:needlix/features/orders/widgets/order_customer_card.dart';
+import 'package:needlix/features/orders/widgets/order_payment_history.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import 'package:needlix/core/notifications/whatsapp_service.dart';
@@ -93,36 +97,16 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
               ],
             ));
 
-    if (wantToNotify != null && _customer?.phoneNumber != null) {
-      final phoneNumber = _customer!.phoneNumber!;
-      final customerName = _customer!.fullName;
-      final orderTitle = _order.title;
-      final profile = ref.read(profileNotifierProvider).valueOrNull;
-
-      if (wantToNotify == 'whatsapp') {
-        await WhatsAppService.sendStatusUpdate(
-          phoneNumber: phoneNumber,
-          customerName: customerName,
-          orderTitle: orderTitle,
-          status: status,
-          shopName: profile?.shopName,
-          balanceDue: _order.balanceDue.toStringAsFixed(2),
-          currency: profile?.currencySymbol,
-          dueDate: _order.dueDate,
-        );
-      } else if (wantToNotify == 'sms') {
-        await WhatsAppService.sendSMSUpdate(
-          phoneNumber: phoneNumber,
-          customerName: customerName,
-          orderTitle: orderTitle,
-          status: status,
-          shopName: profile?.shopName,
-          balanceDue: _order.balanceDue.toStringAsFixed(2),
-          currency: profile?.currencySymbol,
-          dueDate: _order.dueDate,
+      if (wantToNotify == 'whatsapp' || wantToNotify == 'sms') {
+        final phoneNumber = _customer!.phoneNumber!;
+        final customerName = _customer!.fullName;
+        
+        await ref.read(orderControllerProvider(_order.id).notifier).sendStatusUpdate(
+          phoneNumber,
+          customerName,
+          wantToNotify!,
         );
       }
-    }
   }
 
   Future<double?> _showDepositDialog() async {
@@ -139,7 +123,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(prefixText: '${ref.read(profileNotifierProvider).valueOrNull?.currencySymbol ?? '₦'} '),
+              decoration: InputDecoration(prefixText: '${CurrencyFormatter.getSymbol(ref.read(profileNotifierProvider).valueOrNull?.currencySymbol)} '),
               autofocus: true,
             ),
           ],
@@ -160,7 +144,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
   Future<void> _showRecordPaymentDialog() async {
     final amountController = TextEditingController();
     final noteController = TextEditingController();
-    final symbol = ref.read(profileNotifierProvider).valueOrNull?.currencySymbol ?? '₦';
+    final symbol = CurrencyFormatter.getSymbol(ref.read(profileNotifierProvider).valueOrNull?.currencySymbol);
 
     return showDialog(
       context: context,
@@ -210,7 +194,29 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
     );
   }
 
+  Future<void> _confirmDelete() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Order?'),
+        content: const Text('This will permanently delete this order and its payment history.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
 
+    if (confirm == true && mounted) {
+      ref.read(orderControllerProvider(_order.id).notifier).deleteOrder(_order.id);
+      Navigator.pop(context); // Go back to orders list
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order deleted')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -294,6 +300,25 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
               tooltip: 'Share to Showroom',
               onPressed: () => _shareToShowroom(),
             ),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'delete') {
+                _confirmDelete();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Text('Delete Order', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -307,7 +332,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
               children: [
                 _buildStatusSelector(),
                 Text(
-                  '${profile?.currencySymbol ?? '₦'}${_order.price}',
+                  CurrencyFormatter.format(_order.price, customSymbol: profile?.currencySymbol),
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                 ),
               ],
@@ -324,7 +349,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('${item.quantity}x ${item.name}', style: const TextStyle(fontSize: 16)),
-                      Text('${profile?.currencySymbol ?? '₦'}${(item.price * item.quantity).toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(CurrencyFormatter.format(item.price * item.quantity, customSymbol: profile?.currencySymbol), style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )),
@@ -334,50 +359,10 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             
             // --- Customer Info with Actions ---
             if (_customer != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      child: Text(_customer!.fullName.isNotEmpty ? _customer!.fullName[0].toUpperCase() : '?'),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_customer!.fullName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(_customer!.phoneNumber ?? 'No Phone', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                        ],
-                      ),
-                    ),
-                    if (_customer!.phoneNumber != null) ...[
-                      IconButton(
-                        icon: const Icon(Icons.call, color: Colors.green),
-                        onPressed: () => launchUrl(Uri.parse('tel:${_customer!.phoneNumber}')),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.message, color: Color(0xFF25D366)),
-                        onPressed: () {
-                          // Very basic formatting for Nigeria (default) - real app should use a formatter
-                          String phone = _customer!.phoneNumber!.replaceAll(RegExp(r'\D'), '');
-                          if (phone.startsWith('0')) phone = '234${phone.substring(1)}';
-                          
-                          final message = Uri.encodeComponent("Hello ${_customer!.fullName.split(' ').first}, your order for '${_order.title}' from MyTailorShop is ready!");
-                          launchUrl(Uri.parse('https://wa.me/$phone?text=$message'), mode: LaunchMode.externalApplication);
-                        },
-                      ),
-                    ]
-                  ],
-                ),
+              OrderCustomerCard(
+                customer: _customer!,
+                order: _order,
+                profile: profile,
               ),
 
             // Due Date
@@ -389,7 +374,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                   child: _buildDetailRow(
                     Icons.account_balance_wallet, 
                     'Balance Due', 
-                    '${profile?.currencySymbol ?? '₦'}${_order.balanceDue.toStringAsFixed(2)}',
+                    CurrencyFormatter.format(_order.balanceDue, customSymbol: profile?.currencySymbol),
                     color: _order.balanceDue > 0 ? Colors.red : Colors.green,
                   ),
                 ),
@@ -411,26 +396,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             const SizedBox(height: 24),
 
             // Payment History
-            if (_order.payments.isNotEmpty) ...[
-              const Text('Payment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: _order.payments.reversed.map((p) => ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                    title: Text('${profile?.currencySymbol ?? '₦'}${p.amount.toStringAsFixed(2)}'),
-                    subtitle: Text(p.note ?? 'Payment recorded'),
-                    trailing: Text(DateFormat.MMMd().format(p.date), style: const TextStyle(fontSize: 11)),
-                  )).toList(),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+            OrderPaymentHistory(order: _order, profile: profile),
 
             // Images
             if (_order.images.isNotEmpty) ...[
@@ -652,39 +618,9 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      final profile = ref.read(profileNotifierProvider).valueOrNull;
-      if (profile == null) return;
-
-      final post = CommunityPost(
-        id: '', // Handled by repository
-        userId: profile.id,
-        postType: 'showroom',
-        title: 'Showcase: ${_order.title}',
-        content: 'Check out my latest completed work! 🧵✨\n\n'
-                '${_order.notes ?? "Just finished this beautiful piece."}',
-        imageUrls: _order.images,
-        createdAt: DateTime.now(),
-      );
-
       try {
-        await ref.read(communityRepositoryProvider).createPost(post);
+        await ref.read(orderControllerProvider(_order.id).notifier).shareToShowroom();
         
-        // Also add to user's portfolio if not already there
-        if (_order.images.isNotEmpty) {
-          final newPortfolio = List<String>.from(profile.portfolioUrls);
-          bool modified = false;
-          for (final img in _order.images) {
-            if (!newPortfolio.contains(img)) {
-              newPortfolio.add(img);
-              modified = true;
-            }
-          }
-          if (modified) {
-            await ref.read(profileNotifierProvider.notifier).updateProfile(
-              profile.copyWith(portfolioUrls: newPortfolio)
-            );
-          }
-        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Posted to Showroom successfully!')),

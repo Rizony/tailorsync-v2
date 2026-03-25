@@ -7,6 +7,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { signOut } from "@/lib/auth";
+import { colors } from "@/theme/colors";
+import { typography } from "@/theme/typography";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,9 +22,9 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-[#00AEEF] selection:text-white">
+    <div className={cn("min-h-screen font-sans selection:text-white selection:bg-[#00AEEF]", colors.background.DEFAULT, colors.text.primary)}>
       {/* Navigation */}
-      <nav className="fixed left-0 right-0 top-0 z-50 glass-panel border-b border-white/20">
+      <nav className={cn("fixed left-0 right-0 top-0 z-50 border-b", colors.gradients.glass, colors.border.glass)}>
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <Image
@@ -28,56 +32,41 @@ export default function LandingPage() {
               alt="Needlix Logo"
               width={220}
               height={66}
-              className="needlix-logo h-10 sm:h-12 md:h-14 w-auto object-contain"
+              className="h-10 sm:h-12 w-auto object-contain"
               priority
             />
           </Link>
           <div className="flex items-center gap-3 sm:gap-6">
-            <Link href="#features" className="hidden text-sm font-semibold text-slate-600 transition-colors hover:text-[#0076B6] sm:block">
+            <Link href="#features" className={cn("hidden lg:block", typography.label, colors.text.secondary, colors.primary.hover, "transition-colors")}>
               Features
             </Link>
-            <Link href="#community" className="hidden text-sm font-semibold text-slate-600 transition-colors hover:text-[#0076B6] sm:block">
+            <Link href="#community" className={cn("hidden lg:block", typography.label, colors.text.secondary, colors.primary.hover, "transition-colors")}>
               Community
             </Link>
-            <Link href="/marketplace" className="hidden text-sm font-semibold text-[#0076B6] transition-colors hover:text-[#00AEEF] sm:flex items-center gap-1.5">
+            <Link href="/marketplace" className={cn("hidden sm:flex items-center gap-1.5 font-bold transition-colors", colors.primary.DEFAULT, colors.primary.hover)}>
               <Search className="h-4 w-4" />
               Find a Tailor
             </Link>
             {isLoggedIn ? (
               <>
-                <Link
-                  href="/client"
-                  className="inline-flex items-center justify-center rounded-full border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
-                >
+                <Link href="/client" className={cn("inline-flex items-center justify-center rounded-full border px-5 py-2 text-sm font-bold transition-colors", colors.primary.bgLight, colors.primary.borderLight, colors.primary.DEFAULT, "hover:bg-[#00AEEF]/20")}>
                   My Dashboard
                 </Link>
-                <button
-                  onClick={() => signOut()}
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
-                >
+                <button onClick={() => signOut()} className={cn("inline-flex items-center justify-center rounded-full border px-5 py-2 text-sm font-bold transition-all", colors.background.paper, colors.border.DEFAULT, colors.text.secondary, "hover:bg-slate-50")}>
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50"
-                >
+                <Link href="/login" className={cn("inline-flex items-center justify-center rounded-full border px-5 py-2 text-sm font-bold transition-all", colors.background.paper, colors.border.DEFAULT, colors.text.secondary, "hover:bg-slate-50")}>
                   Client Login
                 </Link>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center rounded-full bg-[#0A1128] px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
-                >
+                <Link href="/signup" className={cn("inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-bold transition-colors", colors.secondary.bg, colors.secondary.hover, colors.text.inverse)}>
                   Sign up
                 </Link>
               </>
             )}
-            <a
-              href="#download"
-              className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[#0076B6] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#00AEEF] hover:shadow-lg hover:shadow-[#00AEEF]/30 focus:outline-none focus:ring-2 focus:ring-[#00AEEF] focus:ring-offset-2"
-            >
+            <a href="#download" className={cn("group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full shadow-md transition-all px-6 py-2.5 text-sm font-bold", colors.primary.bg, colors.text.inverse, colors.primary.bgHover, colors.primary.ring)}>
               <span>Get the App</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
@@ -94,70 +83,50 @@ export default function LandingPage() {
 
           <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
             <div className="grid gap-16 lg:grid-cols-2 lg:gap-8 items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="max-w-2xl"
-              >
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-4 py-1.5 mb-8">
-                  <span className="flex h-2 w-2 rounded-full bg-[#00AEEF] animate-pulse" />
-                  <span className="text-sm font-semibold text-[#0076B6]">The Ultimate Tool for Tailors</span>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
+                <div className={cn("inline-flex items-center gap-2 rounded-full border px-4 py-1.5 mb-8", colors.primary.bgLight, colors.primary.borderLight)}>
+                  <span className={cn("flex h-2 w-2 rounded-full animate-pulse", colors.primary.bg)} />
+                  <span className={cn("text-sm font-semibold", colors.primary.DEFAULT)}>The Ultimate Tool for Tailors</span>
                 </div>
 
-                <h1 className="text-5xl font-extrabold tracking-tight text-[#0A1128] sm:text-7xl lg:text-7xl mb-8 leading-[1.1]">
+                <h1 className={cn("text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-7xl mb-8 leading-[1.1]", colors.secondary.DEFAULT)}>
                   Connect &amp; <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0076B6] to-[#00AEEF]">Create.</span>
+                  <span className={cn("text-transparent bg-clip-text", colors.gradients.primary)}>Create.</span>
                 </h1>
 
-                <p className="text-lg leading-8 text-slate-600 mb-10 max-w-lg">
+                <p className={cn("text-lg leading-8 mb-10 max-w-lg", colors.text.secondary)}>
                   Elevate your fashion business with Needlix. Track orders, manage customer measurements, send PDF invoices, and join an exclusive tailor community—all from your smartphone.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <a
-                    href="#download"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0076B6] px-8 py-4 text-lg font-bold text-white shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:bg-[#00AEEF] hover:shadow-2xl hover:shadow-[#00AEEF]/40"
-                  >
+                  <a href="#download" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-lg font-bold shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:shadow-2xl", colors.primary.bg, colors.text.inverse, colors.primary.bgHover)}>
                     Download Now Free
                   </a>
-                  <Link
-                    href="/marketplace"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-lg font-bold text-slate-900 border border-slate-200 shadow-sm transition-all hover:bg-slate-50 hover:border-[#0076B6] hover:text-[#0076B6]"
-                  >
-                    <Search className="h-5 w-5 text-[#00AEEF]" />
+                  <Link href="/marketplace" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl border px-8 py-4 text-lg font-bold shadow-sm transition-all", colors.background.paper, colors.border.DEFAULT, colors.text.primary, "hover:bg-slate-50", colors.primary.hover)}>
+                    <Search className={cn("h-5 w-5", colors.primary.DEFAULT)} />
                     Find a Tailor
                   </Link>
                 </div>
 
-                {/* Client Portal CTA (make it obvious) */}
-                <div className="mt-6 rounded-3xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
+                {/* Client Portal CTA */}
+                <div className={cn("mt-6 rounded-3xl border p-5 shadow-sm", colors.gradients.glass, colors.border.DEFAULT)}>
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-[#00AEEF]/10 flex items-center justify-center flex-shrink-0">
-                      <ShieldCheck className="h-5 w-5 text-[#0076B6]" />
+                    <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center flex-shrink-0", colors.primary.bgLight)}>
+                      <ShieldCheck className={cn("h-5 w-5", colors.primary.DEFAULT)} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-extrabold text-[#0A1128]">Client Portal (Web)</p>
-                      <p className="text-sm text-slate-600 mt-1">
+                      <p className={cn("text-sm font-extrabold", colors.secondary.DEFAULT)}>Client Portal (Web)</p>
+                      <p className={cn("text-sm mt-1", colors.text.secondary)}>
                         Sign up to track orders, pay securely, and review your tailor — right from your browser.
                       </p>
                       <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                        <Link
-                          href="/signup"
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0A1128] px-6 py-3 text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
-                        >
+                        <Link href="/signup" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-colors", colors.secondary.bg, colors.text.inverse, "hover:bg-[#0076B6]")}>
                           Create Client Account <ArrowRight className="h-4 w-4" />
                         </Link>
-                        <Link
-                          href="/login"
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                        >
+                        <Link href="/login" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl border px-6 py-3 text-sm font-bold transition-colors", colors.background.paper, colors.border.DEFAULT, colors.text.primary, "hover:bg-slate-50")}>
                           Login <ChevronRight className="h-4 w-4" />
                         </Link>
-                        <Link
-                          href="/client"
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#00AEEF]/30 bg-[#00AEEF]/10 px-6 py-3 text-sm font-bold text-[#0076B6] hover:bg-[#00AEEF]/15"
-                        >
+                        <Link href="/client" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl border px-6 py-3 text-sm font-bold transition-colors", colors.primary.bgLight, colors.primary.borderLight, colors.primary.DEFAULT, "hover:bg-[#00AEEF]/15")}>
                           Track your job <ChevronRight className="h-4 w-4" />
                         </Link>
                       </div>
@@ -165,24 +134,18 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="mt-12 flex items-center gap-4 text-sm text-slate-500 font-medium">
+                <div className={cn("mt-12 flex items-center gap-4 text-sm font-medium", colors.text.muted)}>
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map((i) => (
                       <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-200" />
                     ))}
                   </div>
-                  <p>Trusted by <span className="text-[#0A1128] font-bold">1,000+</span> tailors in Africa.</p>
+                  <p>Trusted by <span className={cn("font-bold", colors.secondary.DEFAULT)}>1,000+</span> tailors in Africa.</p>
                 </div>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative mx-auto w-full max-w-lg lg:max-w-none"
-              >
-                {/* Decorative Elements around "Phone" */}
-                <div className="hidden sm:block absolute -left-12 top-20 z-20 animate-float-delayed glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative mx-auto w-full max-w-lg lg:max-w-none">
+                <div className="block absolute -left-12 top-20 z-20 animate-float-delayed glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -194,10 +157,10 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="hidden sm:block absolute -right-8 bottom-32 z-20 animate-float glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
+                <div className="block absolute -right-8 bottom-32 z-20 animate-float glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-[#00AEEF]/10 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-[#00AEEF]" />
+                    <div className={cn("h-10 w-10 rounded-full flex items-center justify-center", colors.primary.bgLight)}>
+                      <Users className={cn("h-5 w-5", colors.primary.DEFAULT)} />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900">New Referral</p>
@@ -206,12 +169,10 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Abstract Phone Mockup */}
-                <div className="relative aspect-[1/2] w-full max-w-[320px] mx-auto rounded-[3rem] bg-[#0A1128] p-3 shadow-2xl ring-1 ring-slate-900/10">
+                <div className={cn("relative aspect-[1/2] w-full max-w-[320px] mx-auto rounded-[3rem] p-3 shadow-2xl ring-1 ring-slate-900/10", colors.secondary.bg)}>
                   <div className="absolute top-4 left-1/2 h-6 w-32 -translate-x-1/2 rounded-full bg-black z-20" />
                   <div className="h-full w-full overflow-hidden rounded-[2.5rem] bg-slate-50 relative">
-                    {/* App Mockup UI */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#0076B6] to-[#00AEEF]">
+                    <div className={cn("absolute inset-0", colors.gradients.primary)}>
                       <div className="p-6 pt-16 text-white pb-32">
                         <h3 className="text-2xl font-bold mb-1">Hi, Designer!</h3>
                         <p className="text-cyan-100/80 mb-6 text-sm">Here&apos;s your shop overview</p>
@@ -247,25 +208,19 @@ export default function LandingPage() {
         </section>
 
         {/* Marketplace Section */}
-        <section id="marketplace" className="relative overflow-hidden py-24 sm:py-32 bg-gradient-to-b from-white to-slate-50">
+        <section id="marketplace" className={cn("relative overflow-hidden py-24 sm:py-32", colors.gradients.subtle)}>
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 items-center">
-              {/* Left: Text */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
                 <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 mb-6">
                   <Search className="h-4 w-4 text-orange-500" />
                   <span className="text-sm font-semibold text-orange-600">Tailor Marketplace — New!</span>
                 </div>
-                <h2 className="text-4xl font-extrabold tracking-tight text-[#0A1128] sm:text-5xl mb-6 leading-tight">
+                <h2 className={cn("text-4xl font-extrabold tracking-tight sm:text-5xl mb-6 leading-tight", colors.text.primary)}>
                   Find the Perfect Tailor,<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0076B6] to-[#00AEEF]">Near You.</span>
+                  <span className={cn("text-transparent bg-clip-text", colors.gradients.primary)}>Near You.</span>
                 </h2>
-                <p className="text-lg text-slate-600 leading-relaxed mb-8">
+                <p className={cn("text-lg leading-relaxed mb-8", colors.text.secondary)}>
                   Browse verified, professional tailors and fashion designers. Filter by specialty, check real ratings, and send an order request directly from the Needlix Client Portal. No app needed.
                 </p>
 
@@ -277,48 +232,38 @@ export default function LandingPage() {
                     { text: 'Premium & verified designers listed first', icon: Star },
                   ].map((item) => (
                     <div key={item.text} className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5 text-[#00AEEF] flex-shrink-0" />
-                      <span className="text-slate-700 font-medium">{item.text}</span>
+                      <item.icon className={cn("h-5 w-5 flex-shrink-0", colors.primary.DEFAULT)} />
+                      <span className={cn("font-medium", colors.text.primary)}>{item.text}</span>
                     </div>
                   ))}
                 </div>
 
-                <Link
-                  href="/marketplace"
-                  className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-[#0076B6] px-8 py-4 text-lg font-bold text-white shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:bg-[#00AEEF] hover:shadow-2xl hover:shadow-[#00AEEF]/30"
-                >
+                <Link href="/marketplace" className={cn("group inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-4 text-lg font-bold shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:shadow-2xl", colors.primary.bg, colors.text.inverse, colors.primary.bgHover)}>
                   Browse the Marketplace
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </motion.div>
 
-              {/* Right: Preview Cards */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="space-y-4"
-              >
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-4">
                 {[
                   { name: "Adire Design Studio", specialty: "Ankara & Traditional Wear", rating: "4.9", tier: "premium", available: true },
                   { name: "Classic Cuts Atelier", specialty: "Corporate Suits & Menswear", rating: "4.7", tier: "standard", available: true },
                   { name: "Belle Couture", specialty: "Bridal & Evening Gowns", rating: "4.8", tier: "premium", available: false },
                 ].map((tailor) => (
-                  <div key={tailor.name} className="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4 hover:shadow-lg transition-all hover:-translate-y-0.5">
-                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#0076B6] to-[#00AEEF] flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div key={tailor.name} className={cn("bg-white rounded-2xl p-5 shadow-md flex items-center gap-4 hover:shadow-lg transition-all hover:-translate-y-0.5 border", colors.border.light)}>
+                    <div className={cn("h-14 w-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md", colors.gradients.primary)}>
                       <Scissors className="h-7 w-7 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <p className="font-bold text-slate-900 truncate">{tailor.name}</p>
+                        <p className={cn("font-bold truncate", colors.text.primary)}>{tailor.name}</p>
                         {tailor.tier === "premium" && (
                           <span className="flex-shrink-0 flex items-center gap-0.5 rounded-full bg-orange-500 px-2 py-0.5 text-[9px] font-bold text-white">
                             <Star className="h-2.5 w-2.5 fill-current" /> PREMIUM
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500 truncate">{tailor.specialty}</p>
+                      <p className={cn("text-sm truncate", colors.text.secondary)}>{tailor.specialty}</p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="flex items-center gap-1 text-xs font-bold text-amber-500">
                           <Star className="h-3 w-3 fill-current" /> {tailor.rating}
@@ -333,7 +278,7 @@ export default function LandingPage() {
                 ))}
 
                 <div className="text-center pt-2">
-                  <Link href="/marketplace" className="text-sm font-bold text-[#0076B6] hover:text-[#00AEEF] transition-colors inline-flex items-center gap-1">
+                  <Link href="/marketplace" className={cn("text-sm font-bold inline-flex items-center gap-1 transition-colors", colors.primary.DEFAULT, colors.primary.hover)}>
                     View all tailors <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
@@ -346,8 +291,8 @@ export default function LandingPage() {
         <section id="features" className="bg-white py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center mb-16">
-              <h2 className="text-base font-semibold leading-7 text-[#00AEEF]">Everything you need</h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-[#0A1128] sm:text-4xl">
+              <h2 className={cn("text-base font-semibold leading-7", colors.primary.DEFAULT)}>Everything you need</h2>
+              <p className={cn("mt-2 text-3xl font-bold tracking-tight sm:text-4xl", colors.secondary.DEFAULT)}>
                 Run your fashion business like a pro
               </p>
             </div>
@@ -371,12 +316,12 @@ export default function LandingPage() {
                     icon: Scissors,
                   },
                 ].map((feature) => (
-                  <div key={feature.title} className="flex flex-col bg-slate-50 rounded-3xl p-8 border border-slate-100 hover:shadow-lg transition-shadow">
-                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0076B6] to-[#00AEEF] shadow-lg shadow-[#00AEEF]/20">
+                  <div key={feature.title} className={cn("flex flex-col bg-slate-50 rounded-3xl p-8 border hover:shadow-lg transition-shadow", colors.border.light)}>
+                    <div className={cn("mb-6 flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg shadow-[#00AEEF]/20", colors.gradients.primary)}>
                       <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
                     </div>
-                    <h3 className="text-xl font-bold text-[#0A1128] mb-3">{feature.title}</h3>
-                    <p className="text-slate-600 leading-relaxed flex-auto">{feature.description}</p>
+                    <h3 className={cn("text-xl font-bold mb-3", colors.secondary.DEFAULT)}>{feature.title}</h3>
+                    <p className={cn("leading-relaxed flex-auto", colors.text.secondary)}>{feature.description}</p>
                   </div>
                 ))}
               </div>
@@ -385,7 +330,7 @@ export default function LandingPage() {
         </section>
 
         {/* Download Section */}
-        <section id="download" className="relative overflow-hidden bg-[#0A1128] py-24 sm:py-32">
+        <section id="download" className={cn("relative overflow-hidden py-24 sm:py-32", colors.secondary.bg)}>
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
           <div className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-[#00AEEF]/10 to-transparent blur-3xl"></div>
 
@@ -432,14 +377,14 @@ export default function LandingPage() {
               alt="Needlix Logo"
               width={160}
               height={48}
-              className="needlix-logo h-8 md:h-10 w-auto object-contain"
+              className="h-8 md:h-10 w-auto object-contain"
             />
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-500">
-            <Link href="/marketplace" className="hover:text-[#0076B6] font-medium transition-colors">Marketplace</Link>
-            <Link href="/client" className="hover:text-[#0076B6] font-medium transition-colors">Client Portal</Link>
-            <Link href="#features" className="hover:text-[#0076B6] font-medium transition-colors">Features</Link>
-            <Link href="#download" className="hover:text-[#0076B6] font-medium transition-colors">Download</Link>
+            <Link href="/marketplace" className={cn("font-medium transition-colors", colors.primary.hover)}>Marketplace</Link>
+            <Link href="/client" className={cn("font-medium transition-colors", colors.primary.hover)}>Client Portal</Link>
+            <Link href="#features" className={cn("font-medium transition-colors", colors.primary.hover)}>Features</Link>
+            <Link href="#download" className={cn("font-medium transition-colors", colors.primary.hover)}>Download</Link>
           </div>
           <p className="text-sm text-slate-500">
             &copy; {new Date().getFullYear()} Needlix App. All rights reserved.

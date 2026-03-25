@@ -267,6 +267,25 @@ class OrderRepository {
     }
   }
 
+  Future<Either<Failure, Unit>> deleteOrder(String id) async {
+    try {
+      // 1. Remove from local cache
+      await _orderBox.delete(id);
+      
+      // 2. Push to sync outbox
+      await _pushSyncAction(
+        SyncAction.actionDelete,
+        'orders',
+        {'id': id},
+        id,
+      );
+
+      return const Right(unit);
+    } catch (e, stack) {
+      return Left(ErrorHandler.handle(e, stack));
+    }
+  }
+
   Future<void> _pushSyncAction(String type, String endpoint, Map<String, dynamic> payload, String targetId) async {
     final action = SyncAction(
       id: const Uuid().v4(),

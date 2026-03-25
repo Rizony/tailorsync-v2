@@ -4,6 +4,9 @@ import 'package:needlix/core/terms/terms_content.dart';
 import 'package:needlix/features/auth/repositories/auth_repository.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/core/auth/screens/forgot_password_screen.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -184,10 +187,9 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
               const SizedBox(height: 48),
 
               // --- Email / Password Form ---
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Form(
+              PremiumCard(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,47 +202,38 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
                         if (!_isLogin) ...[
-                          TextFormField(
+                          CustomTextField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Full Name',
-                              prefixIcon: Icon(Icons.person),
-                            ),
-                            textCapitalization: TextCapitalization.words,
+                            label: 'Full Name',
+                            prefixIcon: const Icon(Icons.person),
+                            keyboardType: TextInputType.name,
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
+                          CustomTextField(
                             controller: _referralCodeController,
-                            decoration: const InputDecoration(
-                              labelText: 'Referral Code (Optional)',
-                              prefixIcon: Icon(Icons.group_add),
-                              hintText: 'e.g. TAILOR123',
-                            ),
-                            textCapitalization: TextCapitalization.characters,
+                            label: 'Referral Code (Optional)',
+                            hintText: 'e.g. TAILOR123',
+                            prefixIcon: const Icon(Icons.group_add),
                           ),
                           const SizedBox(height: 16),
                         ],
-                        TextFormField(
+                        CustomTextField(
                           controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            prefixIcon: Icon(Icons.email),
-                          ),
+                          label: 'Email Address',
+                          prefixIcon: const Icon(Icons.email),
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
+                        CustomTextField(
                           controller: _passwordController,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          label: 'Password',
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.grey,
                             ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           obscureText: _obscurePassword,
                         ),
@@ -283,27 +276,15 @@ class _LoginScreenStateV2 extends ConsumerState<LoginScreen> {
                         ],
 
                         const SizedBox(height: 24),
-                        SizedBox(
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleAuth,
-                            child: _isLoading
-                                ? SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      color: colorScheme.onPrimary,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(_isLogin ? 'Login' : 'Sign Up'),
-                          ),
+                        PrimaryButton(
+                          onPressed: _isLoading ? null : _handleAuth,
+                          isLoading: _isLoading,
+                          text: _isLogin ? 'Login' : 'Sign Up',
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
 
               // --- Social Login (disabled until production) ---
               // Uncomment below when Google & Facebook OAuth is production-ready

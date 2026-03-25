@@ -280,10 +280,10 @@ class _ReportCenterScreenState extends ConsumerState<ReportCenterScreen> {
             referralAsync.when(
               data: (referral) => _buildPartnerSection(context, referral, currency),
               loading: () => const LinearProgressIndicator(),
-              error: (err, _) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+              error: (err, _) => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
                 child: Text('Referral Sync Issue', 
-                  style: const TextStyle(color: Colors.orange, fontSize: 12)),
+                  style: TextStyle(color: Colors.orange, fontSize: 12)),
               ),
             ),
             const SizedBox(height: 24),

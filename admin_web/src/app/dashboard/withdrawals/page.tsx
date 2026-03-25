@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, CreditCard } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
+import { Spinner } from '@/components/ui/Misc';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { typography } from '@/theme/typography';
+import { cn, formatDate } from '@/lib/utils';
+import { colors } from '@/theme/colors';
 
 export default function WithdrawalsPage() {
     const [requests, setRequests] = useState<any[]>([]);
@@ -14,12 +20,13 @@ export default function WithdrawalsPage() {
 
     const fetchWithdrawals = async () => {
         try {
+            setLoading(true);
             const { data, error } = await supabase
                 .from('withdrawal_requests')
                 .select(`
-          *,
-          profiles (full_name, wallet_balance)
-        `)
+                  *,
+                  profiles (full_name, wallet_balance)
+                `)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -49,63 +56,91 @@ export default function WithdrawalsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Withdrawal Requests</h1>
-                <button onClick={fetchWithdrawals} className="text-sm text-blue-600 hover:underline">Refresh List</button>
+        <div className="space-y-6 fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+                <div>
+                    <h1 className={cn(typography.h2, colors.text.primary)}>Withdrawal Requests</h1>
+                    <p className={cn(typography.body, colors.text.secondary, "mt-1")}>
+                        Process pending payouts to tailors.
+                    </p>
+                </div>
+                <button 
+                  onClick={fetchWithdrawals} 
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                >
+                  Refresh Status
+                </button>
             </div>
 
-            <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+            <Card className="shadow-lg shadow-gray-100/50 border-gray-100/60 pb-2">
+                <div className="overflow-x-auto min-h-[300px]">
+                    <table className="min-w-full divide-y divide-gray-100">
+                        <thead className="bg-gray-50/80">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank Details</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bank Details</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Requested</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-50">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">Loading requests...</td>
+                                    <td colSpan={6} className="px-6 py-12 text-center h-[300px]">
+                                        <div className="flex flex-col items-center justify-center space-y-3">
+                                            <Spinner className="w-8 h-8" />
+                                            <span className="text-sm text-gray-500">Loading requests...</span>
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : requests.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">No withdrawal requests found.</td>
+                                    <td colSpan={6} className="p-8">
+                                        <EmptyState 
+                                            title="No pending withdrawals"
+                                            description="There are currently no withdrawal requests to process."
+                                            icon={<CreditCard className="h-10 w-10 text-gray-300" />}
+                                        />
+                                    </td>
                                 </tr>
                             ) : (
                                 requests.map((req) => (
-                                    <tr key={req.id}>
+                                    <tr key={req.id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{req.profiles?.full_name || 'Unknown'}</div>
-                                            <div className="text-xs text-gray-500">Wallet: ₦{req.profiles?.wallet_balance}</div>
+                                            <div className="text-sm font-semibold text-gray-900">{req.profiles?.full_name || 'Unknown User'}</div>
+                                            <div className="text-xs text-gray-500 mt-0.5">Wallet: ₦{(req.profiles?.wallet_balance || 0).toLocaleString()}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                                            ₦{req.amount}
+                                            ₦{(req.amount || 0).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs break-words">
+                                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs break-words leading-relaxed">
                                             {req.bank_details}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${req.status === 'processed' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
+                                            <span className={cn(
+                                                "px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border",
+                                                req.status === 'processed' 
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                                                    : 'bg-orange-50 text-orange-700 border-orange-200'
+                                            )}>
                                                 {req.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(req.created_at).toLocaleDateString()}
+                                            {formatDate(req.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {req.status === 'pending' && (
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                            {req.status === 'pending' ? (
                                                 <button
                                                     onClick={() => markProcessed(req.id)}
-                                                    className="text-emerald-600 hover:text-emerald-900 flex items-center justify-end w-full"
+                                                    className="inline-flex items-center text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-transparent hover:border-emerald-200"
                                                 >
-                                                    <CheckCircle className="w-4 h-4 mr-1" /> Mark Processed
+                                                    <CheckCircle className="w-4 h-4 mr-1.5" /> Mark Processed
                                                 </button>
+                                            ) : (
+                                                <span className="text-gray-400 italic text-xs">Completed</span>
                                             )}
                                         </td>
                                     </tr>
@@ -114,7 +149,7 @@ export default function WithdrawalsPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

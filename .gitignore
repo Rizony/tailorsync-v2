@@ -47,6 +47,7 @@ ios/Runner/GeneratedPluginRegistrant.m
 
 # Local build/debug artifacts (keep out of git)
 build_log.txt
-build_trace*.txt
-build_*error*.txt
 gradle_error.txt
+
+node_modules/
+.next/

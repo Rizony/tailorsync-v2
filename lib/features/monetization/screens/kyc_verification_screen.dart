@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:needlix/core/theme/app_theme.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/auth/providers/profile_provider.dart';
 
 class KycVerificationScreen extends StatefulWidget {
   const KycVerificationScreen({super.key});
@@ -125,7 +126,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                   Icon(
                     (_isVerified && isEmailVerified) ? Icons.verified : Icons.admin_panel_settings_outlined,
                     size: 80,
-                    color: (_isVerified && isEmailVerified) ? Colors.green : AppTheme.brandDark,
+                    color: (_isVerified && isEmailVerified) ? Colors.green : AppColors.primary,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -218,7 +219,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                         : const Icon(Icons.upload_file),
                       label: Text(_uploading ? 'Uploading...' : 'Upload Government ID', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.brandDark,
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

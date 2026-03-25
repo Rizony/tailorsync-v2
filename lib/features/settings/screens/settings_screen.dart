@@ -6,6 +6,7 @@ import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/settings/screens/shop_settings_screen.dart';
 import 'package:needlix/core/theme/app_theme.dart';
 import 'package:needlix/core/theme/theme_provider.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/core/auth/auth_provider.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
@@ -103,7 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.dark_mode_outlined, color: AppTheme.brandDark),
+                  leading: const Icon(Icons.dark_mode_outlined, color: AppColors.primary),
                   title: const Text('Appearance', style: TextStyle(fontWeight: FontWeight.w500)),
                   subtitle: Text(_getThemeString(ref.watch(themeModeProvider))),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),

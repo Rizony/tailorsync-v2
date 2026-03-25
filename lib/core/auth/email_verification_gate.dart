@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/core/theme/app_theme.dart';
@@ -132,7 +133,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
               const Icon(
                 Icons.mark_email_unread_outlined,
                 size: 80,
-                color: AppTheme.brandDark,
+                color: AppColors.primary,
               ),
               const SizedBox(height: 32),
               const Text(
@@ -141,7 +142,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.brandDark,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -156,7 +157,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _checkVerification,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandDark,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -186,7 +187,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
                   },
                   child: const Text(
                     'Incorrect Email? Update it here.',
-                    style: TextStyle(color: AppTheme.brandDark, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
                   ),
                 ),
               ] else ...[
@@ -209,7 +210,7 @@ class _EmailVerificationGateState extends State<EmailVerificationGate> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _updateEmail,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandDark,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
