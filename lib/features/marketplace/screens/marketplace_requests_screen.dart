@@ -63,6 +63,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final request = widget.request;
     final isPending = request.status == 'pending';
     final isAccepted = request.status == 'accepted';
@@ -244,7 +245,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                                   await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
                                   if (!mounted) return;
                                   // Also convert to order immediately
-                                  await _updateStatus(context, ref, 'accepted', forceAmount: request.counterOfferAmount);
+                                  await _updateStatus(context, 'accepted', forceAmount: request.counterOfferAmount);
                                 },
                                 icon: const Icon(Icons.check_circle_outline, size: 18),
                                 label: const Text('Accept counter', style: TextStyle(fontSize: 12)),
@@ -253,7 +254,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: _isProcessing ? null : () => _showQuoteDialog(context, ref),
+                                onPressed: _isProcessing ? null : () => _showQuoteDialog(context),
                                 icon: const Icon(Icons.edit, size: 18),
                                 label: const Text('Update quote'),
                               ),
@@ -377,7 +378,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     ActionChip(
                       avatar: const Icon(Icons.price_change_outlined, size: 16),
                       label: Text(hasQuote ? 'Update Quote' : 'Send Quote'),
-                      onPressed: _isProcessing ? null : () => _showQuoteDialog(context, ref),
+                      onPressed: _isProcessing ? null : () => _showQuoteDialog(context),
                     ),
                     if (hasQuote && !isPaid && quoteStatus != 'accepted')
                       ActionChip(
@@ -395,7 +396,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                       ActionChip(
                         avatar: const Icon(Icons.star_outline, size: 16),
                         label: const Text('Rate Client'),
-                        onPressed: _isProcessing ? null : () => _showRatingDialog(context, ref),
+                        onPressed: _isProcessing ? null : () => _showRatingDialog(context),
                       ),
                   ],
                 ),
@@ -405,7 +406,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus(context, ref, 'accepted'),
+                        onPressed: _isProcessing ? null : () => _updateStatus(context, 'accepted'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -421,7 +422,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus(context, ref, 'accepted'),
+                        onPressed: _isProcessing ? null : () => _updateStatus(context, 'accepted'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade700,
                           foregroundColor: Colors.white,
@@ -438,7 +439,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _isProcessing ? null : () => _updateStatus(context, ref, 'rejected'),
+                            onPressed: _isProcessing ? null : () => _updateStatus(context, 'rejected'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
@@ -454,10 +455,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Please send a quote first so the client can pay.')),
                                 );
-                                _showQuoteDialog(context, ref);
+                                _showQuoteDialog(context);
                                 return;
                               }
-                              _updateStatus(context, ref, 'accepted');
+                              _updateStatus(context, 'accepted');
                             },
                             child: _isProcessing 
                                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -497,74 +498,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     );
   }
 
-  Future<void> _showQuoteDialog(BuildContext context, WidgetRef ref) async {
-    final request = widget.request;
-    final amountController = TextEditingController(
-      text: request.quoteAmount != null ? request.quoteAmount!.toStringAsFixed(0) : '',
-    );
-    final messageController = TextEditingController(text: '');
-
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Send Quote'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Amount (₦)',
-                hintText: 'e.g. 25000',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: messageController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Message (optional)',
-                hintText: 'Add delivery timeline, fitting notes, etc.',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save Quote')),
-        ],
-      ),
-    );
-
-    if (ok != true) return;
-
-    final amount = double.tryParse(amountController.text.replaceAll(',', '').trim());
-    if (amount == null || amount <= 0) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter a valid quote amount.')));
-      }
-      return;
-    }
-
-    try {
-      await ref.read(marketplaceRepositoryProvider).updateRequestQuote(
-        requestId: request.id,
-        quoteAmount: amount,
-        quoteMessage: messageController.text.trim().isEmpty ? null : messageController.text.trim(),
-      );
-      ref.invalidate(marketplaceRequestsProvider);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quote saved. Client can now pay on the website.')));
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save quote: $e')));
-      }
-    }
-  }
-
-  Future<void> _showQuoteDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showQuoteDialog(BuildContext context) async {
     final request = widget.request;
     final amountController = TextEditingController(
       text: request.quoteAmount != null ? request.quoteAmount!.toStringAsFixed(0) : '',
@@ -634,7 +568,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     }
   }
 
-  Future<void> _updateStatus(BuildContext context, WidgetRef ref, String status, {double? forceAmount}) async {
+  Future<void> _updateStatus(BuildContext context, String status, {double? forceAmount}) async {
     final request = widget.request;
     if (_isProcessing) return;
 
@@ -746,7 +680,8 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     }
   }
 
-  Future<void> _showRatingDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showRatingDialog(BuildContext context) async {
+    final request = widget.request;
     int rating = 5;
     final reviewController = TextEditingController();
 
