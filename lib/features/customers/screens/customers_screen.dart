@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:needlix/core/widgets/premium_empty_state.dart';
-
+import 'package:needlix/core/theme/components/empty_state_widget.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
 import 'package:needlix/features/customers/repositories/customer_repository.dart';
 import 'package:needlix/features/customers/screens/customer_details_screen.dart';
 import 'package:needlix/features/customers/screens/add_edit_customer_screen.dart';
@@ -30,26 +33,11 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
           // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search customers...',
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-                ),
-                filled: true,
-                fillColor: Theme.of(context).cardTheme.color,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              ),
+            child: CustomTextField(
+              label: '',
+              hintText: 'Search customers...',
+              prefixIcon: Icons.search,
+              isDense: true,
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value.toLowerCase();
@@ -67,19 +55,19 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                 }).toList();
 
                 if (filteredCustomers.isEmpty) {
-                  return PremiumEmptyState(
+                  return EmptyStateWidget(
                     icon: Icons.person_add_alt_1_outlined,
                     title: _searchQuery.isEmpty ? 'Your Customer List' : 'No Results Found',
-                    message: _searchQuery.isEmpty 
+                    description: _searchQuery.isEmpty 
                       ? 'Add your regular customers to keep track of their measurements and orders.' 
                       : 'Try a different search term or check your spelling.',
-                    actionLabel: _searchQuery.isEmpty ? 'Add Customer' : null,
-                    onAction: _searchQuery.isEmpty ? () {
+                    onActionPressed: _searchQuery.isEmpty ? () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const AddEditCustomerScreen()),
                       );
                     } : null,
+                    actionLabel: _searchQuery.isEmpty ? 'Add Customer' : null,
                   );
                 }
 
@@ -88,20 +76,9 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemBuilder: (context, index) {
                     final customer = filteredCustomers[index];
-                    return Container(
+                    return PremiumCard(
                       margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardTheme.color,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      padding: EdgeInsets.zero,
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         leading: Container(
@@ -119,8 +96,8 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                                 : null,
                           ),
                         ),
-                        title: Text(customer.fullName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.5)),
-                        subtitle: Text(customer.phoneNumber ?? 'No phone number', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                        title: Text(customer.fullName, style: AppTypography.label.copyWith(fontSize: 16)),
+                        subtitle: Text(customer.phoneNumber ?? 'No phone number', style: AppTypography.bodySmall.copyWith(color: Colors.grey[600])),
                         trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
                         onTap: () {
                           Navigator.push(

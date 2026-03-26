@@ -14,6 +14,11 @@ import 'package:needlix/features/orders/models/order_model.dart';
 import 'package:needlix/features/orders/repositories/order_repository.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 
 class CreateOrderScreen extends ConsumerStatefulWidget {
   final OrderModel? order;
@@ -373,7 +378,7 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final item = _items[index];
-                    return Card(
+                    return PremiumCard(
                       margin: EdgeInsets.zero,
                       child: ListTile(
                         leading: CircleAvatar(
@@ -410,14 +415,11 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
               const SizedBox(height: 24),
 
               // --- Title (Optional / Summary) ---
-              TextFormField(
+              CustomTextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Order Title / Summary',
-                  hintText: 'e.g., Wedding Suit Package',
-                  border: OutlineInputBorder(),
-                  helperText: 'Leave empty to auto-generate from items',
-                ),
+                label: 'Order Title / Summary',
+                hintText: 'e.g., Wedding Suit Package',
+                helperText: 'Leave empty to auto-generate from items',
               ),
               const SizedBox(height: 16),
 
@@ -439,18 +441,11 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                       ],
                     ),
                     const Divider(height: 24),
-                    TextFormField(
+                    CustomTextField(
                       controller: _depositController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Deposit / Paid Amount',
-                        prefixText: '₦ ',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                      ],
+                      label: 'Deposit / Paid Amount',
+                      prefixIcon: Icons.payments_outlined,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (val) => setState(() {}),
                     ),
                     const SizedBox(height: 12),
@@ -502,13 +497,10 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
               const SizedBox(height: 16),
 
               // --- Notes ---
-              TextFormField(
+              CustomTextField(
                 controller: _notesController,
+                label: 'Notes',
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  border: OutlineInputBorder(),
-                ),
               ),
               const SizedBox(height: 24),
 
@@ -518,22 +510,20 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _isLoading ? null : () => _saveOrder(isQuote: true),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                       child: const Text('Save as Quote'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => _saveOrder(isQuote: false),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: _isLoading 
-                          ? const CircularProgressIndicator(color: Colors.white) 
-                          : const Text('Create Order'),
+                    child: PrimaryButton(
+                      onPressed: () => _saveOrder(isQuote: false),
+                      text: 'Create Order',
+                      isLoading: _isLoading,
                     ),
                   ),
                 ],
@@ -575,7 +565,7 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
   String _selectedGender = 'Male'; // Default
 
   Widget _buildMeasurementsSection() {
-    return Card(
+    return PremiumCard(
       child: ExpansionTile(
         title: const Text('Measurements'),
         subtitle: const Text('Select Gender directly edits these fields'),
@@ -661,13 +651,10 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
         children: [
           Expanded(child: Text("$key:", style: const TextStyle(fontWeight: FontWeight.bold))),
           Expanded(
-            child: TextFormField(
+            child: CustomTextField(
+              label: '',
               initialValue: value,
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                border: OutlineInputBorder(),
-              ),
+              isDense: true,
               onChanged: (val) {
                 _tempMeasurements[key] = val;
               },
@@ -757,13 +744,7 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
   }
 
   Widget _buildFabricSelectionSection() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
+    return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

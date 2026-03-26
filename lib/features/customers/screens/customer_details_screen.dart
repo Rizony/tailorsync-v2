@@ -7,7 +7,10 @@ import 'package:needlix/features/customers/repositories/customer_repository.dart
 import 'package:needlix/features/customers/screens/add_edit_customer_screen.dart';
 import 'package:needlix/features/orders/repositories/order_repository.dart';
 import 'package:needlix/features/orders/screens/order_details_screen.dart';
-import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/components/empty_state_widget.dart';
 
 class CustomerDetailsScreen extends ConsumerWidget {
   final Customer customer;
@@ -46,76 +49,80 @@ class CustomerDetailsScreen extends ConsumerWidget {
             // Customer Profile Avatar
             Align(
               alignment: Alignment.center,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: const Color(0xFF1E78D2).withValues(alpha: 0.1),
-                backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
-                child: customer.photoUrl == null 
-                    ? Text(customer.fullName[0].toUpperCase(), style: const TextStyle(fontSize: 40, color: Colors.white))
-                    : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 3),
+                ),
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  backgroundImage: customer.photoUrl != null ? NetworkImage(customer.photoUrl!) : null,
+                  child: customer.photoUrl == null 
+                      ? Text(customer.fullName[0].toUpperCase(), style: AppTypography.h1.copyWith(color: AppColors.primary))
+                      : null,
+                ),
               ),
             ),
             const SizedBox(height: 16),
             // Customer Info Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.phone),
-                      title: Text(customer.phoneNumber ?? 'No Phone'),
-                    ),
-                    const Divider(),
-                    const ListTile(
-                      leading: Icon(Icons.straighten),
-                      title: Text("Measurements"),
-                    ),
-                    // Display measurements grid
-                    if (customer.measurements.isNotEmpty)
-                      GridView.count(
+            PremiumCard(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.phone, color: AppColors.primary),
+                    title: Text(customer.phoneNumber ?? 'No Phone', style: AppTypography.bodyMedium),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.straighten, color: AppColors.primary),
+                    title: Text("Measurements", style: AppTypography.label),
+                  ),
+                  // Display measurements grid
+                  if (customer.measurements.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: GridView.count(
                         crossAxisCount: 2,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         childAspectRatio: 3,
                         children: customer.measurements.entries.map((e) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text("${e.key}:",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                      overflow: TextOverflow.ellipsis),
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text("${e.key}:",
+                                    style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  e.value.toString(),
+                                  style: AppTypography.bodySmall,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    e.value.toString(),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           );
                         }).toList(),
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text("No measurements recorded."),
                       ),
-                  ],
-                ),
+                    )
+                  else
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text("No measurements recorded."),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
             
             // Order History Header
-            const Text(
+            Text(
               "Order History",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: AppTypography.h3,
             ),
             const SizedBox(height: 12),
 
@@ -132,20 +139,22 @@ class CustomerDetailsScreen extends ConsumerWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final order = orders[index];
-                    return ListTile(
-                      tileColor: Colors.grey[100],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      title: Text(order.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(DateFormat.yMMMd().format(order.createdAt)),
-                      trailing: _buildStatusChip(order.status),
-                      onTap: () {
-                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OrderDetailsScreen(order: order),
-                          ),
-                        );
-                      },
+                    return PremiumCard(
+                      margin: EdgeInsets.zero,
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        title: Text(order.title, style: AppTypography.label),
+                        subtitle: Text(DateFormat.yMMMd().format(order.createdAt), style: AppTypography.bodySmall),
+                        trailing: _buildStatusChip(order.status),
+                        onTap: () {
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderDetailsScreen(order: order),
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 );

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -90,16 +96,20 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // --- Verification Status ---
-            const Text('Verification Status', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12)),
+            Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('Verification Status', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+            ),
             const SizedBox(height: 8),
-            Card(
+            PremiumCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: Icon(
                   isVerified ? Icons.verified : Icons.warning_amber_rounded,
                   color: isVerified ? Colors.green : Colors.orange,
                 ),
-                title: Text(isVerified ? 'Email Verified' : 'Email Unverified'),
-                subtitle: Text(user?.email ?? ''),
+                title: Text(isVerified ? 'Email Verified' : 'Email Unverified', style: AppTypography.label),
+                subtitle: Text(user?.email ?? '', style: AppTypography.bodySmall),
                 trailing: isVerified 
                   ? const Icon(Icons.check_circle, color: Colors.green)
                   : TextButton(
@@ -120,59 +130,50 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             const SizedBox(height: 32),
 
             // --- Change Password ---
-            const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12)),
+            Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('Change Password', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+            ),
             const SizedBox(height: 8),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscureOld,
-                      decoration: InputDecoration(
-                        labelText: 'Current Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscureOld ? Icons.visibility_off : Icons.visibility),
-                          onPressed: () => setState(() => _obscureOld = !_obscureOld),
-                        ),
-                      ),
+            PremiumCard(
+              child: Column(
+                children: [
+                  CustomTextField(
+                    controller: _passwordController,
+                    label: 'Current Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    obscureText: _obscureOld,
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureOld ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () => setState(() => _obscureOld = !_obscureOld),
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _newPasswordController,
-                      obscureText: _obscureNew,
-                      decoration: InputDecoration(
-                        labelText: 'New Password',
-                        prefixIcon: const Icon(Icons.lock_reset),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscureNew ? Icons.visibility_off : Icons.visibility),
-                          onPressed: () => setState(() => _obscureNew = !_obscureNew),
-                        ),
-                      ),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _newPasswordController,
+                    label: 'New Password',
+                    prefixIcon: const Icon(Icons.lock_reset),
+                    obscureText: _obscureNew,
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureNew ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () => setState(() => _obscureNew = !_obscureNew),
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureNew,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirm New Password',
-                        prefixIcon: Icon(Icons.check_circle_outline),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _updatePassword,
-                        child: _isLoading 
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Update Password'),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _confirmPasswordController,
+                    label: 'Confirm New Password',
+                    prefixIcon: const Icon(Icons.check_circle_outline),
+                    obscureText: _obscureNew,
+                  ),
+                  const SizedBox(height: 24),
+                  PrimaryButton(
+                    onPressed: _isLoading ? null : _updatePassword,
+                    isLoading: _isLoading,
+                    text: 'Update Password',
+                    icon: Icons.security_outlined,
+                  ),
+                ],
               ),
             ),
             

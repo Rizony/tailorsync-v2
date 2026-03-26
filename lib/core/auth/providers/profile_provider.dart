@@ -34,6 +34,8 @@ class ProfileNotifier extends _$ProfileNotifier {
           if (payload.isNotEmpty) {
             state = AsyncValue.data(AppUser.fromJson(payload.first));
           }
+        }, onError: (error) {
+          print('Supabase Profile Stream error ignored: $error');
         });
 
     ref.onDispose(() {

@@ -7,6 +7,9 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool isSecondary;
+  final IconData? icon;
+  final double? width;
+  final EdgeInsetsGeometry? padding;
 
   const PrimaryButton({
     super.key,
@@ -14,6 +17,9 @@ class PrimaryButton extends StatelessWidget {
     this.onPressed,
     this.isLoading = false,
     this.isSecondary = false,
+    this.icon,
+    this.width,
+    this.padding,
   });
 
   @override
@@ -48,8 +54,9 @@ class PrimaryButton extends StatelessWidget {
     }
 
     return Container(
-      width: double.infinity,
+      width: width ?? double.infinity,
       height: 54,
+      margin: padding,
       decoration: decoration,
       child: Material(
         color: Colors.transparent,
@@ -66,16 +73,33 @@ class PrimaryButton extends StatelessWidget {
                       strokeWidth: 2,
                     ),
                   )
-                : Text(
-                    text,
-                    style: AppTypography.label.copyWith(
-                      color: onPressed == null
-                          ? (isDark ? AppColors.textHintDark : AppColors.textHintLight)
-                          : (isSecondary
-                              ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                              : Colors.white),
-                      fontSize: 16,
-                    ),
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(
+                          icon,
+                          size: 20,
+                          color: onPressed == null
+                              ? (isDark ? AppColors.textHintDark : AppColors.textHintLight)
+                              : (isSecondary
+                                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                                  : Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        text,
+                        style: AppTypography.label.copyWith(
+                          color: onPressed == null
+                              ? (isDark ? AppColors.textHintDark : AppColors.textHintLight)
+                              : (isSecondary
+                                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                                  : Colors.white),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
           ),
         ),

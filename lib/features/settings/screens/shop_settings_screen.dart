@@ -5,9 +5,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/core/utils/snackbar_util.dart';
-import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:needlix/features/monetization/models/subscription_tier.dart';
 
 class ShopSettingsScreen extends ConsumerStatefulWidget {
   const ShopSettingsScreen({super.key});
@@ -218,7 +223,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
 
   Future<void> _pickImage(bool isLogo) async {
     final profile = ref.read(profileNotifierProvider).valueOrNull;
-    if (profile?.subscriptionTier == SubscriptionTier.freemium) {
+    if (profile?.subscriptionTier == 'freemium') {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -374,26 +379,24 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // --- 1. Branding Card ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('SHOP BRANDING', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('SHOP BRANDING', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _shopNameController,
-                        decoration: const InputDecoration(labelText: 'Shop Name', border: OutlineInputBorder()),
-                        validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _brandNameController,
-                        decoration: const InputDecoration(labelText: 'Brand Name (for Invoices)', border: OutlineInputBorder(), hintText: 'Same as Shop Name if empty'),
-                      ),
-                      const SizedBox(height: 24),
+              PremiumCard(
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      controller: _shopNameController,
+                      label: 'Shop Name',
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _brandNameController,
+                      label: 'Brand Name (for Invoices)',
+                      hintText: 'Same as Shop Name if empty',
+                    ),
+                    const SizedBox(height: 24),
                       Row(
                         children: [
                           Expanded(
@@ -401,17 +404,24 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                               children: [
                                 const Text('Logo', style: TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () => _pickImage(true),
-                                  child: CircleAvatar(
-                                    radius: 40,
-                                    backgroundColor: Colors.grey.shade100,
-                                    backgroundImage: _logoFile != null 
-                                        ? FileImage(_logoFile!) 
-                                        : (_logoUrl != null ? NetworkImage(_logoUrl!) as ImageProvider : null),
-                                    child: (_logoFile == null && _logoUrl == null) ? const Icon(Icons.add_a_photo, color: Colors.grey) : null,
+                                  GestureDetector(
+                                    onTap: () => _pickImage(true),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 3),
+                                      ),
+                                      padding: const EdgeInsets.all(4),
+                                      child: CircleAvatar(
+                                        radius: 40,
+                                        backgroundColor: Colors.grey.shade100,
+                                        backgroundImage: _logoFile != null 
+                                            ? FileImage(_logoFile!) 
+                                            : (_logoUrl != null ? NetworkImage(_logoUrl!) as ImageProvider : null),
+                                        child: (_logoFile == null && _logoUrl == null) ? const Icon(Icons.add_a_photo, color: Colors.grey) : null,
+                                      ),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -446,250 +456,239 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                     ],
                   ),
                 ),
-              ),
               const SizedBox(height: 24),
 
               // --- 1.6 Regional Settings ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('REGIONAL SETTINGS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('REGIONAL SETTINGS', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                  child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                              const Text('Currency', style: TextStyle(fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 8),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey.shade400),
-                                      borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                          value: _selectedCurrencyCode,
-                                          isExpanded: true,
-                                          items: _currencies.entries.map((entry) {
-                                              return DropdownMenuItem<String>(
-                                                  value: entry.key,
-                                                  child: Text('${entry.key} (${entry.value}) - ${_getCurrencyName(entry.key)}'),
-                                              );
-                                          }).toList(),
-                                          onChanged: (String? newValue) {
-                                              if (newValue != null) {
-                                                  setState(() {
-                                                      _selectedCurrencyCode = newValue;
-                                                  });
-                                              }
-                                          },
-                                      ),
-                                  ),
-                              ),
-                          ],
+              PremiumCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Currency', style: AppTypography.label),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                  ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCurrencyCode,
+                          isExpanded: true,
+                          items: _currencies.entries.map((entry) {
+                            return DropdownMenuItem<String>(
+                              value: entry.key,
+                              child: Text(
+                                '${entry.key} (${entry.value}) - ${_getCurrencyName(entry.key)}',
+                                style: AppTypography.body,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _selectedCurrencyCode = newValue;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               
               // --- 1.5 Contact & Socials Card ---
-               const Padding(
+               Padding(
                 padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('CONTACT & SOCIALS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+                child: Text('CONTACT & SOCIALS', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                       TextFormField(
-                        controller: _addressController,
-                        decoration: const InputDecoration(labelText: 'Shop Address', border: OutlineInputBorder(), prefixIcon: Icon(Icons.location_on_outlined)),
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _phoneController,
-                              decoration: const InputDecoration(labelText: 'Phone', border: OutlineInputBorder(), prefixIcon: Icon(Icons.phone_outlined)),
-                              keyboardType: TextInputType.phone,
-                            ),
+              PremiumCard(
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      controller: _addressController,
+                      label: 'Shop Address',
+                      prefixIcon: const Icon(Icons.location_on_outlined),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            controller: _phoneController,
+                            label: 'Phone',
+                            prefixIcon: const Icon(Icons.phone_outlined),
+                            keyboardType: TextInputType.phone,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _emailController,
-                              decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), prefixIcon: Icon(Icons.email_outlined)),
-                              keyboardType: TextInputType.emailAddress,
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: _emailController,
+                            label: 'Email',
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            keyboardType: TextInputType.emailAddress,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _websiteController,
-                        decoration: const InputDecoration(labelText: 'Website', border: OutlineInputBorder(), prefixIcon: Icon(Icons.language_outlined)),
-                        keyboardType: TextInputType.url,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _socialController,
-                        decoration: const InputDecoration(labelText: 'Social Media (e.g. @NEEDLIX, IG: @mystore)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.share_outlined)),
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _websiteController,
+                      label: 'Website',
+                      prefixIcon: const Icon(Icons.language_outlined),
+                      keyboardType: TextInputType.url,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _socialController,
+                      label: 'Social Media',
+                      hintText: 'e.g. @NEEDLIX, IG: @mystore',
+                      prefixIcon: const Icon(Icons.share_outlined),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
               
               // --- 2. Invoice Theme Card ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('INVOICE THEME', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('INVOICE THEME', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Accent Color', style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 50,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _colors.length,
-                          itemBuilder: (context, index) {
-                            final colorHex = _colors[index];
-                            final color = Color(_parseColor(colorHex));
-                            final isSelected = _selectedColor == colorHex;
-                            
-                            return GestureDetector(
-                              onTap: () => setState(() => _selectedColor = colorHex),
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 12),
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  shape: BoxShape.circle,
-                                  border: isSelected ? Border.all(color: Colors.black, width: 3) : null,
-                                ),
-                                  child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 24) : null,
+              PremiumCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Accent Color', style: AppTypography.label),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 50,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _colors.length,
+                        itemBuilder: (context, index) {
+                          final colorHex = _colors[index];
+                          final color = Color(_parseColor(colorHex));
+                          final isSelected = _selectedColor == colorHex;
+                          
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedColor = colorHex),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: isSelected ? Border.all(color: AppColors.primary, width: 3) : null,
                               ),
-                            );
-                          },
-                        ),
+                                child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 24) : null,
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
               
               // --- 3. Financials & Terms Card ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('FINANCIALS & TERMS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('FINANCIALS & TERMS', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _taxController,
-                        decoration: const InputDecoration(labelText: 'Default Tax Rate (%)', border: OutlineInputBorder(), suffixText: '%'),
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _notesController,
-                        decoration: const InputDecoration(
-                          labelText: 'Payment Instructions / Bank Details', 
-                          border: OutlineInputBorder(), 
-                          hintText: 'e.g. Please pay into GTBank: 0123456789',
-                          alignLabelWithHint: true,
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _termsController,
-                        decoration: const InputDecoration(
-                          labelText: 'Terms & Conditions', 
-                          border: OutlineInputBorder(), 
-                          hintText: 'e.g. No refunds after 7 days.',
-                          alignLabelWithHint: true,
-                        ),
-                        maxLines: 3,
-                      ),
-                    ],
-                  ),
+              PremiumCard(
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      controller: _taxController,
+                      label: 'Default Tax Rate (%)',
+                      suffixText: '%',
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _notesController,
+                      label: 'Payment Instructions / Bank Details',
+                      hintText: 'e.g. Please pay into GTBank: 0123456789',
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _termsController,
+                      label: 'Terms & Conditions',
+                      hintText: 'e.g. No refunds after 7 days.',
+                      maxLines: 3,
+                    ),
+                  ],
                 ),
               ),
               
               const SizedBox(height: 32),
               
               // --- 4. Withdrawal Bank Details ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('WITHDRAWAL SETTINGS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('WITHDRAWAL SETTINGS', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _bankNameController,
-                        decoration: const InputDecoration(labelText: 'Bank Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.account_balance_outlined)),
-                        textCapitalization: TextCapitalization.words,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _accountNumberController,
-                        decoration: const InputDecoration(labelText: 'Account Number', border: OutlineInputBorder(), prefixIcon: Icon(Icons.tag_outlined)),
-                        keyboardType: TextInputType.number,
-                        maxLength: 10,
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _accountNameController,
-                        decoration: const InputDecoration(labelText: 'Account Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person_outline)),
-                        textCapitalization: TextCapitalization.words,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _withdrawalPinController,
-                        decoration: const InputDecoration(labelText: 'Secure Withdrawal PIN (4 Digits)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock_outline), hintText: 'Create a 4-digit PIN to secure withdrawals'),
-                        keyboardType: TextInputType.number,
-                        obscureText: true,
-                        maxLength: 4,
-                      ),
-                    ],
-                  ),
+              PremiumCard(
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      controller: _bankNameController,
+                      label: 'Bank Name',
+                      prefixIcon: const Icon(Icons.account_balance_outlined),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _accountNumberController,
+                      label: 'Account Number',
+                      prefixIcon: const Icon(Icons.tag_outlined),
+                      keyboardType: TextInputType.number,
+                      maxLength: 10,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _accountNameController,
+                      label: 'Account Name',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _withdrawalPinController,
+                      label: 'Secure Withdrawal PIN (4 Digits)',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      hintText: 'Create a 4-digit PIN to secure withdrawals',
+                      keyboardType: TextInputType.number,
+                      obscureText: true,
+                      maxLength: 4,
+                    ),
+                  ],
                 ),
               ),
               
               const SizedBox(height: 32),
               
               // --- 5. Marketplace Profile Card ---
-              const Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 8),
-                child: Text('MARKETPLACE PROFILE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: Text('MARKETPLACE PROFILE', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              PremiumCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       SwitchListTile(
                         title: const Text('Enable Public Profile', style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: const Text('List your shop on the Needlix web marketplace'),
@@ -759,7 +758,7 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withValues(alpha: 0.6),
+                                            color: Colors.black.withOpacity(0.6),
                                             borderRadius: BorderRadius.circular(999),
                                           ),
                                           child: const Icon(Icons.close, size: 14, color: Colors.white),
@@ -788,22 +787,16 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: TextFormField(
+                              child: CustomTextField(
                                 controller: _portfolioLinkController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Add image link',
-                                  border: OutlineInputBorder(),
-                                ),
+                                label: 'Add image link',
                               ),
                             ),
                             const SizedBox(width: 10),
-                            ElevatedButton(
+                            PrimaryButton(
                               onPressed: _addPortfolioLink,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(52, 52),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              child: const Icon(Icons.add),
+                              text: 'Add',
+                              width: 80,
                             ),
                           ],
                         ),
@@ -817,29 +810,22 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      CustomTextField(
                         controller: _bioController,
-                        decoration: const InputDecoration(
-                          labelText: 'Professional Bio', 
-                          border: OutlineInputBorder(),
-                          hintText: 'Tell customers about your craftsmanship...',
-                          alignLabelWithHint: true,
-                        ),
+                        label: 'Professional Bio', 
+                        hintText: 'Tell customers about your craftsmanship...',
                         maxLines: 4,
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      CustomTextField(
                         controller: _specialtiesController,
-                        decoration: const InputDecoration(
-                          labelText: 'Specialties (Comma separated)', 
-                          border: OutlineInputBorder(),
-                          hintText: 'e.g. Suits, Traditional, Wedding...',
-                        ),
+                        label: 'Specialties (Comma separated)', 
+                        hintText: 'e.g. Suits, Traditional, Wedding...',
                       ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          const Text('Years of Experience:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text('Years of Experience:', style: AppTypography.label),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Slider(
@@ -848,35 +834,27 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                               max: 30,
                               divisions: 30,
                               label: _yearsOfExperience.toString(),
+                              activeColor: AppColors.primary,
+                              inactiveColor: AppColors.primary.withValues(alpha: 0.1),
                               onChanged: (val) => setState(() => _yearsOfExperience = val.toInt()),
                             ),
                           ),
-                          Text('$_yearsOfExperience', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text('$_yearsOfExperience', style: AppTypography.label),
                         ],
                       ),
                     ],
                   ),
                 ),
-              ),
               
               const SizedBox(height: 32),
               
               // --- Save Button ---
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  // FIXED: Prevent clicking when loading
-                  onPressed: _isLoading ? null : _saveSettings,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Color(_parseColor(_selectedColor)), 
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: _isLoading 
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
-                      : const Text('Save Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
+              const SizedBox(height: 32),
+              PrimaryButton(
+                onPressed: _isLoading ? null : _saveSettings,
+                isLoading: _isLoading,
+                text: 'Save All Settings',
+                icon: Icons.save_outlined,
               ),
               const SizedBox(height: 40),
             ],

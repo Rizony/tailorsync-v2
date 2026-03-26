@@ -4,12 +4,14 @@ import '../app_colors.dart';
 class PremiumCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
 
   const PremiumCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16.0),
+    this.margin,
     this.onTap,
   });
 
@@ -19,6 +21,7 @@ class PremiumCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     
     return Container(
+      margin: margin,
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),

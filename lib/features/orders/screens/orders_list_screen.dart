@@ -7,7 +7,10 @@ import 'package:needlix/features/orders/repositories/order_repository.dart';
 import 'package:needlix/features/orders/screens/create_order_screen.dart';
 import 'package:needlix/features/orders/screens/order_details_screen.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
-import 'package:needlix/core/widgets/premium_empty_state.dart';
+import 'package:needlix/core/theme/components/empty_state_widget.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 
 class OrdersListScreen extends ConsumerStatefulWidget {
   const OrdersListScreen({super.key});
@@ -113,19 +116,22 @@ class _OrdersList extends ConsumerWidget {
         }).toList();
 
         if (filteredOrders.isEmpty) {
-          return PremiumEmptyState(
+          return EmptyStateWidget(
             icon: Icons.shopping_bag_outlined,
             title: searchQuery.isEmpty ? 'No Orders Yet' : 'No Results Found',
-            message: searchQuery.isEmpty 
+            description: searchQuery.isEmpty 
               ? 'Start by creating your first order. Your business is about to grow!' 
               : 'Try a different search term or check your spelling.',
-            actionLabel: searchQuery.isEmpty ? 'New Order' : null,
-            onAction: searchQuery.isEmpty ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
-              );
-            } : null,
+            actionButton: searchQuery.isEmpty ? ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('New Order'),
+            ) : null,
           );
         }
         return ListView.builder(
@@ -135,25 +141,13 @@ class _OrdersList extends ConsumerWidget {
             final order = filteredOrders[index];
             final currency = profile?.currencySymbol ?? '₦';
             
-            return Container(
+            return PremiumCard(
               margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardTheme.color,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 title: Text(
                   order.title, 
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.5),
+                  style: AppTypography.label.copyWith(fontSize: 16),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +238,10 @@ class _OrdersList extends ConsumerWidget {
                     ),
                   );
                 },
-              ).animate().fadeIn(duration: 400.ms, delay: (index * 30).ms).slideX(begin: 0.05),
+                    ),
+                  );
+                },
+              ),
             );
           },
         );

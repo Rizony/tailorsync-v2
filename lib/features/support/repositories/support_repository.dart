@@ -78,6 +78,7 @@ class SupportRepository {
         .stream(primaryKey: ['id'])
         .eq('ticket_id', ticketId)
         .order('created_at', ascending: true)
+        .handleError((error) { print('Support stream error ignored: $error'); })
         .map((list) => list.map((json) => SupportMessage.fromJson(json)).toList());
   }
 }

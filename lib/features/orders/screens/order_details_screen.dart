@@ -18,8 +18,14 @@ import 'package:needlix/features/orders/widgets/order_customer_card.dart';
 import 'package:needlix/features/orders/widgets/order_payment_history.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart' as needlix_upgrade;
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
-
-
+import 'package:needlix/core/notifications/whatsapp_service.dart';
+import 'package:needlix/features/community/repositories/community_repository.dart';
+import 'package:needlix/features/community/models/community_post.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
 class OrderDetailsScreen extends ConsumerStatefulWidget {
   final OrderModel order;
   const OrderDetailsScreen({super.key, required this.order});
@@ -128,12 +134,12 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context, double.tryParse(controller.text) ?? 0);
-            },
-            child: const Text('Convert'),
-          ),
+            PrimaryButton(
+              onPressed: () {
+                Navigator.pop(context, double.tryParse(controller.text) ?? 0);
+              },
+              text: 'Convert',
+            ),
         ],
       ),
     );
@@ -333,7 +339,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                 _buildStatusSelector(),
                 Text(
                   CurrencyFormatter.format(_order.price, customSymbol: profile?.currencySymbol),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                  style: AppTypography.h3.copyWith(color: AppColors.primary),
                 ),
               ],
             ),
@@ -390,7 +396,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             const SizedBox(height: 24),
 
             // Fabric Status
-            const Text('Fabric Tracking', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Fabric Tracking', style: AppTypography.h4),
             const SizedBox(height: 8),
             _buildFabricSelector(),
             const SizedBox(height: 24),
@@ -444,16 +450,10 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             if (_order.status == OrderModel.statusPending)
                SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: ref.watch(orderControllerProvider(_order.id)).isLoading ? null : () => _updateStatus(OrderModel.statusInProgress),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: ref.watch(orderControllerProvider(_order.id)).isLoading 
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Start Order'),
+                child: PrimaryButton(
+                  onPressed: () => _updateStatus(OrderModel.statusInProgress),
+                  text: 'Start Order',
+                  isLoading: ref.watch(orderControllerProvider(_order.id)).isLoading,
                 ),
               ),
           ],

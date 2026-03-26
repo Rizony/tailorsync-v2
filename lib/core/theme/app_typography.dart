@@ -44,6 +44,9 @@ class AppTypography {
     letterSpacing: 0.5,
   );
 
+  static const TextStyle body = bodyMedium;
+  static const TextStyle bodySmall = caption;
+
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,

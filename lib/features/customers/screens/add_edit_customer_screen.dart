@@ -5,7 +5,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/features/customers/models/customer.dart';
 import 'package:needlix/features/customers/repositories/customer_repository.dart';
-import 'package:needlix/core/utils/snackbar_util.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 
 import 'package:needlix/features/customers/utils/smart_measurement_engine.dart';
@@ -114,11 +118,8 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 16),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+      child: PremiumCard(
+        padding: const EdgeInsets.all(12.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -144,12 +145,12 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                   children: [
                     Text(
                       guide.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: AppTypography.label,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       guide.description,
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                      style: AppTypography.bodySmall.copyWith(color: Colors.grey.shade700),
                     ),
                   ],
                 ),
@@ -324,50 +325,47 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
               Center(
                 child: GestureDetector(
                   onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey.shade200,
-                    backgroundImage: _profileImage != null
-                        ? FileImage(_profileImage!) as ImageProvider
-                        : (_existingPhotoUrl != null
-                            ? NetworkImage(_existingPhotoUrl!)
-                            : null),
-                    child: _profileImage == null && _existingPhotoUrl == null
-                        ? const Icon(Icons.add_a_photo,
-                            size: 32, color: Colors.grey)
-                        : null,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 3),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!) as ImageProvider
+                          : (_existingPhotoUrl != null
+                              ? NetworkImage(_existingPhotoUrl!)
+                              : null),
+                      child: _profileImage == null && _existingPhotoUrl == null
+                          ? const Icon(Icons.add_a_photo,
+                              size: 32, color: Colors.grey)
+                          : null,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              TextFormField(
+              CustomTextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (v) => v?.isEmpty == true ? 'Required' : null,
+                label: 'Full Name',
+                prefixIcon: Icons.person,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
                 controller: _phoneController,
+                label: 'Phone Number',
+                prefixIcon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone),
-                ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
                 controller: _emailController,
+                label: 'Email Address',
+                prefixIcon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email Address',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
-                ),
               ),
               const SizedBox(height: 24),
 
@@ -375,16 +373,10 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
               _buildMeasurementsSection(),
               const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: _isLoading ? null : _saveCustomer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0076B6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(isEditing ? 'Update Customer' : 'Save Customer'),
+              PrimaryButton(
+                onPressed: _saveCustomer,
+                text: isEditing ? 'Update Customer' : 'Save Customer',
+                isLoading: _isLoading,
               ),
             ],
           ),
@@ -396,10 +388,11 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
 
 
   Widget _buildMeasurementsSection() {
-    return Card(
+    return PremiumCard(
+      padding: EdgeInsets.zero,
       child: ExpansionTile(
-        title: const Text('Measurements'),
-        subtitle: const Text('Use Gender Selector to quick-fill'),
+        title: Text('Measurements', style: AppTypography.h4),
+        subtitle: Text('Use Gender Selector to quick-fill', style: AppTypography.bodySmall),
         initiallyExpanded: true,
         children: [
           Padding(
@@ -421,6 +414,12 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                             });
                           }
                         },
+                        selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                        checkmarkColor: AppColors.primary,
+                        labelStyle: TextStyle(
+                          color: _selectedGender == 'Male' ? AppColors.primary : null,
+                          fontWeight: _selectedGender == 'Male' ? FontWeight.bold : null,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -436,6 +435,12 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                             });
                           }
                         },
+                        selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                        checkmarkColor: AppColors.primary,
+                        labelStyle: TextStyle(
+                          color: _selectedGender == 'Female' ? AppColors.primary : null,
+                          fontWeight: _selectedGender == 'Female' ? FontWeight.bold : null,
+                        ),
                       ),
                     ),
                   ],
@@ -499,21 +504,21 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
+                      child: CustomTextField(
                         controller: _heightController,
-                        focusNode: _heightFocus,
+                        label: 'Height (${_isCm ? 'cm' : 'in'})',
+                        isDense: true,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(labelText: 'Height (${_isCm ? 'cm' : 'in'})', border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: TextFormField(
+                      child: CustomTextField(
                         controller: _chestController,
-                        focusNode: _chestFocus,
+                        label: _selectedGender == 'Male' ? 'Chest' : 'Bust',
+                        isDense: true,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(labelText: _selectedGender == 'Male' ? 'Chest (${_isCm ? 'cm' : 'in'})' : 'Bust (${_isCm ? 'cm' : 'in'})', border: const OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -523,25 +528,21 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
+                      child: CustomTextField(
                         controller: _waistController,
-                        focusNode: _waistFocus,
+                        label: 'Waist',
+                        isDense: true,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            labelText: 'Waist',
-                            border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: TextFormField(
+                      child: CustomTextField(
                         controller: _hipController,
-                        focusNode: _hipFocus,
+                        label: 'Hip',
+                        isDense: true,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            labelText: 'Hip',
-                            border: OutlineInputBorder()),
                         onChanged: (_) => _triggerAutoCalculate(),
                       ),
                     ),
@@ -630,17 +631,12 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold))),
             const SizedBox(width: 8),
             Expanded(
-              child: TextFormField(
+              child: CustomTextField(
+                label: '',
                 controller: controller,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  border: OutlineInputBorder(),
-                  hintText: 'e.g. 36',
-                ),
+                isDense: true,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                hintText: 'e.g. 36',
                 onChanged: (val) {
                   _measurements[key] = val;
                 },

@@ -80,6 +80,7 @@ class MarketplaceRepository {
         .stream(primaryKey: ['id'])
         .eq('tailor_id', userId)
         .order('created_at', ascending: false)
+        .handleError((error) { print('Marketplace stream error ignored: $error'); })
         .map((data) => data.map((e) => MarketplaceRequest.fromJson(e)).toList());
   }
 

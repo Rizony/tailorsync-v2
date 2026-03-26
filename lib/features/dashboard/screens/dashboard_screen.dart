@@ -16,8 +16,11 @@ import 'package:needlix/features/marketplace/repositories/marketplace_repository
 import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
 import 'package:needlix/features/monetization/screens/report_center_screen.dart';
 import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
-import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
 import 'package:needlix/features/support/screens/support_list_screen.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -117,18 +120,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               Text(
                 'Hello, $name 👋',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
-                ),
+                style: AppTypography.h2,
               ),
               Text(
                 'Your business at a glance',
-                style: TextStyle(
-                  fontSize: 14, 
+                style: AppTypography.bodySmall.copyWith(
                   color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -165,43 +162,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildProfileCompletionCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
-      ),
+    return PremiumCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.storefront, color: Theme.of(context).colorScheme.primary, size: 32),
+          Icon(Icons.storefront, color: AppColors.primary, size: 32),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Complete Your Shop Profile',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: AppTypography.h4,
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Add your shop name and phone number. This is important for generating professional PDF invoices and building trust in the community.',
-                  style: TextStyle(fontSize: 13),
+                  style: AppTypography.bodySmall,
                 ),
                 const SizedBox(height: 12),
-                ElevatedButton(
+                PrimaryButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  child: const Text('Update Profile'),
+                  text: 'Update Profile',
+                  isOutline: true,
                 ),
               ],
             ),
@@ -262,58 +251,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
-    return InkWell(
+    return PremiumCard(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+            child: Icon(icon, color: color, size: 22),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: AppTypography.h3.copyWith(letterSpacing: -1),
               ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1,
-                  ),
+              Text(
+                title,
+                style: AppTypography.label.copyWith(
+                  color: Colors.grey[600],
                 ),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -322,42 +290,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton.icon(
-            key: TutorialService.newOrderKey,
+          child: PrimaryButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CreateOrderScreen()),
               );
             },
-            icon: const Icon(Icons.add),
-            label: const Text('New Order'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+            text: 'New Order',
+            icon: Icons.add,
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: OutlinedButton.icon(
-            key: TutorialService.addCustomerKey,
+          child: PrimaryButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AddEditCustomerScreen()),
               );
             },
-            icon: const Icon(Icons.person_add),
-            label: const Text('Add Customer'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: BorderSide(color: Theme.of(context).colorScheme.primary),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+            text: 'Add Customer',
+            icon: Icons.person_add,
+            isOutline: true,
           ),
         ),
       ],
@@ -368,16 +323,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange),
-            SizedBox(width: 8),
+            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            const SizedBox(width: 8),
             Text(
               'Urgent Deliveries (Next 48h)',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTypography.h3,
             ),
           ],
         ),
@@ -405,12 +357,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Recent Activity',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.h3,
         ),
         const SizedBox(height: 16),
         ListView.separated(
@@ -429,17 +378,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 );
               },
-              child: Container(
+              child: PremiumCard(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardTheme.color,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).brightness == Brightness.dark 
-                        ? Colors.white.withValues(alpha: 0.1) 
-                        : Colors.grey.shade200
-                  ),
-                ),
+                margin: EdgeInsets.zero,
               child: Row(
                 children: [
                   Container(
@@ -460,7 +401,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         Text(
                           order.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: AppTypography.label.copyWith(fontSize: 16),
                         ),
                         Text(
                           DateFormat.yMMMd().format(order.createdAt),
@@ -474,7 +415,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     children: [
                       Text(
                         '$currencySymbol${NumberFormat('#,###').format(order.price)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: AppTypography.label.copyWith(fontSize: 16),
                       ),
                       const SizedBox(height: 4),
                       Container(
@@ -728,24 +669,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final pendingCount = ref.watch(pendingMarketplaceRequestsCountProvider);
     if (pendingCount == 0) return const SizedBox.shrink();
 
-    return Container(
+    return PremiumCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.blue.shade700,
-            Colors.blue.shade500,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      color: Colors.blue.shade700,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -770,18 +696,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   Text(
                     '$pendingCount New Inquiries!',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTypography.h4.copyWith(color: Colors.white),
                   ),
-                  const Text(
+                  Text(
                     'Potential customers are reaching out from the website.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
+                    style: AppTypography.bodySmall.copyWith(color: Colors.white70),
                   ),
                 ],
               ),

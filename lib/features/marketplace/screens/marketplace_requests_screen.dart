@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/app_colors.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/components/empty_state_widget.dart';
 import '../repositories/marketplace_repository.dart';
 import '../models/marketplace_request.dart';
 import '../../customers/repositories/customer_repository.dart';
@@ -32,7 +38,11 @@ class MarketplaceRequestsScreen extends ConsumerWidget {
         data: (d) {
           final requests = d.value;
           if (requests.isEmpty) {
-            return const Center(child: Text('No order requests from the marketplace yet.'));
+            return EmptyStateWidget(
+              icon: Icons.storefront_outlined,
+              title: 'Marketplace Requests',
+              description: 'No order requests from the marketplace yet. Your public profile will attract clients here.',
+            );
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -79,12 +89,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
       absorbing: _isProcessing,
       child: Opacity(
         opacity: _isProcessing ? 0.7 : 1.0,
-        child: Card(
+        child: PremiumCard(
           margin: const EdgeInsets.only(bottom: 16.0),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -240,15 +248,16 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                         Row(
                           children: [
                             Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: _isProcessing ? null : () async {
+                              child: PrimaryButton(
+                                onPressed: () async {
                                   await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
                                   if (!mounted) return;
                                   // Also convert to order immediately
                                   await _updateStatus('accepted', forceAmount: request.counterOfferAmount);
                                 },
-                                icon: const Icon(Icons.check_circle_outline, size: 18),
-                                label: const Text('Accept counter', style: TextStyle(fontSize: 12)),
+                                isLoading: _isProcessing,
+                                icon: Icons.check_circle_outline,
+                                text: 'Accept counter',
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -403,36 +412,18 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                 if (isPending) ...[
                   const SizedBox(height: 16.0),
                   if (quoteStatus == 'accepted')
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus('accepted'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        icon: _isProcessing 
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Icon(Icons.receipt_long),
-                        label: Text(_isProcessing ? 'Processing...' : 'Client Accepted Quote - Convert to Order', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
+                    PrimaryButton(
+                      onPressed: () => _updateStatus('accepted'),
+                      isLoading: _isProcessing,
+                      icon: Icons.receipt_long,
+                      text: 'Client Accepted Quote - Convert to Order',
                     )
                   else if (isPaid)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus('accepted'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade700,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        icon: _isProcessing 
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Icon(Icons.play_circle_outline),
-                        label: Text(_isProcessing ? 'Processing...' : 'Client PAID - Start Order Now', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
+                    PrimaryButton(
+                      onPressed: () => _updateStatus('accepted'),
+                      isLoading: _isProcessing,
+                      icon: Icons.play_circle_outline,
+                      text: 'Client PAID - Start Order Now',
                     )
                   else
                     Row(
@@ -449,8 +440,8 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                         ),
                         const SizedBox(width: 12.0),
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: _isProcessing ? null : () {
+                          child: PrimaryButton(
+                            onPressed: () {
                               if (!hasQuote) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Please send a quote first so the client can pay.')),
@@ -460,9 +451,8 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                               }
                               _updateStatus('accepted');
                             },
-                            child: _isProcessing 
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : const Text('Accept Request'),
+                            isLoading: _isProcessing,
+                            text: 'Accept Request',
                           ),
                         ),
                       ],
@@ -494,7 +484,6 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -512,28 +501,26 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            CustomTextField(
               controller: amountController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Quote Amount (₦)',
-                hintText: 'e.g. 25000',
-              ),
+              label: 'Quote Amount (₦)',
+              hintText: 'e.g. 25000',
+              prefixIcon: const Icon(Icons.price_change_outlined),
             ),
             const SizedBox(height: 12),
-            TextField(
+            CustomTextField(
               controller: messageController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Message (optional)',
-                hintText: 'Add delivery timeline, fitting notes, etc.',
-              ),
+              label: 'Message (optional)',
+              hintText: 'Add delivery timeline, fitting notes, etc.',
+              prefixIcon: const Icon(Icons.message_outlined),
             ),
           ],
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save Quote')),
+          PrimaryButton(onPressed: () => Navigator.pop(ctx, true), text: 'Save Quote', width: 120),
         ],
       ),
     );
@@ -592,9 +579,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            PrimaryButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Create Order'),
+              text: 'Create Order',
+              width: 120,
             ),
           ],
         ),
@@ -707,14 +695,12 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                 }),
               ),
               const SizedBox(height: 16),
-              TextField(
+              CustomTextField(
                 controller: reviewController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Review (optional)',
-                  hintText: 'e.g. Great communication, clear requirements...',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Review (optional)',
+                hintText: 'e.g. Great communication, clear requirements...',
+                prefixIcon: const Icon(Icons.rate_review_outlined),
               ),
             ],
           ),
@@ -723,9 +709,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            PrimaryButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Submit Rating'),
+              text: 'Submit Rating',
+              width: 140,
             ),
           ],
         ),

@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/custom_text_field.dart';
+import 'package:needlix/core/theme/app_typography.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/settings/screens/shop_settings_screen.dart';
 
@@ -60,24 +64,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Center(
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    backgroundImage: userProfile.logoUrl != null 
-                        ? NetworkImage(userProfile.logoUrl!) 
-                        : null,
-                    child: userProfile.logoUrl == null 
-                        ? Icon(Icons.store, size: 40, color: Theme.of(context).colorScheme.primary) 
-                        : null,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 3),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      backgroundImage: userProfile.logoUrl != null 
+                          ? NetworkImage(userProfile.logoUrl!) 
+                          : null,
+                      child: userProfile.logoUrl == null 
+                          ? Icon(Icons.store, size: 40, color: Theme.of(context).colorScheme.primary) 
+                          : null,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     userProfile.shopName ?? 'My Tailor Shop',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: AppTypography.h3,
                   ),
                   Text(
                     userProfile.fullName ?? '',
-                    style: const TextStyle(color: Colors.grey),
+                    style: AppTypography.bodySmall.copyWith(color: Colors.grey),
                   ),
                 ],
               ),
@@ -87,13 +98,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           // --- General Section ---
           _buildSectionHeader('General'),
-          Card(
+          PremiumCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.storefront, color: Theme.of(context).colorScheme.primary),
-                  title: const Text('Shop Settings', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Branding, Invoices, Bank Details'),
+                  leading: const Icon(Icons.storefront, color: AppColors.primary),
+                  title: Text('Shop Settings', style: AppTypography.label),
+                  subtitle: Text('Branding, Invoices, Bank Details', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -105,8 +117,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.dark_mode_outlined, color: AppColors.primary),
-                  title: const Text('Appearance', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: Text(_getThemeString(ref.watch(themeModeProvider))),
+                  title: Text('Appearance', style: AppTypography.label),
+                  subtitle: Text(_getThemeString(ref.watch(themeModeProvider)), style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () => _showThemePicker(context, ref),
                 ),
@@ -117,13 +129,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           // --- Subscription Section ---
           _buildSectionHeader('Account & Billing'),
-          Card(
+          PremiumCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.star_rounded, color: Colors.amber),
-                  title: const Text('My Subscription', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: Text('Current Plan: ${userProfile?.subscriptionTier.label.toUpperCase() ?? 'FREEMIUM'}'),
+                  title: Text('My Subscription', style: AppTypography.label),
+                  subtitle: Text('Plan: ${userProfile?.subscriptionTier.label.toUpperCase() ?? 'FREEMIUM'}', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -135,8 +148,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.handshake_outlined, color: Colors.green),
-                  title: const Text('Partner Program', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Referrals, Wallet & Withdrawals'),
+                  title: Text('Partner Program', style: AppTypography.label),
+                  subtitle: Text('Referrals, Wallet & Withdrawals', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -148,8 +161,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.analytics_outlined, color: Colors.blue),
-                  title: const Text('Report Center', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Business performance & AI insights'),
+                  title: Text('Report Center', style: AppTypography.label),
+                  subtitle: Text('Business performance & AI insights', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -161,8 +174,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.account_balance_wallet, color: Colors.blue),
-                  title: const Text('Escrow Wallet', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Pending Escrow & Available Payouts'),
+                  title: Text('Escrow Wallet', style: AppTypography.label),
+                  subtitle: Text('Pending Escrow & Available Payouts', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -174,8 +187,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.verified_user_outlined, color: Colors.green),
-                  title: const Text('KYC Verification', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Upload ID to enable full payouts'),
+                  title: Text('KYC Verification', style: AppTypography.label),
+                  subtitle: Text('Upload ID to enable full payouts', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -187,8 +200,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.security_outlined, color: Colors.redAccent),
-                  title: const Text('Security & Account', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('Password, Email & Verification Status'),
+                  title: Text('Security & Account', style: AppTypography.label),
+                  subtitle: Text('Password, Email & Verification Status', style: AppTypography.bodySmall),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -204,12 +217,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           // --- Support Section ---
           _buildSectionHeader('Support & About'),
-          Card(
+          PremiumCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.help_outline),
-                  title: const Text('Help & Support'),
+                  leading: const Icon(Icons.help_outline, color: AppColors.primary),
+                  title: Text('Help & Support', style: AppTypography.label),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
                     Navigator.push(
@@ -220,9 +234,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('App Version'),
-                  trailing: Text(_appVersion, style: const TextStyle(color: Colors.grey)),
+                  leading: const Icon(Icons.info_outline, color: AppColors.primary),
+                  title: Text('App Version', style: AppTypography.label),
+                  trailing: Text(_appVersion, style: AppTypography.bodySmall.copyWith(color: Colors.grey)),
                 ),
               ],
             ),
@@ -272,9 +286,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       padding: const EdgeInsets.only(left: 8, bottom: 8),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
+        style: AppTypography.bodySmall.copyWith(
           color: Colors.grey[600],
-          fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
         ),
