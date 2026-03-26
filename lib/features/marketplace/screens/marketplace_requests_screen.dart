@@ -245,7 +245,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                                   await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
                                   if (!mounted) return;
                                   // Also convert to order immediately
-                                  await _updateStatus(context, 'accepted', forceAmount: request.counterOfferAmount);
+                                  await _updateStatus('accepted', forceAmount: request.counterOfferAmount);
                                 },
                                 icon: const Icon(Icons.check_circle_outline, size: 18),
                                 label: const Text('Accept counter', style: TextStyle(fontSize: 12)),
@@ -254,7 +254,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: _isProcessing ? null : () => _showQuoteDialog(context),
+                                onPressed: _isProcessing ? null : () => _showQuoteDialog(),
                                 icon: const Icon(Icons.edit, size: 18),
                                 label: const Text('Update quote'),
                               ),
@@ -378,7 +378,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     ActionChip(
                       avatar: const Icon(Icons.price_change_outlined, size: 16),
                       label: Text(hasQuote ? 'Update Quote' : 'Send Quote'),
-                      onPressed: _isProcessing ? null : () => _showQuoteDialog(context),
+                      onPressed: _isProcessing ? null : () => _showQuoteDialog(),
                     ),
                     if (hasQuote && !isPaid && quoteStatus != 'accepted')
                       ActionChip(
@@ -396,7 +396,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                       ActionChip(
                         avatar: const Icon(Icons.star_outline, size: 16),
                         label: const Text('Rate Client'),
-                        onPressed: _isProcessing ? null : () => _showRatingDialog(context),
+                        onPressed: _isProcessing ? null : () => _showRatingDialog(),
                       ),
                   ],
                 ),
@@ -406,7 +406,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus(context, 'accepted'),
+                        onPressed: _isProcessing ? null : () => _updateStatus('accepted'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -422,7 +422,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : () => _updateStatus(context, 'accepted'),
+                        onPressed: _isProcessing ? null : () => _updateStatus('accepted'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade700,
                           foregroundColor: Colors.white,
@@ -439,7 +439,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _isProcessing ? null : () => _updateStatus(context, 'rejected'),
+                            onPressed: _isProcessing ? null : () => _updateStatus('rejected'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
@@ -455,10 +455,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Please send a quote first so the client can pay.')),
                                 );
-                                _showQuoteDialog(context);
+                                _showQuoteDialog();
                                 return;
                               }
-                              _updateStatus(context, 'accepted');
+                              _updateStatus('accepted');
                             },
                             child: _isProcessing 
                                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -498,7 +498,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     );
   }
 
-  Future<void> _showQuoteDialog(BuildContext context) async {
+  Future<void> _showQuoteDialog() async {
     final request = widget.request;
     final amountController = TextEditingController(
       text: request.quoteAmount != null ? request.quoteAmount!.toStringAsFixed(0) : '',
@@ -539,6 +539,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     );
 
     if (ok != true) return;
+    if (!mounted) return;
 
     final amount = double.tryParse(amountController.text.replaceAll(',', '').trim());
     if (amount == null || amount <= 0) {
@@ -556,19 +557,17 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         quoteMessage: messageController.text.trim().isEmpty ? null : messageController.text.trim(),
       );
       ref.invalidate(marketplaceRequestsProvider);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quote saved. Client can now pay on the website.')));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quote saved. Client can now pay on the website.')));
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save quote: $e')));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save quote: $e')));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  Future<void> _updateStatus(BuildContext context, String status, {double? forceAmount}) async {
+  Future<void> _updateStatus(String status, {double? forceAmount}) async {
     final request = widget.request;
     if (_isProcessing) return;
 
@@ -602,6 +601,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
       );
 
       if (confirm != true) return;
+      if (!mounted) return;
 
       setState(() => _isProcessing = true);
       try {
@@ -655,9 +655,8 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
           price: 0,
         );
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to process order: $e')));
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to process order: $e')));
         return;
       } finally {
         if (mounted) setState(() => _isProcessing = false);
@@ -673,14 +672,13 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     }
     
     ref.invalidate(marketplaceRequestsProvider);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and order created' : 'rejected'}.')),
-      );
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Request ${status == 'accepted' ? 'accepted and order created' : 'rejected'}.')),
+    );
   }
 
-  Future<void> _showRatingDialog(BuildContext context) async {
+  Future<void> _showRatingDialog() async {
     final request = widget.request;
     int rating = 5;
     final reviewController = TextEditingController();
@@ -735,6 +733,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     );
 
     if (ok != true || request.customerId == null) return;
+    if (!mounted) return;
 
     setState(() => _isProcessing = true);
     try {
@@ -751,11 +750,10 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit rating: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit rating: $e')),
+      );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
