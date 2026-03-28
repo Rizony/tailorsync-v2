@@ -18,14 +18,6 @@ async function verifyPaystackSignature(secret: string, body: string, signature: 
   return expectedHex === signature
 }
 
-
-const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!
-// PAYSTACK_WEBHOOK_SECRET is your Paystack dashboard webhook secret.
-// If not set (e.g. in local dev), signature check is skipped with a warning.
-const PAYSTACK_WEBHOOK_SECRET = Deno.env.get('PAYSTACK_WEBHOOK_SECRET') ?? ''
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-paystack-signature',
@@ -38,13 +30,26 @@ serve(async (req) => {
   }
 
   try {
+    console.log('--- Paystack Webhook Received ---')
+    
+    // Read environment variables inside the handler to prevent startup crashes
+    const PAYSTACK_WEBHOOK_SECRET = Deno.env.get('PAYSTACK_WEBHOOK_SECRET') ?? ''
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const body = await req.text()
+    const signature = req.headers.get('x-paystack-signature') ?? ''
 
     // ── Paystack webhook signature verification ────────────────────────────────
-    // Paystack signs every webhook with HMAC-SHA512 using your secret key.
-    // Reject any request whose signature doesn't match to prevent spoofed events.
     if (PAYSTACK_WEBHOOK_SECRET) {
-      const signature = req.headers.get('x-paystack-signature') ?? ''
       const isValid = await verifyPaystackSignature(PAYSTACK_WEBHOOK_SECRET, body, signature)
       if (!isValid) {
         console.error('Invalid Paystack webhook signature')
@@ -53,12 +58,14 @@ serve(async (req) => {
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
+      console.log('Signature verified successfully')
     } else {
       console.warn('PAYSTACK_WEBHOOK_SECRET not set — skipping signature check (dev mode)')
     }
 
     const payload = JSON.parse(body)
     const { event, data } = payload
+    console.log(`Event: ${event}`)
 
     // Handle successful charge
     if (event === 'charge.success') {
@@ -66,8 +73,8 @@ serve(async (req) => {
 
       // Extract metadata from transaction
       const metadata = data.metadata || {}
-      const { plan_id, user_id } = metadata
-
+      console.log('Metadata:', JSON.stringify(metadata))
+      
       // --- Marketplace payment flow (client -> tailor, platform takes 10%) ---
       const marketplaceRequestId =
         metadata.marketplace_request_id || metadata.request_id || metadata.marketplaceRequestId
@@ -76,6 +83,7 @@ serve(async (req) => {
 
       if (marketplaceRequestId && marketplaceTailorId) {
         const reference = data.reference || data.id?.toString()
+        console.log(`Processing marketplace payment for request: ${marketplaceRequestId}`)
 
         // Paystack sends `amount` in kobo; convert to Naira for storage
         const amountNaira = (data.amount ?? 0) / 100
@@ -84,7 +92,7 @@ serve(async (req) => {
         const netAmount = Math.round((amountNaira - commissionAmount) * 100) / 100
 
         // Record payment (idempotent by unique reference)
-        await supabase.from('marketplace_payments').upsert({
+        const { error: paymentError } = await supabase.from('marketplace_payments').upsert({
           request_id: marketplaceRequestId,
           customer_id: marketplaceCustomerId ?? null,
           tailor_id: marketplaceTailorId,
@@ -98,18 +106,29 @@ serve(async (req) => {
           raw: payload,
         }, { onConflict: 'reference' })
 
+        if (paymentError) {
+          console.error('Error inserting marketplace_payment:', paymentError)
+          throw paymentError
+        }
+
         // Mark request as paid
-        await supabase
+        const { error: requestUpdateError } = await supabase
           .from('marketplace_requests')
           .update({ payment_status: 'paid', paid_at: new Date().toISOString() })
           .eq('id', marketplaceRequestId)
+
+        if (requestUpdateError) {
+          console.error('Error updating marketplace_request:', requestUpdateError)
+          throw requestUpdateError
+        }
 
         // Escrow split definition
         const availableAmount = Math.round((netAmount / 2) * 100) / 100;
         const pendingAmount = netAmount - availableAmount;
 
         // Credit tailor escrow wallet
-        await supabase.rpc('escrow_credit_wallet', {
+        console.log(`Crediting wallet for tailor: ${marketplaceTailorId}`)
+        const { error: rpcError } = await supabase.rpc('escrow_credit_wallet', {
           p_tailor_id: marketplaceTailorId,
           p_available_amount: availableAmount,
           p_pending_amount: pendingAmount,
@@ -117,55 +136,66 @@ serve(async (req) => {
           p_request_id: marketplaceRequestId
         })
 
+        if (rpcError) {
+          console.error('Error in escrow_credit_wallet RPC:', rpcError)
+          // We don't throw here to avoid failing the whole webhook if wallet credit fails, 
+          // but logging it is critical.
+        }
+
         // Record platform revenue (commission)
-        await supabase.from('platform_revenue').insert({
+        const { error: revenueError } = await supabase.from('platform_revenue').insert({
           source: 'marketplace_payment',
           source_id: marketplaceRequestId,
           amount: commissionAmount,
           currency: 'NGN',
         })
+        
+        if (revenueError) {
+          console.error('Error recording platform revenue:', revenueError)
+        }
 
-        // Process referral commission for this marketplace transaction (40% of the 10% platform fee)
-        // Applies to both the tailor and the customer if they have referrers, up to 5 transactions each.
-        const processMarketplaceReferral = async (userId: string | null) => {
+        // Process referral commission
+        const processMarketplaceReferral = async (userId: string | null, label: string) => {
           if (!userId) return;
-          const { data: userData } = await supabase
+          console.log(`Checking referral for ${label}: ${userId}`)
+          
+          const { data: userData, error: userError } = await supabase
             .from('profiles')
             .select('referrer_id')
             .eq('id', userId)
             .single()
 
-          if (!userData?.referrer_id) return;
+          if (userError || !userData?.referrer_id) return;
 
-          // Must be a Premium Partner to earn referrals
-          const { data: referrerData } = await supabase
+          const { data: referrerData, error: refError } = await supabase
             .from('profiles')
             .select('subscription_tier')
             .eq('id', userData.referrer_id)
             .single()
 
-          if (referrerData?.subscription_tier !== 'premium') return;
+          if (refError || referrerData?.subscription_tier !== 'premium') return;
 
-          // Check if under 5 completed transactions for this referred user
-          const { count } = await supabase
+          const { count, error: countError } = await supabase
             .from('referral_transactions')
             .select('*', { count: 'exact', head: true })
             .eq('referred_user_id', userId)
             .eq('subscription_tier', 'marketplace_payment')
 
-          if (count !== null && count >= 5) return; // Limit reached
+          if (countError || (count !== null && count >= 5)) return;
 
-          // Partner gets 40% of Needlix's fee
           const partnerCommission = Math.round(commissionAmount * 0.40 * 100) / 100
 
           if (partnerCommission > 0) {
-            // Increment referrer's wallet balance
-            await supabase.rpc('increment_wallet_balance', {
+            const { error: walletIncError } = await supabase.rpc('increment_wallet_balance', {
               user_id: userData.referrer_id,
               amount: partnerCommission,
             })
 
-            // Record referral transaction (using subscription_tier as type)
+            if (walletIncError) {
+              console.error(`Error incrementing referrer wallet for ${label}:`, walletIncError)
+              return;
+            }
+
             await supabase.from('referral_transactions').insert({
               referrer_id: userData.referrer_id,
               referred_user_id: userId,
@@ -176,102 +206,89 @@ serve(async (req) => {
               is_first_month: false,
               created_at: new Date().toISOString(),
             })
-            console.log(`Earned ${partnerCommission} NGN referral commission for marketplace pay (User: ${userId})`)
+            console.log(`Earned ${partnerCommission} NGN referral commission for ${label}: ${userId}`)
           }
         }
 
-        await processMarketplaceReferral(marketplaceTailorId);
-        await processMarketplaceReferral(marketplaceCustomerId);
+        await processMarketplaceReferral(marketplaceTailorId, 'Tailor');
+        await processMarketplaceReferral(marketplaceCustomerId, 'Customer');
 
-        console.log(`Marketplace payment paid: request=${marketplaceRequestId} tailor=${marketplaceTailorId} amount=${amountNaira}`)
+        console.log(`Webhook processed successfully for request ${marketplaceRequestId}`)
         return new Response(
           JSON.stringify({ received: true }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      if (!plan_id || !user_id) {
-        console.error('Missing plan_id or user_id in metadata')
-        return new Response(
-          JSON.stringify({ error: 'Missing required metadata' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+      // --- Subscription flow (if plan_id and user_id exist) ---
+      if (plan_id && user_id) {
+        console.log(`Processing subscription for user: ${user_id}, plan: ${plan_id}`)
+        
+        const subscriptionTier = plan_id.includes('premium')
+          ? 'premium'
+          : plan_id.includes('standard')
+          ? 'standard'
+          : 'freemium'
 
-      // Determine subscription tier from planId
-      const subscriptionTier = plan_id.includes('premium')
-        ? 'premium'
-        : plan_id.includes('standard')
-        ? 'standard'
-        : 'freemium'
+        const now = new Date()
+        const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
-      // Calculate expiry date (30 days from now)
-      const now = new Date()
-      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-
-      // Update user profile with subscription
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          subscription_tier: subscriptionTier,
-          subscription_started_at: now.toISOString(),
-          subscription_expires_at: expiresAt.toISOString(),
-          last_payment_provider: 'paystack',
-          last_transaction_ref: data.reference || data.id?.toString(),
-        })
-        .eq('id', user_id)
-
-      if (updateError) {
-        console.error('Error updating subscription:', updateError)
-        return new Response(
-          JSON.stringify({ error: 'Failed to activate subscription' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // Process referral commission if applicable.
-      // Use the actual Paystack-verified amount (kobo → Naira) rather than hardcoded values.
-      const subscriptionAmountNaira = (data.amount ?? 0) / 100
-
-      const { data: userData } = await supabase
-        .from('profiles')
-        .select('referrer_id, subscription_tier')
-        .eq('id', user_id)
-        .single()
-
-      if (userData?.referrer_id) {
-        // Check if referrer is Premium
-        const { data: referrerData } = await supabase
+        const { error: updateError } = await supabase
           .from('profiles')
-          .select('subscription_tier')
-          .eq('id', userData.referrer_id)
+          .update({
+            subscription_tier: subscriptionTier,
+            subscription_started_at: now.toISOString(),
+            subscription_expires_at: expiresAt.toISOString(),
+            last_payment_provider: 'paystack',
+            last_transaction_ref: data.reference || data.id?.toString(),
+          })
+          .eq('id', user_id)
+
+        if (updateError) {
+          console.error('Error updating subscription:', updateError)
+          throw updateError
+        }
+
+        const subscriptionAmountNaira = (data.amount ?? 0) / 100
+
+        const { data: userData } = await supabase
+          .from('profiles')
+          .select('referrer_id')
+          .eq('id', user_id)
           .single()
 
-        if (referrerData?.subscription_tier === 'premium') {
-          // 40% commission on the actual charged amount
-          const commissionAmount = Math.round(subscriptionAmountNaira * 0.40)
+        if (userData?.referrer_id) {
+          const { data: referrerData } = await supabase
+            .from('profiles')
+            .select('subscription_tier')
+            .eq('id', userData.referrer_id)
+            .single()
 
-          // Increment referrer's wallet balance
-          await supabase.rpc('increment_wallet_balance', {
-            user_id: userData.referrer_id,
-            amount: commissionAmount,
-          })
+          if (referrerData?.subscription_tier === 'premium') {
+            const commissionAmount = Math.round(subscriptionAmountNaira * 0.40)
+            
+            await supabase.rpc('increment_wallet_balance', {
+              user_id: userData.referrer_id,
+              amount: commissionAmount,
+            })
 
-          // Record referral transaction
-          await supabase.from('referral_transactions').insert({
-            referrer_id: userData.referrer_id,
-            referred_user_id: user_id,
-            subscription_tier: subscriptionTier,
-            subscription_amount: subscriptionAmountNaira,
-            commission_rate: 0.40,
-            commission_amount: commissionAmount,
-            is_first_month: true,
-            created_at: now.toISOString(),
-          })
+            await supabase.from('referral_transactions').insert({
+              referrer_id: userData.referrer_id,
+              referred_user_id: user_id,
+              subscription_tier: subscriptionTier,
+              subscription_amount: subscriptionAmountNaira,
+              commission_rate: 0.40,
+              commission_amount: commissionAmount,
+              is_first_month: true,
+              created_at: now.toISOString(),
+            })
+          }
         }
-      }
 
-      console.log(`Subscription activated for user ${user_id}: ${subscriptionTier}`)
+        console.log(`Subscription activated: user=${user_id} tier=${subscriptionTier}`)
+      } else {
+        console.warn('Unknown charge.success payload structure (missing marketplace IDs and subscription IDs)')
+      }
     }
 
     return new Response(
