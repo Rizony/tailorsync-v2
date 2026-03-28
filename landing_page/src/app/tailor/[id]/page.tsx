@@ -19,6 +19,7 @@ interface TailorProfile {
   specialties: string[];
   rating: number;
   is_available: boolean;
+  is_kyc_verified?: boolean;
   logo_url: string;
   photo_url?: string;
   avatar_url?: string;

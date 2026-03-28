@@ -10,6 +10,7 @@ import 'package:needlix/core/theme/components/primary_button.dart';
 import 'package:needlix/core/theme/components/custom_text_field.dart';
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
 
 import 'package:needlix/features/customers/utils/smart_measurement_engine.dart';
@@ -158,7 +159,6 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -351,20 +351,20 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
               CustomTextField(
                 controller: _nameController,
                 label: 'Full Name',
-                prefixIcon: Icons.person,
+                prefixIcon: const Icon(Icons.person),
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
-                prefixIcon: Icons.phone,
+                prefixIcon: const Icon(Icons.phone),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _emailController,
                 label: 'Email Address',
-                prefixIcon: Icons.email,
+                prefixIcon: const Icon(Icons.email),
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 24),
@@ -391,7 +391,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
     return PremiumCard(
       padding: EdgeInsets.zero,
       child: ExpansionTile(
-        title: Text('Measurements', style: AppTypography.h4),
+        title: Text('Measurements', style: AppTypography.h3),
         subtitle: Text('Use Gender Selector to quick-fill', style: AppTypography.bodySmall),
         initiallyExpanded: true,
         children: [

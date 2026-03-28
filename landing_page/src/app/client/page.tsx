@@ -8,6 +8,15 @@ import { supabase, supabaseUrl, supabaseAnonKey } from "@/lib/supabase";
 import { signOut } from "@/lib/auth";
 import { ArrowRight, CreditCard, LogOut, RefreshCw, Scissors, Star, CheckCircle2 } from "lucide-react";
 
+/** Format a Naira amount, e.g. 25000 → ₦25,000.00 */
+function formatNaira(amount: number): string {
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
+
 type RequestStatus = "pending" | "accepted" | "rejected" | "completed" | string;
 
 interface MarketplaceRequest {
@@ -513,22 +522,31 @@ export default function ClientDashboardPage() {
                       <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-2 text-sm font-bold text-green-700 text-center">
                         Paid
                       </div>
-                    ) : r.quote_amount ? (
+                    ) : r.quote_amount && r.quote_status === 'accepted' ? (
+                      // Bug 3 fix: only show Pay button when quote has been accepted
                       <button
                         onClick={() => startPaystackPayment(r)}
                         className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0A1128] px-4 py-2 text-sm font-bold text-white hover:bg-[#0076B6] transition-colors"
                       >
                         <CreditCard className="h-4 w-4" />
-                        Pay ₦{r.quote_amount}
+                        {/* Bug 4 fix: format amount properly */}
+                        Pay {formatNaira(r.quote_amount)}
                       </button>
+                    ) : r.quote_amount && r.quote_status !== 'accepted' ? (
+                      // Hint: quote exists but not yet accepted
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-800 text-center">
+                        Accept the quote below to unlock payment
+                      </div>
                     ) : (
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600 text-center">
                         Waiting for quote
                       </div>
                     )}
 
-                    {/* Quote negotiation */}
-                    {r.quote_amount && String(r.payment_status || "").toLowerCase() !== "paid" ? (
+                    {/* Bug 5 fix: Quote negotiation — only show when not yet accepted and not paid */}
+                    {r.quote_amount &&
+                     r.quote_status !== 'accepted' &&
+                     String(r.payment_status || "").toLowerCase() !== "paid" ? (
                       <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
                         <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Quote actions</p>
                         <div className="flex flex-col gap-2">

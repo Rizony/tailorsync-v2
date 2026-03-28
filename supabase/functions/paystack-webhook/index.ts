@@ -1,18 +1,45 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { hmac } from "https://deno.land/x/hmac@v2.0.1/mod.ts"
 
 const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!
+// PAYSTACK_WEBHOOK_SECRET is your Paystack dashboard webhook secret.
+// If not set (e.g. in local dev), signature check is skipped with a warning.
+const PAYSTACK_WEBHOOK_SECRET = Deno.env.get('PAYSTACK_WEBHOOK_SECRET') ?? ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-paystack-signature',
+}
+
 serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const body = await req.text()
-    const hash = req.headers.get('x-paystack-signature')
-    
-    // Verify webhook signature (basic check - you can enhance this)
-    // In production, verify the hash using crypto
-    
+
+    // ── Paystack webhook signature verification ────────────────────────────────
+    // Paystack signs every webhook with HMAC-SHA512 using your secret key.
+    // Reject any request whose signature doesn't match to prevent spoofed events.
+    if (PAYSTACK_WEBHOOK_SECRET) {
+      const signature = req.headers.get('x-paystack-signature') ?? ''
+      const expectedHash = hmac('sha512', PAYSTACK_WEBHOOK_SECRET, body, 'utf8', 'hex') as string
+      if (signature !== expectedHash) {
+        console.error('Invalid Paystack webhook signature')
+        return new Response(
+          JSON.stringify({ error: 'Invalid signature' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    } else {
+      console.warn('PAYSTACK_WEBHOOK_SECRET not set — skipping signature check (dev mode)')
+    }
+
     const payload = JSON.parse(body)
     const { event, data } = payload
 
@@ -142,7 +169,7 @@ serve(async (req) => {
         console.log(`Marketplace payment paid: request=${marketplaceRequestId} tailor=${marketplaceTailorId} amount=${amountNaira}`)
         return new Response(
           JSON.stringify({ received: true }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -150,7 +177,7 @@ serve(async (req) => {
         console.error('Missing plan_id or user_id in metadata')
         return new Response(
           JSON.stringify({ error: 'Missing required metadata' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -181,11 +208,14 @@ serve(async (req) => {
         console.error('Error updating subscription:', updateError)
         return new Response(
           JSON.stringify({ error: 'Failed to activate subscription' }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      // Process referral commission if applicable
+      // Process referral commission if applicable.
+      // Use the actual Paystack-verified amount (kobo → Naira) rather than hardcoded values.
+      const subscriptionAmountNaira = (data.amount ?? 0) / 100
+
       const { data: userData } = await supabase
         .from('profiles')
         .select('referrer_id, subscription_tier')
@@ -201,11 +231,8 @@ serve(async (req) => {
           .single()
 
         if (referrerData?.subscription_tier === 'premium') {
-          // Calculate commission (40% first month, 20% subsequent)
-          const subscriptionAmount = subscriptionTier === 'premium' ? 5000 : 3000
-          const isFirstMonth = true // You might want to check this from database
-          const commissionRate = isFirstMonth ? 0.40 : 0.20
-          const commissionAmount = Math.round(subscriptionAmount * commissionRate)
+          // 40% commission on the actual charged amount
+          const commissionAmount = Math.round(subscriptionAmountNaira * 0.40)
 
           // Increment referrer's wallet balance
           await supabase.rpc('increment_wallet_balance', {
@@ -218,10 +245,10 @@ serve(async (req) => {
             referrer_id: userData.referrer_id,
             referred_user_id: user_id,
             subscription_tier: subscriptionTier,
-            subscription_amount: subscriptionAmount,
-            commission_rate: commissionRate,
+            subscription_amount: subscriptionAmountNaira,
+            commission_rate: 0.40,
             commission_amount: commissionAmount,
-            is_first_month: isFirstMonth,
+            is_first_month: true,
             created_at: now.toISOString(),
           })
         }
@@ -232,13 +259,13 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ received: true }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Paystack webhook error:', error)
     return new Response(
       JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

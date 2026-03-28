@@ -16,6 +16,7 @@ import 'package:needlix/features/marketplace/repositories/marketplace_repository
 import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
 import 'package:needlix/features/monetization/screens/report_center_screen.dart';
 import 'package:needlix/features/monetization/screens/wallet_dashboard_screen.dart';
+import 'package:needlix/features/referrals/screens/referral_dashboard_screen.dart';
 import 'package:needlix/features/support/screens/support_list_screen.dart';
 import 'package:needlix/core/theme/components/premium_card.dart';
 import 'package:needlix/core/theme/components/primary_button.dart';
@@ -174,7 +175,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               children: [
                 Text(
                   'Complete Your Shop Profile',
-                  style: AppTypography.h4,
+                  style: AppTypography.h3,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -190,7 +191,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     );
                   },
                   text: 'Update Profile',
-                  isOutline: true,
+                  isSecondary: true,
                 ),
               ],
             ),
@@ -312,7 +313,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             },
             text: 'Add Customer',
             icon: Icons.person_add,
-            isOutline: true,
+            isSecondary: true,
           ),
         ),
       ],
@@ -671,7 +672,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return PremiumCard(
       padding: const EdgeInsets.all(16),
-      color: Colors.blue.shade700,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -696,7 +696,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   Text(
                     '$pendingCount New Inquiries!',
-                    style: AppTypography.h4.copyWith(color: Colors.white),
+                    style: AppTypography.h3.copyWith(color: Colors.white),
                   ),
                   Text(
                     'Potential customers are reaching out from the website.',

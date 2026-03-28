@@ -444,7 +444,7 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
                     CustomTextField(
                       controller: _depositController,
                       label: 'Deposit / Paid Amount',
-                      prefixIcon: Icons.payments_outlined,
+                      prefixIcon: const Icon(Icons.payments_outlined),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (val) => setState(() {}),
                     ),

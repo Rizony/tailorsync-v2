@@ -11,6 +11,7 @@ import 'package:needlix/core/theme/components/premium_card.dart';
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/core/theme/app_typography.dart';
 import 'package:needlix/core/theme/components/empty_state_widget.dart';
+import 'package:needlix/core/utils/snackbar_util.dart';
 
 class CustomerDetailsScreen extends ConsumerWidget {
   final Customer customer;

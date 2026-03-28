@@ -238,9 +238,6 @@ class _OrdersList extends ConsumerWidget {
                     ),
                   );
                 },
-                    ),
-                  );
-                },
               ),
             );
           },

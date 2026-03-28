@@ -396,7 +396,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             const SizedBox(height: 24),
 
             // Fabric Status
-            Text('Fabric Tracking', style: AppTypography.h4),
+            Text('Fabric Tracking', style: AppTypography.h3),
             const SizedBox(height: 8),
             _buildFabricSelector(),
             const SizedBox(height: 24),

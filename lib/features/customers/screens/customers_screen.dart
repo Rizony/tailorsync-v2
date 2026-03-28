@@ -36,7 +36,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
             child: CustomTextField(
               label: '',
               hintText: 'Search customers...',
-              prefixIcon: Icons.search,
+              prefixIcon: const Icon(Icons.search),
               isDense: true,
               onChanged: (value) {
                 setState(() {
@@ -61,13 +61,16 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                     description: _searchQuery.isEmpty 
                       ? 'Add your regular customers to keep track of their measurements and orders.' 
                       : 'Try a different search term or check your spelling.',
-                    onActionPressed: _searchQuery.isEmpty ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AddEditCustomerScreen()),
-                      );
-                    } : null,
-                    actionLabel: _searchQuery.isEmpty ? 'Add Customer' : null,
+                    actionButton: _searchQuery.isEmpty ? ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AddEditCustomerScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Customer'),
+                    ) : null,
                   );
                 }
 
