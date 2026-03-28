@@ -1,6 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { hmac } from "https://deno.land/x/hmac@v2.0.1/mod.ts"
+
+/** Verify Paystack HMAC-SHA512 webhook signature using native Deno crypto. */
+async function verifyPaystackSignature(secret: string, body: string, signature: string): Promise<boolean> {
+  const encoder = new TextEncoder()
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-512' },
+    false,
+    ['sign']
+  )
+  const signatureBytes = await crypto.subtle.sign('HMAC', key, encoder.encode(body))
+  const expectedHex = Array.from(new Uint8Array(signatureBytes))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  return expectedHex === signature
+}
+
 
 const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY')!
 // PAYSTACK_WEBHOOK_SECRET is your Paystack dashboard webhook secret.
@@ -28,8 +45,8 @@ serve(async (req) => {
     // Reject any request whose signature doesn't match to prevent spoofed events.
     if (PAYSTACK_WEBHOOK_SECRET) {
       const signature = req.headers.get('x-paystack-signature') ?? ''
-      const expectedHash = hmac('sha512', PAYSTACK_WEBHOOK_SECRET, body, 'utf8', 'hex') as string
-      if (signature !== expectedHash) {
+      const isValid = await verifyPaystackSignature(PAYSTACK_WEBHOOK_SECRET, body, signature)
+      if (!isValid) {
         console.error('Invalid Paystack webhook signature')
         return new Response(
           JSON.stringify({ error: 'Invalid signature' }),
