@@ -33,7 +33,8 @@ serve(async (req) => {
     console.log('--- Paystack Webhook Received ---')
     
     // Read environment variables inside the handler to prevent startup crashes
-    const PAYSTACK_WEBHOOK_SECRET = Deno.env.get('PAYSTACK_WEBHOOK_SECRET') ?? ''
+    // Paystack natively uses your Secret Key to sign webhook events
+    const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY') ?? ''
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -49,8 +50,8 @@ serve(async (req) => {
     const signature = req.headers.get('x-paystack-signature') ?? ''
 
     // ── Paystack webhook signature verification ────────────────────────────────
-    if (PAYSTACK_WEBHOOK_SECRET) {
-      const isValid = await verifyPaystackSignature(PAYSTACK_WEBHOOK_SECRET, body, signature)
+    if (PAYSTACK_SECRET_KEY) {
+      const isValid = await verifyPaystackSignature(PAYSTACK_SECRET_KEY, body, signature)
       if (!isValid) {
         console.error('Invalid Paystack webhook signature')
         return new Response(
@@ -60,7 +61,11 @@ serve(async (req) => {
       }
       console.log('Signature verified successfully')
     } else {
-      console.warn('PAYSTACK_WEBHOOK_SECRET not set — skipping signature check (dev mode)')
+      console.error('PAYSTACK_SECRET_KEY not set — cannot verify webhook')
+      return new Response(
+        JSON.stringify({ error: 'Missing Paystack Secret Key' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     const payload = JSON.parse(body)
@@ -74,6 +79,8 @@ serve(async (req) => {
       // Extract metadata from transaction
       const metadata = data.metadata || {}
       console.log('Metadata:', JSON.stringify(metadata))
+
+      const { plan_id, user_id } = metadata
       
       // --- Marketplace payment flow (client -> tailor, platform takes 10%) ---
       const marketplaceRequestId =
