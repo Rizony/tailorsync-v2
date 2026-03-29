@@ -12,13 +12,6 @@ serve(async (req) => {
   try {
     const { reference, user_id, plan_id } = await req.json()
 
-    if (!reference || !user_id || !plan_id) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing required fields' }),
-        { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } }
-      )
-    }
-
     const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY') ?? ''
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -32,15 +25,14 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-    let paystackConfirmed = false
-
     // ── 1. Try Paystack API verification ──────────────────────────────────────
+    let verifyData: any;
     if (PAYSTACK_SECRET_KEY) {
       const verifyRes = await fetch(
         `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
         { headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}` } }
       )
-      const verifyData = await verifyRes.json()
+      verifyData = await verifyRes.json()
 
       console.log('Paystack verify response:', JSON.stringify({
         status: verifyData.status,
@@ -49,9 +41,7 @@ serve(async (req) => {
         reference,
       }))
 
-      if (verifyData.status && verifyData.data?.status === 'success') {
-        paystackConfirmed = true
-      } else {
+      if (!verifyData.status || verifyData.data?.status !== 'success') {
         console.error('Paystack did not confirm payment:', verifyData.message ?? verifyData)
         return new Response(
           JSON.stringify({
@@ -63,20 +53,50 @@ serve(async (req) => {
         )
       }
     } else {
-      // ── 2. Fallback: PAYSTACK_SECRET_KEY not configured — trust the reference
-      //    This is only for test/development. Set the secret in production.
-      console.warn('PAYSTACK_SECRET_KEY not set — activating via reference directly (test mode)')
-      paystackConfirmed = true
+      console.warn('PAYSTACK_SECRET_KEY not set — cannot verify actual payment state')
+      return new Response(
+        JSON.stringify({ success: false, error: 'PAYSTACK_SECRET_KEY is required for verification' }),
+        { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
+      )
     }
 
-    if (!paystackConfirmed) {
+    const metadata = verifyData.data?.metadata || {}
+    const amount = verifyData.data?.amount || 0
+    
+    // ── 2. Marketplace Flow ────────────────────────────────────────────────────
+    const marketplaceRequestId = metadata.marketplace_request_id || metadata.request_id || metadata.marketplaceRequestId
+    if (marketplaceRequestId) {
+      console.log(`Verifying marketplace payment for request: ${marketplaceRequestId}`)
+      // The heavy lifting (escrow, commissions) is handled by the webhook.
+      // This frontend verification just ensures the DB is updated before the client redirects.
+      
+      const { error: updateError } = await supabase
+        .from('marketplace_requests')
+        .update({ payment_status: 'paid', paid_at: new Date().toISOString() })
+        .eq('id', marketplaceRequestId)
+
+      if (updateError) {
+        console.error('DB update error on marketplace_request:', updateError)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to update marketplace request' }),
+          { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
+        )
+      }
+
       return new Response(
-        JSON.stringify({ success: false, error: 'Payment could not be verified' }),
+        JSON.stringify({ success: true, type: 'marketplace' }),
         { headers: { ...cors, 'Content-Type': 'application/json' } }
       )
     }
 
-    // ── 3. Determine subscription tier from plan_id ────────────────────────────
+    // ── 3. Subscription Flow ───────────────────────────────────────────────────
+    if (!plan_id) {
+       return new Response(
+        JSON.stringify({ success: false, error: 'Not a marketplace payment and plan_id is missing' }),
+        { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const subscriptionTier = plan_id.includes('premium')
       ? 'premium'
       : plan_id.includes('standard')
@@ -87,8 +107,7 @@ serve(async (req) => {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + (isAnnual ? 365 : 30) * 24 * 60 * 60 * 1000)
 
-    // ── 4. Update profile ──────────────────────────────────────────────────────
-    const { error: updateError } = await supabase
+    const { error: profileUpdateError } = await supabase
       .from('profiles')
       .update({
         subscription_tier: subscriptionTier,
@@ -99,15 +118,15 @@ serve(async (req) => {
       })
       .eq('id', user_id)
 
-    if (updateError) {
-      console.error('DB update error:', updateError)
+    if (profileUpdateError) {
+      console.error('DB update error:', profileUpdateError)
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to update subscription' }),
         { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
       )
     }
 
-    // ── 5. Referral commission ─────────────────────────────────────────────────
+    // Referral commission logic
     const { data: userData } = await supabase
       .from('profiles')
       .select('referrer_id')
@@ -122,21 +141,20 @@ serve(async (req) => {
         .single()
 
       if (referrerData?.subscription_tier === 'premium') {
-        const amount = subscriptionTier === 'premium' ? 5000 : 3000
-        const commission = Math.round(amount * 0.40)
+        const commissionAmount = Math.round((amount / 100) * 0.40)
 
         await supabase.rpc('increment_wallet_balance', {
           user_id: userData.referrer_id,
-          amount: commission,
+          amount: commissionAmount,
         })
 
         await supabase.from('referral_transactions').insert({
           referrer_id: userData.referrer_id,
           referred_user_id: user_id,
           subscription_tier: subscriptionTier,
-          subscription_amount: amount,
+          subscription_amount: amount / 100,
           commission_rate: 0.40,
-          commission_amount: commission,
+          commission_amount: commissionAmount,
           is_first_month: true,
           created_at: now.toISOString(),
         })
@@ -146,7 +164,7 @@ serve(async (req) => {
     console.log(`Paystack: activated ${subscriptionTier} for user ${user_id} (ref=${reference})`)
 
     return new Response(
-      JSON.stringify({ success: true, tier: subscriptionTier }),
+      JSON.stringify({ success: true, type: 'subscription', tier: subscriptionTier }),
       { headers: { ...cors, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
