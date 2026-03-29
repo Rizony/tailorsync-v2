@@ -35,6 +35,7 @@ serve(async (req) => {
     // Read environment variables inside the handler to prevent startup crashes
     // Paystack natively uses your Secret Key to sign webhook events
     const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY') ?? ''
+    const PAYSTACK_WEBHOOK_SECRET = Deno.env.get('PAYSTACK_WEBHOOK_SECRET') ?? ''
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -48,24 +49,38 @@ serve(async (req) => {
 
     const body = await req.text()
     const signature = req.headers.get('x-paystack-signature') ?? ''
-
+    
     // ── Paystack webhook signature verification ────────────────────────────────
+    let isValid = false;
+
     if (PAYSTACK_SECRET_KEY) {
-      const isValid = await verifyPaystackSignature(PAYSTACK_SECRET_KEY, body, signature)
-      if (!isValid) {
-        console.error('Invalid Paystack webhook signature')
-        return new Response(
-          JSON.stringify({ error: 'Invalid signature' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-      console.log('Signature verified successfully')
-    } else {
-      console.error('PAYSTACK_SECRET_KEY not set — cannot verify webhook')
-      return new Response(
-        JSON.stringify({ error: 'Missing Paystack Secret Key' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      isValid = await verifyPaystackSignature(PAYSTACK_SECRET_KEY, body, signature)
+      if (isValid) console.log('Signature verified with PAYSTACK_SECRET_KEY')
+    }
+    
+    if (!isValid && PAYSTACK_WEBHOOK_SECRET) {
+      isValid = await verifyPaystackSignature(PAYSTACK_WEBHOOK_SECRET, body, signature)
+      if (isValid) console.log('Signature verified with PAYSTACK_WEBHOOK_SECRET')
+    }
+
+    if (!isValid) {
+       console.error(`Invalid Paystack webhook signature.`)
+       console.error(`Header signature: ${signature}`)
+       console.error(`Body length: ${body.length}`)
+       
+       if (PAYSTACK_SECRET_KEY) {
+         console.error(`Tried verifying with PAYSTACK_SECRET_KEY (length: ${PAYSTACK_SECRET_KEY.length}, starting with: ${PAYSTACK_SECRET_KEY.substring(0, 5)})`)
+       }
+       if (PAYSTACK_WEBHOOK_SECRET) {
+         console.error(`Tried verifying with PAYSTACK_WEBHOOK_SECRET (length: ${PAYSTACK_WEBHOOK_SECRET.length}, starting with: ${PAYSTACK_WEBHOOK_SECRET.substring(0, 5)})`)
+       }
+
+       // Temporarily returning 200 during debugging so Paystack doesn't block the dashboard, 
+       // but we still halt execution so we don't grant unauthorized credit.
+       return new Response(
+         JSON.stringify({ error: 'Invalid signature. Check logs.' }),
+         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+       )
     }
 
     const payload = JSON.parse(body)
