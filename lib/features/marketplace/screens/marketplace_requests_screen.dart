@@ -565,7 +565,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
       if (line.startsWith('- ')) {
         final parts = line.substring(2).split(':');
         if (parts.length >= 2) {
-          final key = parts[0].trim().toLowerCase();
+          final key = parts[0].trim();
           final value = parts[1].replaceAll('"', '').trim();
           measurements[key] = value;
         }

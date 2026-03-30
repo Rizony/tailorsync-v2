@@ -162,8 +162,8 @@ export default function TailorProfilePage({ params }: { params: Promise<{ id: st
     if (savedMeasurements) {
       const formattedM = Object.entries(savedMeasurements)
         .filter(([_, v]) => v)
-        .map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}"`)
-        .join(", ");
+        .map(([k, v]) => `- ${k}: ${v}`)
+        .join("\n");
       
       if (formattedM.length > 0) {
         finalDescription += `\n\n📌 **Saved Measurements:**\n${formattedM}`;

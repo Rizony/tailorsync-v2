@@ -11,20 +11,25 @@ export default function ClientProfilePage() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [user, setUser] = useState<any>(null);
 
-  const [measurements, setMeasurements] = useState({
-    chest: "",
-    waist: "",
-    hips: "",
-    inseam: "",
-    shoulder: "",
-    sleeve: "",
-    length: "",
-  });
+  const [measurements, setMeasurements] = useState<Record<string, string>>({});
+  const [gender, setGender] = useState<"Male" | "Female">("Male");
 
   const [contact, setContact] = useState({
     fullName: "",
     phone: "",
   });
+
+  const MALE_MEASUREMENTS = [
+    'Neck', 'Shoulder', 'Chest', 'Stomach', 'Top Length', 'Sleeve Length', 
+    'Muscle', 'Forearm', 'Wrist', 'Waist', 'Hips', 'Thigh', 'Knee', 
+    'Calf', 'Ankle', 'Trouser Length'
+  ];
+
+  const FEMALE_MEASUREMENTS = [
+    'Bust', 'Waist', 'Hips', 'Shoulder', 'Sleeve', 'Nipple to Nipple', 
+    'Shoulder to Nipple', 'Shoulder to Underbust', 'Shoulder to Waist', 
+    'Gown Length', 'Skirt Length', 'Blouse Length', 'Wrapper Length'
+  ];
 
   useEffect(() => {
     loadProfile();
@@ -51,15 +56,10 @@ export default function ClientProfilePage() {
         if (data.full_name) setContact(prev => ({ ...prev, fullName: data.full_name }));
         if (data.phone_number) setContact(prev => ({ ...prev, phone: data.phone_number }));
         if (data.measurements) {
-          setMeasurements({
-            chest: data.measurements.chest || "",
-            waist: data.measurements.waist || "",
-            hips: data.measurements.hips || "",
-            inseam: data.measurements.inseam || "",
-            shoulder: data.measurements.shoulder || "",
-            sleeve: data.measurements.sleeve || "",
-            length: data.measurements.length || "",
-          });
+          setMeasurements(data.measurements);
+        }
+        if (data.gender) {
+          setGender(data.gender === "Female" ? "Female" : "Male");
         }
       }
     } catch (err: any) {
@@ -80,6 +80,7 @@ export default function ClientProfilePage() {
         email: user.email,
         full_name: contact.fullName,
         phone_number: contact.phone,
+        gender: gender,
         measurements: measurements,
         updated_at: new Date().toISOString(),
       };
@@ -165,24 +166,35 @@ export default function ClientProfilePage() {
 
           {/* Measurements */}
           <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-            <h2 className="text-lg font-bold mb-4">Measurements (Inches)</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { id: 'chest', label: 'Chest / Bust' },
-                { id: 'waist', label: 'Waist' },
-                { id: 'hips', label: 'Hips' },
-                { id: 'shoulder', label: 'Shoulder width' },
-                { id: 'sleeve', label: 'Sleeve length' },
-                { id: 'inseam', label: 'Inseam / Trouser' },
-                { id: 'length', label: 'Full Length' }
-              ].map(field => (
-                <div key={field.id}>
-                  <label className="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">{field.label}</label>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+              <h2 className="text-lg font-bold">Measurements (Inches)</h2>
+              <div className="flex bg-slate-100 p-1 rounded-full items-center">
+                <button
+                  type="button"
+                  onClick={() => setGender("Male")}
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors ${gender === "Male" ? "bg-white shadow text-[#0076B6]" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGender("Female")}
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors ${gender === "Female" ? "bg-white shadow text-[#0076B6]" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  Female
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {(gender === "Male" ? MALE_MEASUREMENTS : FEMALE_MEASUREMENTS).map(field => (
+                <div key={field}>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">{field}</label>
                   <input
                     type="number"
-                    step="0.5"
-                    value={measurements[field.id as keyof typeof measurements]}
-                    onChange={(e) => setMeasurements({...measurements, [field.id]: e.target.value})}
+                    step="0.1"
+                    value={measurements[field] || ""}
+                    onChange={(e) => setMeasurements({...measurements, [field]: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-[#00AEEF] outline-none font-medium"
                     placeholder="e.g. 32.5"
                   />
