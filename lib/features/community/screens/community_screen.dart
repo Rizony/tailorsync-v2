@@ -10,6 +10,7 @@ import 'package:needlix/features/community/screens/create_post_screen.dart';
 import 'package:needlix/features/community/screens/post_details_screen.dart';
 import 'package:needlix/features/community/screens/tailor_profile_screen.dart';
 import 'package:needlix/features/marketplace/screens/marketplace_requests_screen.dart';
+import 'package:needlix/features/marketplace/services/marketplace_notification_service.dart';
 
 class CommunityScreen extends ConsumerStatefulWidget {
   const CommunityScreen({super.key});

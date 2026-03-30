@@ -341,5 +341,23 @@ final allOrdersProvider = AutoDisposeFutureProvider<List<OrderModel>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AllOrdersRef = AutoDisposeFutureProviderRef<List<OrderModel>>;
+String _$pendingOrdersCountHash() =>
+    r'168e7bff08eb96a0bb6e76bcd1a712c979b73f93';
+
+/// See also [pendingOrdersCount].
+@ProviderFor(pendingOrdersCount)
+final pendingOrdersCountProvider = AutoDisposeFutureProvider<int>.internal(
+  pendingOrdersCount,
+  name: r'pendingOrdersCountProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$pendingOrdersCountHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PendingOrdersCountRef = AutoDisposeFutureProviderRef<int>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
