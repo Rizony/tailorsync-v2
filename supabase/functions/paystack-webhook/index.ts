@@ -148,6 +148,9 @@ serve(async (req) => {
         const availableAmount = Math.round((netAmount / 2) * 100) / 100;
         const pendingAmount = netAmount - availableAmount;
 
+        const availableDesc = `Upfront 50% payout from accepted quote (after ₦${commissionAmount.toLocaleString()} platform fee)`;
+        const pendingDesc = `Escrow 50% pending completion`;
+
         // Credit tailor escrow wallet
         console.log(`Crediting wallet for tailor: ${marketplaceTailorId}`)
         const { error: rpcError } = await supabase.rpc('escrow_credit_wallet', {
@@ -155,7 +158,9 @@ serve(async (req) => {
           p_available_amount: availableAmount,
           p_pending_amount: pendingAmount,
           p_reference: reference,
-          p_request_id: marketplaceRequestId
+          p_request_id: marketplaceRequestId,
+          p_available_desc: availableDesc,
+          p_pending_desc: pendingDesc
         })
 
         if (rpcError) {

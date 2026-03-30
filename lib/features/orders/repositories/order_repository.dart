@@ -161,7 +161,7 @@ class OrderRepository {
 
   Future<Either<Failure, Unit>> createOrder(OrderModel order) async {
     try {
-      final id = const Uuid().v4();
+      final id = order.id.isNotEmpty ? order.id : const Uuid().v4();
       final newOrder = order.copyWith(
         id: id,
         userId: _supabase.auth.currentUser!.id,
