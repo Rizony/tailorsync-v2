@@ -554,6 +554,30 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     }
   }
 
+  Map<String, dynamic> _extractMeasurements(String description) {
+    final Map<String, dynamic> measurements = {};
+    const marker = '📌 **Saved Measurements:**\n';
+    final startIndex = description.indexOf(marker);
+    if (startIndex == -1) return measurements;
+    
+    final lines = description.substring(startIndex + marker.length).trim().split('\n');
+    for (final line in lines) {
+      if (line.startsWith('- ')) {
+        final parts = line.substring(2).split(':');
+        if (parts.length >= 2) {
+          final key = parts[0].trim().toLowerCase();
+          final value = parts[1].replaceAll('"', '').trim();
+          measurements[key] = value;
+        }
+      } else if (line.trim().isEmpty) {
+        continue;
+      } else {
+        break; // Stop parsing when we hit non-measurement text
+      }
+    }
+    return measurements;
+  }
+
   Future<void> _updateStatus(String status, {double? forceAmount}) async {
     final request = widget.request;
     if (_isProcessing) return;
@@ -593,6 +617,9 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
 
       setState(() => _isProcessing = true);
       try {
+        // Extract measurements from description if any
+        final extractedMeasurements = _extractMeasurements(request.description);
+
         // 1. Check for existing customer
         final customers = ref.read(customerRepositoryProvider).value ?? [];
         Customer? existingCustomer = customers.cast<Customer?>().firstWhere(
@@ -602,22 +629,32 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
 
         String customerId;
         if (existingCustomer == null) {
-          // Create new customer
+          // Create new customer with measurements
           final newCustomer = await ref.read(customerRepositoryProvider.notifier).addCustomer(
             Customer(
               fullName: request.customerName,
               email: request.customerEmail,
               phoneNumber: request.customerPhone,
+              measurements: extractedMeasurements,
             ),
           );
           customerId = newCustomer.id!;
         } else {
           customerId = existingCustomer.id!;
+          // Merge measurements if existing customer doesn't have them (or doesn't have all of them)
+          if (extractedMeasurements.isNotEmpty) {
+            final merged = {...existingCustomer.measurements, ...extractedMeasurements};
+            await ref.read(customerRepositoryProvider.notifier).updateCustomer(
+              existingCustomer.copyWith(measurements: merged),
+            );
+          }
         }
 
         // 2. Create the order
         final finalAmount = forceAmount ?? request.quoteAmount ?? 0;
-        final order = OrderModel(
+        final isPaid = request.paymentStatus.toLowerCase() == 'paid';
+        
+        final OrderModel order = OrderModel(
           id: const Uuid().v4(),
           userId: '', // Repository handles this
           customerId: customerId,
@@ -625,10 +662,18 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
               ? '${request.description.substring(0, 27)}...' 
               : request.description,
           price: finalAmount,
-          balanceDue: finalAmount,
+          balanceDue: isPaid ? 0 : finalAmount,
           dueDate: DateTime.now().add(const Duration(days: 7)), // Default 1 week
           createdAt: DateTime.now(),
-          notes: 'Marketplace Request: ${request.description}',
+          notes: 'Marketplace Request:\n${request.description}',
+          payments: isPaid ? [
+            Payment(
+              amount: finalAmount,
+              date: DateTime.now(),
+              note: 'Paid online via Website quote',
+              paymentMethod: 'Paystack',
+            )
+          ] : [],
         );
 
         await ref.read(orderRepositoryProvider).createOrder(order);

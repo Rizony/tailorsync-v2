@@ -11,8 +11,10 @@ import 'package:needlix/core/widgets/subscription_banner.dart';
 import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:needlix/features/marketplace/services/marketplace_notification_service.dart';
 import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
+import 'package:needlix/features/orders/repositories/order_repository.dart';
 import 'package:needlix/core/sync/sync_manager.dart';
 import 'package:needlix/core/network/connectivity_provider.dart';
+
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -79,11 +81,33 @@ class _AppShellState extends ConsumerState<AppShell> {
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(key: TutorialService.ordersTabKey, Icons.style_outlined),
+                  child: Badge(
+                    label: ref.watch(pendingOrdersCountProvider).when(
+                          data: (count) => count > 0 ? Text(count.toString()) : null,
+                          loading: () => null,
+                          error: (_, __) => null,
+                        ),
+                    isLabelVisible: ref.watch(pendingOrdersCountProvider).maybeWhen(
+                          data: (count) => count > 0,
+                          orElse: () => false,
+                        ),
+                    child: Icon(key: TutorialService.ordersTabKey, Icons.style_outlined),
+                  ),
                 ),
-                activeIcon: const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.style),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Badge(
+                    label: ref.watch(pendingOrdersCountProvider).when(
+                          data: (count) => count > 0 ? Text(count.toString()) : null,
+                          loading: () => null,
+                          error: (_, __) => null,
+                        ),
+                    isLabelVisible: ref.watch(pendingOrdersCountProvider).maybeWhen(
+                          data: (count) => count > 0,
+                          orElse: () => false,
+                        ),
+                    child: const Icon(Icons.style),
+                  ),
                 ),
                 label: 'Orders',
               ),

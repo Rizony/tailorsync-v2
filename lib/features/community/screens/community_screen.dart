@@ -50,9 +50,16 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
         title: const Text('Needlix Community'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.people_outline), text: 'Community'),
-            Tab(icon: Icon(Icons.shopping_bag_outlined), text: 'Marketplace'),
+          tabs: [
+            const Tab(icon: Icon(Icons.people_outline), text: 'Community'),
+            Badge(
+              label: ref.watch(pendingMarketplaceRequestsCountProvider) > 0 
+                  ? Text(ref.watch(pendingMarketplaceRequestsCountProvider).toString()) 
+                  : null,
+              isLabelVisible: ref.watch(pendingMarketplaceRequestsCountProvider) > 0,
+              offset: const Offset(0, 4),
+              child: const Tab(icon: Icon(Icons.shopping_bag_outlined), text: 'Marketplace'),
+            ),
           ],
         ),
       ),

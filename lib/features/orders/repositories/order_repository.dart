@@ -340,3 +340,9 @@ Future<List<OrderModel>> allOrders(Ref ref) async {
     (orders) => orders,
   );
 }
+
+@riverpod
+Future<int> pendingOrdersCount(Ref ref) async {
+  final orders = await ref.watch(allOrdersProvider.future);
+  return orders.where((order) => order.status == OrderModel.statusPending).length;
+}
