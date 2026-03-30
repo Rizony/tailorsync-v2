@@ -88,15 +88,19 @@ class PrimaryButton extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                       ],
-                      Text(
-                        text,
-                        style: AppTypography.label.copyWith(
-                          color: onPressed == null
-                              ? (isDark ? AppColors.textHintDark : AppColors.textHintLight)
-                              : (isSecondary
-                                  ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
-                                  : Colors.white),
-                          fontSize: 16,
+                      Flexible(
+                        child: Text(
+                          text,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.label.copyWith(
+                            color: onPressed == null
+                                ? (isDark ? AppColors.textHintDark : AppColors.textHintLight)
+                                : (isSecondary
+                                    ? (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)
+                                    : Colors.white),
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],
