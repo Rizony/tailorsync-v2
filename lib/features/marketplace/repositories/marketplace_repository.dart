@@ -1,14 +1,21 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:uuid/uuid.dart';
 import 'package:needlix/core/auth/auth_provider.dart';
+import 'package:needlix/core/sync/models/sync_action.dart';
+import 'package:needlix/core/sync/sync_manager.dart';
 import '../models/marketplace_request.dart';
 
 part 'marketplace_repository.g.dart';
 
+
 class MarketplaceRepository {
   final SupabaseClient _client;
+  final Ref _ref;
 
-  MarketplaceRepository(this._client);
+  MarketplaceRepository(this._client, this._ref);
 
   Future<List<MarketplaceRequest>> getRequests() async {
     final userId = _client.auth.currentUser?.id;
@@ -92,11 +99,30 @@ class MarketplaceRepository {
     required DateTime dueDate,
     required double price,
   }) async {
-    // 1. Update the request status and link the created order
-    await _client.from('marketplace_requests').update({
+    // We cannot update Supabase directly here because the newly created Order
+    // is sitting in the local Hive sync_queue and hasn't reached Supabase yet.
+    // If we update directly, Supabase throws a Foreign Key Violation on `order_id`.
+    // Instead, we queue this update right behind the order in the sync queue!
+    final syncBox = Hive.box<SyncAction>('sync_queue');
+    
+    final payload = {
+      'id': request.id,
       'status': 'accepted',
       'order_id': orderId,
-    }).eq('id', request.id);
+    };
+
+    final action = SyncAction(
+      id: const Uuid().v4(),
+      actionType: SyncAction.actionUpdate,
+      endpoint: 'marketplace_requests',
+      payload: payload,
+      createdAt: DateTime.now(),
+    );
+    
+    await syncBox.add(action);
+
+    // Trigger SyncManager to process the queue now that both actions are queued
+    _ref.read(syncManagerProvider).processQueue();
   }
 
   Future<void> submitClientRating({
@@ -121,7 +147,7 @@ class MarketplaceRepository {
 MarketplaceRepository marketplaceRepository(MarketplaceRepositoryRef ref) {
   // SECURITY: Watch AuthState so this provider recalculates on login/logout
   ref.watch(authControllerProvider);
-  return MarketplaceRepository(Supabase.instance.client);
+  return MarketplaceRepository(Supabase.instance.client, ref);
 }
 
 @riverpod
