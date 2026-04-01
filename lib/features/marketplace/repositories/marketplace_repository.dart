@@ -49,7 +49,24 @@ class MarketplaceRepository {
       'quote_message': quoteMessage,
       'quoted_at': DateTime.now().toIso8601String(),
       'quoted_by': _client.auth.currentUser?.id,
+      // Clear counter data so it doesn't leave "zombie" UI elements
+      'counter_offer_amount': null,
+      'counter_offer_message': null,
+      'counter_offered_at': null,
     }).eq('id', requestId);
+  }
+
+  Future<void> declineCounterOffer({
+    required MarketplaceRequest request,
+  }) async {
+    // Rejects the counter offer and returns to the initial 'quoted' status
+    // The client will see their counter was rejected and they must accept the original quote
+    await _client.from('marketplace_requests').update({
+      'quote_status': 'pending',
+      'counter_offer_amount': null,
+      'counter_offer_message': null,
+      'counter_offered_at': null,
+    }).eq('id', request.id);
   }
 
   Future<void> setQuoteStatus({

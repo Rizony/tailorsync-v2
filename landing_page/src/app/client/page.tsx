@@ -298,7 +298,12 @@ export default function ClientDashboardPage() {
       }
       const resp = await supabase
         .from("marketplace_requests")
-        .update({ quote_status: "accepted" })
+        .update({ 
+          quote_status: "accepted",
+          counter_offer_amount: null,
+          counter_offer_message: null,
+          counter_offered_at: null
+        })
         .eq("id", r.id);
       if (resp.error) throw resp.error;
       await fetchRequests(email);
@@ -320,7 +325,12 @@ export default function ClientDashboardPage() {
       }
       const resp = await supabase
         .from("marketplace_requests")
-        .update({ quote_status: "declined" })
+        .update({ 
+          quote_status: "declined",
+          counter_offer_amount: null,
+          counter_offer_message: null,
+          counter_offered_at: null
+        })
         .eq("id", r.id);
       if (resp.error) throw resp.error;
       await fetchRequests(email);

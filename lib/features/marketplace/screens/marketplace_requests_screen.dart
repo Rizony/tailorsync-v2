@@ -83,7 +83,7 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     final hasQuote = (request.quoteAmount != null && (request.quoteAmount ?? 0) > 0);
     final isPaid = request.paymentStatus.toLowerCase() == 'paid';
     final quoteStatus = request.quoteStatus.toLowerCase();
-    final hasCounter = (request.counterOfferAmount != null && (request.counterOfferAmount ?? 0) > 0);
+    final hasCounter = (request.counterOfferAmount != null && (request.counterOfferAmount ?? 0) > 0 && quoteStatus == 'countered');
 
     return AbsorbPointer(
       absorbing: _isProcessing,
@@ -245,28 +245,52 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
                           ),
                         ],
                         const SizedBox(height: 10),
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: PrimaryButton(
-                                onPressed: () async {
-                                  await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
-                                  if (!mounted) return;
-                                  // Also convert to order immediately
-                                  await _updateStatus('accepted', forceAmount: request.counterOfferAmount);
-                                },
-                                isLoading: _isProcessing,
-                                icon: Icons.check_circle_outline,
-                                text: 'Accept counter',
-                              ),
+                            PrimaryButton(
+                              onPressed: () async {
+                                await ref.read(marketplaceRepositoryProvider).acceptCounterOffer(request: request);
+                                if (!mounted) return;
+                                // Also convert to order immediately
+                                await _updateStatus('accepted', forceAmount: request.counterOfferAmount);
+                              },
+                              isLoading: _isProcessing,
+                              icon: Icons.check_circle_outline,
+                              text: 'Accept counter',
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: _isProcessing ? null : () => _showQuoteDialog(),
-                                icon: const Icon(Icons.edit, size: 18),
-                                label: const Text('Update quote'),
-                              ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: _isProcessing ? null : () async {
+                                      setState(() => _isProcessing = true);
+                                      try {
+                                        await ref.read(marketplaceRepositoryProvider).declineCounterOffer(request: request);
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client counter-offer declined')));
+                                        }
+                                      } catch (e) {
+                                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                      } finally {
+                                        if (mounted) setState(() => _isProcessing = false);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.close, size: 18),
+                                    style: OutlinedButton.styleFrom(foregroundColor: Colors.red.shade700, side: BorderSide(color: Colors.red.shade200)),
+                                    label: const Text('Decline'),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: _isProcessing ? null : () => _showQuoteDialog(),
+                                    icon: const Icon(Icons.edit, size: 18),
+                                    label: const Text('Update quote'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
