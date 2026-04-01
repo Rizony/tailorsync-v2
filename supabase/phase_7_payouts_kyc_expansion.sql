@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.admins (
 );
 
 ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins can view admins" ON public.admins;
 CREATE POLICY "Admins can view admins" ON public.admins FOR SELECT USING (auth.uid() = id);
 
 -- 1. Add Security Columns to Profiles
@@ -104,6 +105,7 @@ VALUES ('kyc-documents', 'kyc-documents', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- 4. Storage Policies for KYC
+DROP POLICY IF EXISTS "Users can upload their own KYC docs" ON storage.objects;
 CREATE POLICY "Users can upload their own KYC docs"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -111,6 +113,7 @@ WITH CHECK (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
+DROP POLICY IF EXISTS "Users can view their own KYC docs" ON storage.objects;
 CREATE POLICY "Users can view their own KYC docs"
 ON storage.objects FOR SELECT
 USING (
@@ -118,6 +121,7 @@ USING (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
+DROP POLICY IF EXISTS "Admins can view all KYC docs" ON storage.objects;
 CREATE POLICY "Admins can view all KYC docs"
 ON storage.objects FOR SELECT
 USING (
