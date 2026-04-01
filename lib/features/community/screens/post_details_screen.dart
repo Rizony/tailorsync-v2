@@ -7,6 +7,7 @@ import 'package:needlix/features/community/models/community_post.dart';
 import 'package:needlix/features/community/providers/community_provider.dart';
 import 'package:needlix/features/community/repositories/community_repository.dart';
 import 'package:needlix/features/community/screens/tailor_profile_screen.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class PostDetailsScreen extends ConsumerStatefulWidget {
   final CommunityPost post;
@@ -272,7 +273,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                 IconButton(
                   icon: _isSubmitting 
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
-                      : const Icon(Icons.send, color: Color(0xFF1E78D2)),
+                      : const Icon(Icons.send, color: AppColors.primary),
                   onPressed: _isSubmitting ? null : _submitComment,
                 ),
               ],

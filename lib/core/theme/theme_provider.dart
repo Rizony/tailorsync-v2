@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   return ThemeModeNotifier();
@@ -22,9 +23,9 @@ final themeColorProvider = Provider<Color>((ref) {
 
   switch (tier) {
     case SubscriptionTier.premium:
-      return const Color(0xFF00AEEF); // Cyan for Premium
+      return AppColors.primaryLight; // Cyan for Premium
     case SubscriptionTier.standard:
-      return const Color(0xFF0076B6); // Deep Blue for Standard
+      return AppColors.primary; // Deep Blue for Standard
     case SubscriptionTier.freemium:
       return const Color(0xFF455A64); // Blue Grey for Freemium
   }

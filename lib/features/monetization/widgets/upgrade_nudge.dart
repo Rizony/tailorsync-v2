@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 /// A compact bottom-sheet that nudges freemium users to upgrade.
 /// Call [UpgradeNudge.show] from anywhere in the app.
@@ -54,8 +55,8 @@ class _NudgeSheet extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isStandard
-                    ? [const Color(0xFFF58220), const Color(0xFFFF8C42)]
-                    : [const Color(0xFF1E78D2), const Color(0xFF42A5F5)],
+                    ? [AppColors.warning, AppColors.warning]
+                    : [AppColors.primary, AppColors.primaryLight],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -116,8 +117,8 @@ class _NudgeSheet extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: isStandard
-                    ? const Color(0xFFF58220)
-                    : const Color(0xFF1E78D2),
+                    ? AppColors.warning
+                    : AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),

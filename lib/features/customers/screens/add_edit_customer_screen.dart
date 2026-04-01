@@ -279,9 +279,9 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
           if (!isHardLimit)
             OutlinedButton.icon(
               icon:
-                  const Icon(Icons.play_circle_fill, color: Color(0xFF0076B6)),
+                  const Icon(Icons.play_circle_fill, color: AppColors.primary),
               label: const Text('Watch Ad (+1)',
-                  style: TextStyle(color: Color(0xFF0076B6))),
+                  style: TextStyle(color: AppColors.primary)),
               onPressed: () {
                 Navigator.pop(ctx);
                 ref
@@ -291,7 +291,7 @@ class _AddEditCustomerScreenState extends ConsumerState<AddEditCustomerScreen> {
             ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E78D2),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             onPressed: () {

@@ -37,7 +37,7 @@ class WalletDashboardScreen extends ConsumerWidget {
                     background: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF0A1128), Color(0xFF0076B6)],
+                          colors: [AppColors.secondary, AppColors.primary],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

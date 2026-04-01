@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 /// A slim banner shown at the top of every app tab.
 /// Displays the user's plan badge and (for non-Premium) an upgrade nudge.
@@ -22,13 +23,13 @@ class SubscriptionBanner extends ConsumerWidget {
         isStandard
             ? (
                 const Color(0xFFE3F2FD),
-                const Color(0xFF1E78D2),
+                AppColors.primary,
                 'STANDARD',
                 'Upgrade to Premium →',
               )
             : (
                 Colors.amber.shade50,
-                const Color(0xFF607D8B),
+                AppColors.textHintDark,
                 'FREEMIUM',
                 'Upgrade your plan →',
               );

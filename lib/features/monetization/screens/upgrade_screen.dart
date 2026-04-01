@@ -9,6 +9,7 @@ import 'package:needlix/features/monetization/models/subscription_tier.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/flutterwave_payment_widget.dart';
 import 'payment_success_screen.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class UpgradeScreen extends ConsumerStatefulWidget {
   const UpgradeScreen({super.key});
@@ -225,12 +226,12 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen>
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: const Color(0xFF1E78D2),
+            backgroundColor: AppColors.primary,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1565C0), Color(0xFF1E78D2)],
+                    colors: [AppColors.primaryDark, AppColors.primary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -405,7 +406,7 @@ class _Tab extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: selected
-                ? const Color(0xFF1E78D2)
+                ? AppColors.primary
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
@@ -527,7 +528,7 @@ class _PaymentPickerSheetState extends State<_PaymentPickerSheet> {
           ElevatedButton(
             onPressed: _selectedMethod != null ? () => widget.onPay(_selectedMethod!) : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E78D2),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -567,10 +568,10 @@ class _MethodTile extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF1E78D2).withValues(alpha: 0.05) : Colors.white,
+          color: selected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color(0xFF1E78D2) : Colors.grey.shade200,
+            color: selected ? AppColors.primary : Colors.grey.shade200,
             width: selected ? 2 : 1,
           ),
         ),
@@ -579,12 +580,12 @@ class _MethodTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFF1E78D2).withValues(alpha: 0.1) : Colors.grey.shade100,
+                color: selected ? AppColors.primary.withValues(alpha: 0.1) : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: selected ? const Color(0xFF1E78D2) : Colors.grey[600],
+                color: selected ? AppColors.primary : Colors.grey[600],
                 size: 24,
               ),
             ),
@@ -598,7 +599,7 @@ class _MethodTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      color: selected ? const Color(0xFF1E78D2) : Colors.black87,
+                      color: selected ? AppColors.primary : Colors.black87,
                     ),
                   ),
                   Text(
@@ -612,7 +613,7 @@ class _MethodTile extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Icon(Icons.check_circle, color: Color(0xFF1E78D2), size: 24)
+              const Icon(Icons.check_circle, color: AppColors.primary, size: 24)
             else
               Icon(Icons.circle_outlined, color: Colors.grey.shade300, size: 24),
           ],
@@ -745,7 +746,7 @@ class _Cell extends StatelessWidget {
         has ? Icons.check_circle : Icons.remove,
         size: 18,
         color: has
-            ? (isPremium ? const Color(0xFFF58220) : Colors.green)
+            ? (isPremium ? AppColors.warning : Colors.green)
             : Colors.grey.shade300,
       ),
     );

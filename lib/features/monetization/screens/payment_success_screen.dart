@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class PaymentSuccessScreen extends ConsumerWidget {
   final String planName;
@@ -14,7 +15,7 @@ class PaymentSuccessScreen extends ConsumerWidget {
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
+            colors: [AppColors.primary, AppColors.primaryLight],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -35,7 +36,7 @@ class PaymentSuccessScreen extends ConsumerWidget {
                 child: const Icon(
                   Icons.check_rounded,
                   size: 80,
-                  color: Color(0xFF0076B6),
+                  color: AppColors.primary,
                 ),
               )
               .animate(onPlay: (controller) => controller.repeat())
@@ -89,7 +90,7 @@ class PaymentSuccessScreen extends ConsumerWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF0076B6),
+                    foregroundColor: AppColors.primary,
                     minimumSize: const Size(double.infinity, 60),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     elevation: 10,

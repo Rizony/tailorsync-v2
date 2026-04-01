@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:needlix/core/auth/providers/profile_provider.dart';
 import '../../monetization/providers/wallet_provider.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class WithdrawalScreen extends ConsumerStatefulWidget {
   const WithdrawalScreen({
@@ -131,7 +132,7 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
+                    colors: [AppColors.primary, AppColors.primaryLight],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -282,7 +283,7 @@ class _WithdrawalScreenState extends ConsumerState<WithdrawalScreen> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0076B6),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),

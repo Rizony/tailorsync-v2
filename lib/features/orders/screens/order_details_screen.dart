@@ -272,7 +272,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                     actions: [
                       TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E78D2), foregroundColor: Colors.white),
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
                         onPressed: () {
                           Navigator.pop(ctx);
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const needlix_upgrade.UpgradeScreen()));

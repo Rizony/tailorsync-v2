@@ -4,6 +4,7 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../../../../core/ads/ad_service.dart';
 import '../../../../core/auth/providers/profile_provider.dart';
 import '../models/subscription_tier.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class DailyAdGateScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -86,7 +87,7 @@ class _DailyAdGateScreenState extends ConsumerState<DailyAdGateScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_clock, size: 80, color: Color(0xFF0076B6)),
+                const Icon(Icons.lock_clock, size: 80, color: AppColors.primary),
                 const SizedBox(height: 24),
                 const Text(
                   "Ready to Work?",
@@ -104,7 +105,7 @@ class _DailyAdGateScreenState extends ConsumerState<DailyAdGateScreen> {
                   child: ElevatedButton(
                     onPressed: _unlockApp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0076B6),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.all(16),
                     ),
@@ -122,4 +123,4 @@ class _DailyAdGateScreenState extends ConsumerState<DailyAdGateScreen> {
           Scaffold(body: Center(child: Text('Error loading profile: $err'))),
     );
   }
-}
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 /// Feature comparison row data for the upgrade screen.
 class PlanFeature {
@@ -54,7 +55,7 @@ class PlanPricing {
     required this.yearlyNaira,
     required this.accentColor,
     this.badge = '',
-    this.badgeColor = const Color(0xFF607D8B),
+    this.badgeColor = AppColors.textHintDark,
     required this.highlights,
   });
 
@@ -70,9 +71,9 @@ const List<PlanPricing> kPlans = [
     subtitle: 'Get started for free',
     monthlyNaira: 0,
     yearlyNaira: 0,
-    accentColor: Color(0xFF607D8B),
+    accentColor: AppColors.textHintDark,
     badge: 'FREE',
-    badgeColor: Color(0xFF607D8B),
+    badgeColor: AppColors.textHintDark,
     highlights: [
       'Up to 20 customers',
       'Basic order tracking',
@@ -84,9 +85,9 @@ const List<PlanPricing> kPlans = [
     subtitle: 'For growing tailors',
     monthlyNaira: 3000,
     yearlyNaira: 30000,
-    accentColor: Color(0xFF1E78D2),
+    accentColor: AppColors.primary,
     badge: 'MOST POPULAR',
-    badgeColor: Color(0xFF1E78D2),
+    badgeColor: AppColors.primary,
     highlights: [
       'Unlimited customers',
       'No ads ever',
@@ -98,9 +99,9 @@ const List<PlanPricing> kPlans = [
     subtitle: 'Earn while you work',
     monthlyNaira: 5000,
     yearlyNaira: 50000,
-    accentColor: Color(0xFFF58220),
+    accentColor: AppColors.warning,
     badge: 'BEST VALUE',
-    badgeColor: Color(0xFFE65100),
+    badgeColor: AppColors.warning,
     highlights: [
       'Everything in Standard',
       'Exclusive Needlix Community',

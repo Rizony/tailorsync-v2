@@ -10,6 +10,7 @@ import 'package:needlix/features/monetization/providers/wallet_provider.dart';
 import 'package:needlix/features/referrals/providers/referral_provider.dart';
 import 'package:needlix/core/widgets/premium_empty_state.dart';
 import 'withdrawal_screen.dart';
+import 'package:needlix/core/theme/app_colors.dart';
 
 class ReferralDashboardScreen extends ConsumerWidget {
   const ReferralDashboardScreen({super.key});
@@ -54,7 +55,7 @@ class ReferralDashboardScreen extends ConsumerWidget {
                     background: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
+                          colors: [AppColors.primary, AppColors.primaryLight],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -226,7 +227,7 @@ class _PremiumLockedView extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
+                    colors: [AppColors.primary, AppColors.primaryLight],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -253,7 +254,7 @@ class _PremiumLockedView extends StatelessWidget {
                 label: const Text('Upgrade to Premium',
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0076B6),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -320,7 +321,7 @@ class _StatCard extends StatelessWidget {
           color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: const Color(0xFF0076B6).withValues(alpha: 0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               width: 1.5),
           boxShadow: [
             if (Theme.of(context).brightness == Brightness.light)
@@ -333,7 +334,7 @@ class _StatCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: const Color(0xFF0076B6), size: 20),
+            Icon(icon, color: AppColors.primary, size: 20),
             const SizedBox(height: 6),
             Text(value,
                 style: const TextStyle(
@@ -358,7 +359,7 @@ class _ReferralCodeCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0076B6), Color(0xFF00AEEF)],
+          colors: [AppColors.primary, AppColors.primaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -430,7 +431,7 @@ class _ReferralLinkCard extends StatelessWidget {
             icon: const Icon(Icons.share, size: 16),
             label: const Text('Share'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0076B6),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -492,7 +493,7 @@ class _CommissionRow extends StatelessWidget {
           Text(value,
               style: const TextStyle(
                   fontSize: 12, fontWeight: FontWeight.bold,
-                  color: Color(0xFF0076B6))),
+                  color: AppColors.primary)),
         ],
       ),
     );
@@ -540,11 +541,11 @@ class _TransactionList extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0076B6).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.payments_outlined,
-                    color: Color(0xFF0076B6), size: 18),
+                    color: AppColors.primary, size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
