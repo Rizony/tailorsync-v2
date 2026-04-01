@@ -57,7 +57,8 @@ class SyncManager {
           
           // Stop processing queue if we hit a persistent error or network drop
           if (action.retryCount > 5) {
-             debugPrint('⚠️ Action failed after 5 retries. Skipping for now.');
+             debugPrint('⚠️ Action failed after 5 retries. Deleting to unblock queue.');
+             await syncBox.delete(key);
           } else {
             break; 
           }
