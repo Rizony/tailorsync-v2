@@ -670,43 +670,64 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final pendingCount = ref.watch(pendingMarketplaceRequestsCountProvider);
     if (pendingCount == 0) return const SizedBox.shrink();
 
-    return PremiumCard(
-      padding: const EdgeInsets.all(16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MarketplaceRequestsScreen()),
-          );
-        },
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.shopping_bag, color: Colors.white, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$pendingCount New Inquiries!',
-                    style: AppTypography.h3.copyWith(color: Colors.white),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0A1128), Color(0xFF0076B6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0076B6).withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MarketplaceRequestsScreen()),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
                   ),
-                  Text(
-                    'Potential customers are reaching out from the website.',
-                    style: AppTypography.bodySmall.copyWith(color: Colors.white70),
+                  child: const Icon(Icons.shopping_bag, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$pendingCount New Inquiries!',
+                        style: AppTypography.h3.copyWith(color: Colors.white),
+                      ),
+                      Text(
+                        'Potential customers are reaching out from the website.',
+                        style: AppTypography.bodySmall.copyWith(color: Colors.white70),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const Icon(Icons.chevron_right, color: Colors.white),
+              ],
             ),
-            const Icon(Icons.chevron_right, color: Colors.white),
-          ],
+          ),
         ),
       ),
     );
