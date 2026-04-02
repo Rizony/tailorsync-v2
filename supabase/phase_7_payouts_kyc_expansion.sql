@@ -15,6 +15,11 @@ CREATE POLICY "Admins can view admins" ON public.admins FOR SELECT USING (auth.u
 -- 1. Add Security Columns to Profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS withdrawal_pin TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kyc_status TEXT DEFAULT 'none'; -- 'none', 'pending', 'verified', 'rejected'
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kyc_document_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_kyc_verified BOOLEAN DEFAULT false;
+
+-- Force PostgREST to reload schema cache so the app detects the new columns immediately
+NOTIFY pgrst, 'reload schema';
 
 -- 2. Create RPC for Secure Withdrawal Request
 -- This function ensures:

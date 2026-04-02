@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Users, LayoutDashboard, CreditCard, Ticket, LogOut } from 'lucide-react';
+import { Users, LayoutDashboard, CreditCard, Ticket, LogOut, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { colors } from '@/theme/colors';
 
 const NAVIGATION = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'KYC Verifications', href: '/dashboard/kyc', icon: ShieldCheck },
     { name: 'Users', href: '/dashboard/users', icon: Users },
     { name: 'Withdrawals', href: '/dashboard/withdrawals', icon: CreditCard },
     { name: 'Support Tickets', href: '/dashboard/support', icon: Ticket },
