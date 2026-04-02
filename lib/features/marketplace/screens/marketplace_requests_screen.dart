@@ -678,13 +678,16 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         final finalAmount = forceAmount ?? request.quoteAmount ?? 0;
         final isPaid = request.paymentStatus.toLowerCase() == 'paid';
         
+        final cleanDescription = request.description.split('📌 **Saved Measurements:**')[0].trim();
+        final displayTitle = cleanDescription.isEmpty ? 'Marketplace Order' : cleanDescription;
+
         final OrderModel order = OrderModel(
           id: const Uuid().v4(),
           userId: '', // Repository handles this
           customerId: customerId,
-          title: request.description.length > 30 
-              ? '${request.description.substring(0, 27)}...' 
-              : request.description,
+          title: displayTitle.length > 30 
+              ? '${displayTitle.substring(0, 27)}...' 
+              : displayTitle,
           price: finalAmount,
           balanceDue: isPaid ? 0 : finalAmount,
           dueDate: DateTime.now().add(const Duration(days: 7)), // Default 1 week

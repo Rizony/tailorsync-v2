@@ -544,8 +544,9 @@ export default function ClientDashboardPage() {
                       </button>
                     ) : r.quote_amount && r.quote_status !== 'accepted' ? (
                       // Hint: quote exists but not yet accepted
-                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-800 text-center">
-                        Accept the quote below to unlock payment
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 font-bold text-amber-800 text-center flex flex-col gap-1">
+                        <span className="text-base text-amber-900 border-b border-amber-200/50 pb-1 mb-1">Quote: {formatNaira(r.quote_amount)}</span>
+                        <span className="text-xs opacity-90">Accept the quote below to unlock payment</span>
                       </div>
                     ) : (
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600 text-center">
@@ -557,8 +558,9 @@ export default function ClientDashboardPage() {
                     {r.quote_amount &&
                      r.quote_status !== 'accepted' &&
                      String(r.payment_status || "").toLowerCase() !== "paid" ? (
-                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 mt-2">
                         <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Quote actions</p>
+                        <div className="text-lg font-bold text-[#0A1128] mb-3">Quote: {formatNaira(r.quote_amount)}</div>
                         <div className="flex flex-col gap-2">
                           <button
                             onClick={() => acceptQuote(r)}
