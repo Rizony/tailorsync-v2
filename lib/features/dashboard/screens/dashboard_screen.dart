@@ -116,21 +116,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hello, $name 👋',
-                style: AppTypography.h2,
-              ),
-              Text(
-                'Your business at a glance',
-                style: AppTypography.bodySmall.copyWith(
-                  color: Colors.grey[600],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello, $name 👋',
+                  style: AppTypography.h2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                Text(
+                  'Your business at a glance',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 16),
           Builder(
             builder: (context) => InkWell(
               onTap: () => Scaffold.of(context).openDrawer(),

@@ -1,146 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:needlix/core/widgets/premium_empty_state.dart';
-import '../providers/support_provider.dart';
-import '../models/support_ticket.dart';
-import 'create_ticket_screen.dart';
-import 'ticket_chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:needlix/core/theme/app_typography.dart';
+import 'package:needlix/core/theme/components/primary_button.dart';
+import 'package:needlix/core/theme/components/premium_card.dart';
 
-class SupportListScreen extends ConsumerWidget {
+class SupportListScreen extends StatelessWidget {
   const SupportListScreen({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ticketsAsync = ref.watch(myTicketsProvider);
+  Future<void> _openWhatsApp(BuildContext context) async {
+    // Developers can update this number to their actual support line
+    const phoneNumber = '+2348000000000'; 
+    const message = 'Hello TailorSync Support, I need help with my account.';
+    
+    final uri = Uri.parse('https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+    
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open WhatsApp. Please ensure it is installed.')),
+        );
+      }
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Help & Support'),
         elevation: 0,
       ),
-      body: ticketsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (tickets) {
-          if (tickets.isEmpty) {
-            return PremiumEmptyState(
-              icon: Icons.support_agent_outlined,
-              title: 'Need Help?',
-              message: 'Our support team is here for you. Create a ticket and we\'ll get back to you as soon as possible.',
-              actionLabel: 'Create Ticket',
-              onAction: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateTicketScreen()),
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () => ref.refresh(myTicketsProvider.future),
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: tickets.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final ticket = tickets[index];
-                return _TicketCard(ticket: ticket);
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const CreateTicketScreen()),
-        ),
-        icon: const Icon(Icons.add_comment),
-        label: const Text('New Ticket'),
-      ),
-    );
-  }
-}
-
-class _TicketCard extends StatelessWidget {
-  final SupportTicket ticket;
-
-  const _TicketCard({required this.ticket});
-
-  @override
-  Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(ticket.status);
-
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => TicketChatScreen(ticket: ticket)),
-      ),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: PremiumCard(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.green.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  child: Text(
-                    ticket.status.replaceAll('_', ' ').toUpperCase(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: const Icon(
+                    Icons.chat_bubble_outline,
+                    color: Colors.green,
+                    size: 48,
                   ),
                 ),
+                const SizedBox(height: 24),
                 Text(
-                  DateFormat.yMMMd().format(ticket.updatedAt),
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  'We are here to help!',
+                  style: AppTypography.h2,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Our support team is available on WhatsApp to assist you with any issues or questions you might have.',
+                  style: AppTypography.body.copyWith(color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                PrimaryButton(
+                  onPressed: () => _openWhatsApp(context),
+                  text: 'Chat on WhatsApp',
+                  icon: Icons.send,
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              ticket.subject,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Ticket ID: #${ticket.id.substring(0, 8).toUpperCase()}',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            ),
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case SupportTicket.statusOpen: return Colors.blue;
-      case SupportTicket.statusInProgress: return Colors.orange;
-      case SupportTicket.statusResolved: return Colors.green;
-      case SupportTicket.statusClosed: return Colors.grey;
-      default: return Colors.blue;
-    }
   }
 }
