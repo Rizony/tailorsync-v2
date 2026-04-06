@@ -87,6 +87,9 @@ class ProfileNotifier extends _$ProfileNotifier {
       'withdrawal_pin': updatedUser.withdrawalPin,
       // Marketplace profile fields
       'is_available': updatedUser.isAvailable,
+      'tailor_type': updatedUser.tailorType,
+      'latitude': updatedUser.latitude,
+      'longitude': updatedUser.longitude,
       'public_profile_enabled': updatedUser.publicProfileEnabled,
       'years_of_experience': updatedUser.yearsOfExperience,
       'bio': updatedUser.bio,

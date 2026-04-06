@@ -22,6 +22,22 @@ interface TailorProfile {
   logo_url: string;
   photo_url?: string;
   avatar_url?: string;
+  years_of_experience?: number;
+  tailor_type?: string;
+  latitude?: number;
+  longitude?: number;
+  distance?: number;
+}
+
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
 function getTailorLogoUrl(tailor: Partial<TailorProfile> | null | undefined) {
@@ -33,6 +49,35 @@ export default function MarketplacePage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterType, setFilterType] = useState("All");
+  const [filterSpecialty, setFilterSpecialty] = useState("All"); 
+  const [minExperience, setMinExperience] = useState(0);
+  const [minRating, setMinRating] = useState(0);
+  const [useLocation, setUseLocation] = useState(false);
+  const [clientLocation, setClientLocation] = useState<{lat: number, lng: number} | null>(null);
+
+  const SPECIALTIES = ['Bespoke', 'Traditional African', 'Suits', 'Bridal', 'Casual Wear', 'Alterations', 'Native Attire'];
+
+  useEffect(() => {
+    if (useLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => setClientLocation({lat: pos.coords.latitude, lng: pos.coords.longitude}),
+          (err) => {
+            console.error(err);
+            setUseLocation(false);
+            alert("Could not get your location. Please check your browser permissions.");
+          }
+        );
+      } else {
+        setUseLocation(false);
+      }
+    } else {
+      setClientLocation(null);
+    }
+  }, [useLocation]);
 
   useEffect(() => {
     fetchTailors();
@@ -73,11 +118,40 @@ export default function MarketplacePage() {
     }
   }
 
-  const filteredTailors = tailors.filter((t) => 
-    t.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.specialties?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredTailors = tailors.filter((t) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchSearch = t.brand_name?.toLowerCase().includes(q) ||
+        t.full_name?.toLowerCase().includes(q) ||
+        t.specialties?.some(s => s.toLowerCase().includes(q)) ||
+        t.shop_address?.toLowerCase().includes(q);
+      if (!matchSearch) return false;
+    }
+    
+    if (filterType !== "All") {
+      const type = t.tailor_type || 'Unisex';
+      if (type !== filterType && type !== "Unisex") return false;
+    }
+    
+    if (filterSpecialty !== "All") {
+      if (!t.specialties?.includes(filterSpecialty)) return false;
+    }
+    
+    if (minRating > 0 && (t.rating || 5) < minRating) return false;
+    if (minExperience > 0 && (t.years_of_experience || 0) < minExperience) return false;
+    
+    return true;
+  }).map(t => {
+     if (clientLocation && t.latitude && t.longitude) {
+       return { ...t, distance: getDistance(clientLocation.lat, clientLocation.lng, t.latitude!, t.longitude!) };
+     }
+     return { ...t, distance: 999999 };
+  }).sort((a, b) => {
+    if (clientLocation) {
+       return (a.distance || 0) - (b.distance || 0);
+    }
+    return 0; // Maintain default sort
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -136,7 +210,7 @@ export default function MarketplacePage() {
           </div>
 
           {/* Search & Filter Bar */}
-          <div className="flex flex-col md:flex-row gap-4 mb-12">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
@@ -147,11 +221,74 @@ export default function MarketplacePage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button className="flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition-all">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border font-semibold transition-all ${showFilters ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
               <Filter className="h-5 w-5" />
               <span>Filters</span>
             </button>
           </div>
+
+          {showFilters && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-8 overflow-hidden"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Tailor Type</label>
+                  <select 
+                    value={filterType} 
+                    onChange={e => setFilterType(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-medium focus:ring-2 focus:ring-[#00AEEF] outline-none"
+                  >
+                    <option value="All">All Types</option>
+                    <option value="Male Fashion">Male Fashion</option>
+                    <option value="Female Fashion">Female Fashion</option>
+                    <option value="Unisex">Unisex</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Specialty</label>
+                  <select 
+                    value={filterSpecialty} 
+                    onChange={e => setFilterSpecialty(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-medium focus:ring-2 focus:ring-[#00AEEF] outline-none"
+                  >
+                    <option value="All">All Specialties</option>
+                    {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Experience</label>
+                  <select 
+                    value={minExperience} 
+                    onChange={e => setMinExperience(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-medium focus:ring-2 focus:ring-[#00AEEF] outline-none"
+                  >
+                    <option value={0}>Any Experience</option>
+                    <option value={2}>2+ Years</option>
+                    <option value={5}>5+ Years</option>
+                    <option value={10}>10+ Years</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Location Sorting</label>
+                  <label className="flex items-center gap-3 cursor-pointer w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="h-5 w-5 rounded border-slate-300 text-[#00AEEF] focus:ring-[#00AEEF]"
+                      checked={useLocation}
+                      onChange={e => setUseLocation(e.target.checked)}
+                    />
+                    <span className="font-medium text-slate-700">Sort by nearest to me</span>
+                  </label>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Listings */}
           {loading ? (
@@ -228,7 +365,11 @@ function TailorCard({ tailor }: { tailor: TailorProfile }) {
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <MapPin className="h-4 w-4 text-slate-400" />
-            <span className="line-clamp-1">{tailor.shop_address || "Lagos, Nigeria"}</span>
+            <span className="line-clamp-1">
+              {tailor.distance && tailor.distance !== 999999 
+                ? `${tailor.distance.toFixed(1)} km away (${tailor.shop_address?.split(',')[0] || 'Unknown'})` 
+                : (tailor.shop_address || "Lagos, Nigeria")}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <div className="flex items-center">

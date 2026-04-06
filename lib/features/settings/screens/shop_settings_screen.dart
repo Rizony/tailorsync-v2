@@ -11,6 +11,8 @@ import 'package:needlix/core/theme/components/custom_text_field.dart';
 import 'package:needlix/core/theme/app_colors.dart';
 import 'package:needlix/core/theme/app_typography.dart';
 import 'package:needlix/features/monetization/screens/upgrade_screen.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:needlix/features/monetization/models/subscription_tier.dart';
 
@@ -79,6 +81,10 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
   bool _initialized = false;
   bool _isUploadingPortfolio = false;
   List<String> _portfolioUrls = [];
+  String _tailorType = 'Unisex';
+  final List<String> _tailorTypes = ['Male Fashion', 'Female Fashion', 'Unisex'];
+  final List<String> _availableSpecialties = ['Bespoke', 'Traditional African', 'Suits', 'Bridal', 'Casual Wear', 'Alterations', 'Native Attire'];
+  List<String> _selectedSpecialties = [];
 
   @override
   void initState() {
@@ -133,7 +139,18 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
     _publicProfileEnabled = user.publicProfileEnabled;
     _yearsOfExperience = user.yearsOfExperience;
     _bioController.text = user.bio ?? '';
-    _specialtiesController.text = (user.specialties as List).join(', ');
+    
+    _tailorType = user.tailorType ?? 'Unisex';
+    // Backwards compatibility matching
+    if (_tailorType == 'Male') _tailorType = 'Male Fashion';
+    if (_tailorType == 'Female') _tailorType = 'Female Fashion';
+    if (!_tailorTypes.contains(_tailorType)) _tailorType = 'Unisex';
+    
+    final existingSpecialties = List<String>.from(user.specialties ?? const []);
+    _selectedSpecialties = existingSpecialties.where((s) => _availableSpecialties.contains(s)).toList();
+    final otherSpecialties = existingSpecialties.where((s) => !_availableSpecialties.contains(s)).toList();
+    _specialtiesController.text = otherSpecialties.join(', ');
+    
     _portfolioUrls = List<String>.from(user.portfolioUrls ?? const <String>[]);
     setState(() {});
   }
@@ -299,6 +316,25 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
       
       final currentUser = ref.read(profileNotifierProvider).valueOrNull;
       if (currentUser != null) {
+        double? lat = currentUser.latitude;
+        double? lng = currentUser.longitude;
+        if (_addressController.text.isNotEmpty && _addressController.text != currentUser.shopAddress) {
+          try {
+            final uri = Uri.parse('https://nominatim.openstreetmap.org/search?q=' + Uri.encodeComponent(_addressController.text) + '&format=json&limit=1');
+            final response = await http.get(uri).timeout(const Duration(seconds: 5));
+            if (response.statusCode == 200) {
+              final data = json.decode(response.body) as List;
+              if (data.isNotEmpty) {
+                lat = double.tryParse(data[0]['lat'].toString());
+                lng = double.tryParse(data[0]['lon'].toString());
+              }
+            }
+          } catch (_) {}
+        }
+        
+        final otherSpecialties = _specialtiesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+        final finalSpecialties = {..._selectedSpecialties, ...otherSpecialties}.toList();
+        
         final updatedUser = currentUser.copyWith(
           shopName: _shopNameController.text,
           brandName: _brandNameController.text,
@@ -326,7 +362,10 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
           publicProfileEnabled: _publicProfileEnabled,
           yearsOfExperience: _yearsOfExperience,
           bio: _bioController.text,
-          specialties: _specialtiesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+          tailorType: _tailorType,
+          latitude: lat,
+          longitude: lng,
+          specialties: finalSpecialties,
           portfolioUrls: _portfolioUrls,
         );
         
@@ -817,10 +856,63 @@ class _ShopSettingsScreenState extends ConsumerState<ShopSettingsScreen> {
                         maxLines: 4,
                       ),
                       const SizedBox(height: 16),
+                      Text('Tailor Type', style: AppTypography.label),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade400.withOpacity(0.5)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _tailorType,
+                            isExpanded: true,
+                            items: _tailorTypes.map((type) {
+                              return DropdownMenuItem<String>(
+                                value: type,
+                                child: Text(type, style: AppTypography.body),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _tailorType = newValue;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text('Specialties', style: AppTypography.label),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: _availableSpecialties.map((specialty) {
+                          final isSelected = _selectedSpecialties.contains(specialty);
+                          return FilterChip(
+                            label: Text(specialty, style: TextStyle(color: isSelected ? Colors.white : Colors.black87)),
+                            selected: isSelected,
+                            selectedColor: AppColors.primary,
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedSpecialties.add(specialty);
+                                } else {
+                                  _selectedSpecialties.removeWhere((String name) => name == specialty);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
                       CustomTextField(
                         controller: _specialtiesController,
-                        label: 'Specialties (Comma separated)', 
-                        hintText: 'e.g. Suits, Traditional, Wedding...',
+                        label: 'Other Specialties', 
+                        hintText: 'e.g. Vintage, Embroidery...',
                       ),
                       const SizedBox(height: 16),
                       Row(

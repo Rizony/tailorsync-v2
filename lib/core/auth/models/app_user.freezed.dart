@@ -77,6 +77,12 @@ mixin _$AppUser {
       throw _privateConstructorUsedError; // Marketplace Profile
   @JsonKey(name: 'is_available')
   bool get isAvailable => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tailor_type')
+  String get tailorType => throw _privateConstructorUsedError;
+  @JsonKey(name: 'latitude')
+  double? get latitude => throw _privateConstructorUsedError;
+  @JsonKey(name: 'longitude')
+  double? get longitude => throw _privateConstructorUsedError;
   @JsonKey(name: 'bio')
   String? get bio => throw _privateConstructorUsedError;
   @JsonKey(name: 'specialties')
@@ -139,6 +145,9 @@ abstract class $AppUserCopyWith<$Res> {
       @JsonKey(name: 'account_name') String? accountName,
       @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
       @JsonKey(name: 'is_available') bool isAvailable,
+      @JsonKey(name: 'tailor_type') String tailorType,
+      @JsonKey(name: 'latitude') double? latitude,
+      @JsonKey(name: 'longitude') double? longitude,
       @JsonKey(name: 'bio') String? bio,
       @JsonKey(name: 'specialties') List<String> specialties,
       @JsonKey(name: 'rating') double rating,
@@ -193,6 +202,9 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? accountName = freezed,
     Object? withdrawalPin = freezed,
     Object? isAvailable = null,
+    Object? tailorType = null,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? bio = freezed,
     Object? specialties = null,
     Object? rating = null,
@@ -313,6 +325,18 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.isAvailable
           : isAvailable // ignore: cast_nullable_to_non_nullable
               as bool,
+      tailorType: null == tailorType
+          ? _value.tailorType
+          : tailorType // ignore: cast_nullable_to_non_nullable
+              as String,
+      latitude: freezed == latitude
+          ? _value.latitude
+          : latitude // ignore: cast_nullable_to_non_nullable
+              as double?,
+      longitude: freezed == longitude
+          ? _value.longitude
+          : longitude // ignore: cast_nullable_to_non_nullable
+              as double?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -392,6 +416,9 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       @JsonKey(name: 'account_name') String? accountName,
       @JsonKey(name: 'withdrawal_pin') String? withdrawalPin,
       @JsonKey(name: 'is_available') bool isAvailable,
+      @JsonKey(name: 'tailor_type') String tailorType,
+      @JsonKey(name: 'latitude') double? latitude,
+      @JsonKey(name: 'longitude') double? longitude,
       @JsonKey(name: 'bio') String? bio,
       @JsonKey(name: 'specialties') List<String> specialties,
       @JsonKey(name: 'rating') double rating,
@@ -444,6 +471,9 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? accountName = freezed,
     Object? withdrawalPin = freezed,
     Object? isAvailable = null,
+    Object? tailorType = null,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? bio = freezed,
     Object? specialties = null,
     Object? rating = null,
@@ -564,6 +594,18 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.isAvailable
           : isAvailable // ignore: cast_nullable_to_non_nullable
               as bool,
+      tailorType: null == tailorType
+          ? _value.tailorType
+          : tailorType // ignore: cast_nullable_to_non_nullable
+              as String,
+      latitude: freezed == latitude
+          ? _value.latitude
+          : latitude // ignore: cast_nullable_to_non_nullable
+              as double?,
+      longitude: freezed == longitude
+          ? _value.longitude
+          : longitude // ignore: cast_nullable_to_non_nullable
+              as double?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -640,6 +682,9 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'account_name') this.accountName,
       @JsonKey(name: 'withdrawal_pin') this.withdrawalPin,
       @JsonKey(name: 'is_available') this.isAvailable = true,
+      @JsonKey(name: 'tailor_type') this.tailorType = 'Unisex',
+      @JsonKey(name: 'latitude') this.latitude,
+      @JsonKey(name: 'longitude') this.longitude,
       @JsonKey(name: 'bio') this.bio,
       @JsonKey(name: 'specialties') final List<String> specialties = const [],
       @JsonKey(name: 'rating') this.rating = 5.0,
@@ -745,6 +790,15 @@ class _$AppUserImpl implements _AppUser {
   @JsonKey(name: 'is_available')
   final bool isAvailable;
   @override
+  @JsonKey(name: 'tailor_type')
+  final String tailorType;
+  @override
+  @JsonKey(name: 'latitude')
+  final double? latitude;
+  @override
+  @JsonKey(name: 'longitude')
+  final double? longitude;
+  @override
   @JsonKey(name: 'bio')
   final String? bio;
   final List<String> _specialties;
@@ -790,7 +844,7 @@ class _$AppUserImpl implements _AppUser {
 
   @override
   String toString() {
-    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls, kycStatus: $kycStatus, kycDocumentUrl: $kycDocumentUrl, isAdmin: $isAdmin, isEmailVerified: $isEmailVerified)';
+    return 'AppUser(id: $id, fullName: $fullName, shopName: $shopName, subscriptionTier: $subscriptionTier, referralCode: $referralCode, referrerId: $referrerId, walletBalance: $walletBalance, adCredits: $adCredits, brandName: $brandName, logoUrl: $logoUrl, signatureUrl: $signatureUrl, accentColor: $accentColor, defaultTaxRate: $defaultTaxRate, invoiceNotes: $invoiceNotes, termsAndConditions: $termsAndConditions, currencyCode: $currencyCode, currencySymbol: $currencySymbol, shopAddress: $shopAddress, phoneNumber: $phoneNumber, email: $email, website: $website, socialMediaHandle: $socialMediaHandle, bankName: $bankName, accountNumber: $accountNumber, accountName: $accountName, withdrawalPin: $withdrawalPin, isAvailable: $isAvailable, tailorType: $tailorType, latitude: $latitude, longitude: $longitude, bio: $bio, specialties: $specialties, rating: $rating, publicProfileEnabled: $publicProfileEnabled, yearsOfExperience: $yearsOfExperience, portfolioUrls: $portfolioUrls, kycStatus: $kycStatus, kycDocumentUrl: $kycDocumentUrl, isAdmin: $isAdmin, isEmailVerified: $isEmailVerified)';
   }
 
   @override
@@ -848,6 +902,12 @@ class _$AppUserImpl implements _AppUser {
                 other.withdrawalPin == withdrawalPin) &&
             (identical(other.isAvailable, isAvailable) ||
                 other.isAvailable == isAvailable) &&
+            (identical(other.tailorType, tailorType) ||
+                other.tailorType == tailorType) &&
+            (identical(other.latitude, latitude) ||
+                other.latitude == latitude) &&
+            (identical(other.longitude, longitude) ||
+                other.longitude == longitude) &&
             (identical(other.bio, bio) || other.bio == bio) &&
             const DeepCollectionEquality()
                 .equals(other._specialties, _specialties) &&
@@ -898,6 +958,9 @@ class _$AppUserImpl implements _AppUser {
         accountName,
         withdrawalPin,
         isAvailable,
+        tailorType,
+        latitude,
+        longitude,
         bio,
         const DeepCollectionEquality().hash(_specialties),
         rating,
@@ -956,6 +1019,9 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'account_name') final String? accountName,
       @JsonKey(name: 'withdrawal_pin') final String? withdrawalPin,
       @JsonKey(name: 'is_available') final bool isAvailable,
+      @JsonKey(name: 'tailor_type') final String tailorType,
+      @JsonKey(name: 'latitude') final double? latitude,
+      @JsonKey(name: 'longitude') final double? longitude,
       @JsonKey(name: 'bio') final String? bio,
       @JsonKey(name: 'specialties') final List<String> specialties,
       @JsonKey(name: 'rating') final double rating,
@@ -1048,6 +1114,15 @@ abstract class _AppUser implements AppUser {
   @override
   @JsonKey(name: 'is_available')
   bool get isAvailable;
+  @override
+  @JsonKey(name: 'tailor_type')
+  String get tailorType;
+  @override
+  @JsonKey(name: 'latitude')
+  double? get latitude;
+  @override
+  @JsonKey(name: 'longitude')
+  double? get longitude;
   @override
   @JsonKey(name: 'bio')
   String? get bio;

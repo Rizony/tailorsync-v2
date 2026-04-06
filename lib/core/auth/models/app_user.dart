@@ -44,6 +44,9 @@ class AppUser with _$AppUser {
     
     // Marketplace Profile
     @JsonKey(name: 'is_available') @Default(true) bool isAvailable,
+    @JsonKey(name: 'tailor_type') @Default('Unisex') String tailorType,
+    @JsonKey(name: 'latitude') double? latitude,
+    @JsonKey(name: 'longitude') double? longitude,
     @JsonKey(name: 'bio') String? bio,
     @JsonKey(name: 'specialties') @Default([]) List<String> specialties,
     @JsonKey(name: 'rating') @Default(5.0) double rating,

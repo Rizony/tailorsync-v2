@@ -37,6 +37,9 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       accountName: json['account_name'] as String?,
       withdrawalPin: json['withdrawal_pin'] as String?,
       isAvailable: json['is_available'] as bool? ?? true,
+      tailorType: json['tailor_type'] as String? ?? 'Unisex',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
       bio: json['bio'] as String?,
       specialties: (json['specialties'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -85,6 +88,9 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'account_name': instance.accountName,
       'withdrawal_pin': instance.withdrawalPin,
       'is_available': instance.isAvailable,
+      'tailor_type': instance.tailorType,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
       'bio': instance.bio,
       'specialties': instance.specialties,
       'rating': instance.rating,
