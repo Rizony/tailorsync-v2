@@ -6,6 +6,7 @@ import 'package:needlix/core/terms/terms_gate.dart';
 import 'package:needlix/features/monetization/screens/daily_ad_gate_screen.dart';
 import 'package:needlix/core/auth/email_verification_gate.dart';
 import 'package:needlix/core/auth/screens/reset_password_screen.dart';
+import 'package:needlix/core/auth/app_lock_gate.dart';
 import 'auth_provider.dart';
 
 class AuthGate extends ConsumerWidget {
@@ -23,12 +24,12 @@ class AuthGate extends ConsumerWidget {
         }
 
         if (state.session != null) {
-          // EmailVerificationGate blocks until email is verified
-          // TermsGate blocks the app until T&Cs are accepted,
           // then DailyAdGateScreen handles the ad logic.
-          return EmailVerificationGate(
-            child: TermsGate(
-              child: DailyAdGateScreen(child: child),
+          return AppLockGate(
+            child: EmailVerificationGate(
+              child: TermsGate(
+                child: DailyAdGateScreen(child: child),
+              ),
             ),
           );
         }
