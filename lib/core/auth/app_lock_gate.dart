@@ -82,10 +82,8 @@ class _AppLockGateState extends ConsumerState<AppLockGate> with WidgetsBindingOb
 
       final authenticated = await _auth.authenticate(
         localizedReason: 'Please authenticate to unlock TailorSync securely',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
+        stickyAuth: true,
+        biometricOnly: false,
       );
 
       if (authenticated) {
