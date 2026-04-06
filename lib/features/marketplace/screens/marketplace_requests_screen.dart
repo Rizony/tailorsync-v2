@@ -647,7 +647,30 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         // 1. Check for existing customer
         final customers = ref.read(customerRepositoryProvider).value ?? [];
         Customer? existingCustomer = customers.cast<Customer?>().firstWhere(
-          (c) => c?.email == request.customerEmail || (c?.phoneNumber != null && c?.phoneNumber == request.customerPhone),
+          (c) {
+            if (c == null) return false;
+            
+            // 1. Safe Email Match
+            if (c.email != null && c.email!.trim().isNotEmpty && 
+                request.customerEmail != null && request.customerEmail!.trim().isNotEmpty) {
+              if (c.email!.trim().toLowerCase() == request.customerEmail!.trim().toLowerCase()) return true;
+            }
+            
+            // 2. Safe Phone Match
+            if (c.phoneNumber != null && c.phoneNumber!.trim().isNotEmpty && 
+                request.customerPhone != null && request.customerPhone!.trim().isNotEmpty) {
+              if (c.phoneNumber!.replaceAll(' ', '') == request.customerPhone!.replaceAll(' ', '')) return true;
+            }
+            
+            // 3. Name Match Fallback
+            // If contact info is missing or doesn't match securely, fallback to name deduplication 
+            // so we don't end up with 3 "John Doe"s if they submit 3 requests without contact details.
+            if (c.fullName.trim().toLowerCase() == request.customerName.trim().toLowerCase()) {
+              return true;
+            }
+            
+            return false;
+          },
           orElse: () => null,
         );
 
