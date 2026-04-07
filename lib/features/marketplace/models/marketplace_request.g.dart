@@ -16,6 +16,7 @@ _$MarketplaceRequestImpl _$$MarketplaceRequestImplFromJson(
       customerEmail: json['customer_email'] as String,
       customerPhone: json['customer_phone'] as String?,
       customerWhatsapp: json['customer_whatsapp'] as String?,
+      customerPhotoUrl: _readCustomerPhoto(json, 'customerPhotoUrl') as String?,
       description: json['description'] as String,
       itemQuantity: (json['item_quantity'] as num?)?.toInt(),
       imageUrls: (json['image_urls'] as List<dynamic>?)
@@ -53,6 +54,7 @@ Map<String, dynamic> _$$MarketplaceRequestImplToJson(
       'customer_email': instance.customerEmail,
       'customer_phone': instance.customerPhone,
       'customer_whatsapp': instance.customerWhatsapp,
+      'customerPhotoUrl': instance.customerPhotoUrl,
       'description': instance.description,
       'item_quantity': instance.itemQuantity,
       'image_urls': instance.imageUrls,

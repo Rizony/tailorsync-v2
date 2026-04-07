@@ -33,6 +33,8 @@ mixin _$MarketplaceRequest {
   String? get customerPhone => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer_whatsapp')
   String? get customerWhatsapp => throw _privateConstructorUsedError;
+  @JsonKey(readValue: _readCustomerPhoto)
+  String? get customerPhotoUrl => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'item_quantity')
   int? get itemQuantity => throw _privateConstructorUsedError;
@@ -90,6 +92,7 @@ abstract class $MarketplaceRequestCopyWith<$Res> {
       @JsonKey(name: 'customer_email') String customerEmail,
       @JsonKey(name: 'customer_phone') String? customerPhone,
       @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
+      @JsonKey(readValue: _readCustomerPhoto) String? customerPhotoUrl,
       String description,
       @JsonKey(name: 'item_quantity') int? itemQuantity,
       @JsonKey(name: 'image_urls') List<String> imageUrls,
@@ -130,6 +133,7 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
     Object? customerEmail = null,
     Object? customerPhone = freezed,
     Object? customerWhatsapp = freezed,
+    Object? customerPhotoUrl = freezed,
     Object? description = null,
     Object? itemQuantity = freezed,
     Object? imageUrls = null,
@@ -175,6 +179,10 @@ class _$MarketplaceRequestCopyWithImpl<$Res, $Val extends MarketplaceRequest>
       customerWhatsapp: freezed == customerWhatsapp
           ? _value.customerWhatsapp
           : customerWhatsapp // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerPhotoUrl: freezed == customerPhotoUrl
+          ? _value.customerPhotoUrl
+          : customerPhotoUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       description: null == description
           ? _value.description
@@ -260,6 +268,7 @@ abstract class _$$MarketplaceRequestImplCopyWith<$Res>
       @JsonKey(name: 'customer_email') String customerEmail,
       @JsonKey(name: 'customer_phone') String? customerPhone,
       @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
+      @JsonKey(readValue: _readCustomerPhoto) String? customerPhotoUrl,
       String description,
       @JsonKey(name: 'item_quantity') int? itemQuantity,
       @JsonKey(name: 'image_urls') List<String> imageUrls,
@@ -298,6 +307,7 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
     Object? customerEmail = null,
     Object? customerPhone = freezed,
     Object? customerWhatsapp = freezed,
+    Object? customerPhotoUrl = freezed,
     Object? description = null,
     Object? itemQuantity = freezed,
     Object? imageUrls = null,
@@ -343,6 +353,10 @@ class __$$MarketplaceRequestImplCopyWithImpl<$Res>
       customerWhatsapp: freezed == customerWhatsapp
           ? _value.customerWhatsapp
           : customerWhatsapp // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerPhotoUrl: freezed == customerPhotoUrl
+          ? _value.customerPhotoUrl
+          : customerPhotoUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       description: null == description
           ? _value.description
@@ -423,6 +437,7 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
       @JsonKey(name: 'customer_email') required this.customerEmail,
       @JsonKey(name: 'customer_phone') this.customerPhone,
       @JsonKey(name: 'customer_whatsapp') this.customerWhatsapp,
+      @JsonKey(readValue: _readCustomerPhoto) this.customerPhotoUrl,
       required this.description,
       @JsonKey(name: 'item_quantity') this.itemQuantity,
       @JsonKey(name: 'image_urls')
@@ -467,6 +482,9 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
   @override
   @JsonKey(name: 'customer_whatsapp')
   final String? customerWhatsapp;
+  @override
+  @JsonKey(readValue: _readCustomerPhoto)
+  final String? customerPhotoUrl;
   @override
   final String description;
   @override
@@ -530,7 +548,7 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
 
   @override
   String toString() {
-    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, customerWhatsapp: $customerWhatsapp, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, quoteMessage: $quoteMessage, quoteStatus: $quoteStatus, counterOfferAmount: $counterOfferAmount, counterOfferMessage: $counterOfferMessage, counterOfferedAt: $counterOfferedAt, orderId: $orderId, customerRating: $customerRating, createdAt: $createdAt)';
+    return 'MarketplaceRequest(id: $id, tailorId: $tailorId, customerId: $customerId, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, customerWhatsapp: $customerWhatsapp, customerPhotoUrl: $customerPhotoUrl, description: $description, itemQuantity: $itemQuantity, imageUrls: $imageUrls, referenceLinks: $referenceLinks, status: $status, paymentStatus: $paymentStatus, quoteAmount: $quoteAmount, quoteCurrency: $quoteCurrency, quoteMessage: $quoteMessage, quoteStatus: $quoteStatus, counterOfferAmount: $counterOfferAmount, counterOfferMessage: $counterOfferMessage, counterOfferedAt: $counterOfferedAt, orderId: $orderId, customerRating: $customerRating, createdAt: $createdAt)';
   }
 
   @override
@@ -551,6 +569,8 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
                 other.customerPhone == customerPhone) &&
             (identical(other.customerWhatsapp, customerWhatsapp) ||
                 other.customerWhatsapp == customerWhatsapp) &&
+            (identical(other.customerPhotoUrl, customerPhotoUrl) ||
+                other.customerPhotoUrl == customerPhotoUrl) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.itemQuantity, itemQuantity) ||
@@ -594,6 +614,7 @@ class _$MarketplaceRequestImpl implements _MarketplaceRequest {
         customerEmail,
         customerPhone,
         customerWhatsapp,
+        customerPhotoUrl,
         description,
         itemQuantity,
         const DeepCollectionEquality().hash(_imageUrls),
@@ -638,6 +659,7 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
       @JsonKey(name: 'customer_email') required final String customerEmail,
       @JsonKey(name: 'customer_phone') final String? customerPhone,
       @JsonKey(name: 'customer_whatsapp') final String? customerWhatsapp,
+      @JsonKey(readValue: _readCustomerPhoto) final String? customerPhotoUrl,
       required final String description,
       @JsonKey(name: 'item_quantity') final int? itemQuantity,
       @JsonKey(name: 'image_urls') final List<String> imageUrls,
@@ -679,6 +701,9 @@ abstract class _MarketplaceRequest implements MarketplaceRequest {
   @override
   @JsonKey(name: 'customer_whatsapp')
   String? get customerWhatsapp;
+  @override
+  @JsonKey(readValue: _readCustomerPhoto)
+  String? get customerPhotoUrl;
   @override
   String get description;
   @override

@@ -607,9 +607,13 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
     if (_isProcessing) return;
 
     if (status == 'accepted') {
+      if (_isProcessing) return;
+      setState(() => _isProcessing = true);
+
       // Prevent duplicate orders
       if (request.orderId != null && request.orderId!.isNotEmpty) {
         if (mounted) {
+          setState(() => _isProcessing = false);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('An order has already been created for this request.')),
           );
@@ -636,10 +640,12 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
         ),
       );
 
-      if (confirm != true) return;
+      if (confirm != true) {
+        if (mounted) setState(() => _isProcessing = false);
+        return;
+      }
       if (!mounted) return;
 
-      setState(() => _isProcessing = true);
       try {
         // Extract measurements from description if any
         final extractedMeasurements = _extractMeasurements(request.description);
@@ -682,18 +688,31 @@ class _RequestCardState extends ConsumerState<_RequestCard> {
               fullName: request.customerName,
               email: request.customerEmail,
               phoneNumber: request.customerPhone,
+              photoUrl: request.customerPhotoUrl,
               measurements: extractedMeasurements,
             ),
           );
           customerId = newCustomer.id!;
         } else {
           customerId = existingCustomer.id!;
-          // Merge measurements if existing customer doesn't have them (or doesn't have all of them)
+          
+          // Merge missing properties
+          bool needsUpdate = false;
+          Customer updated = existingCustomer;
+          
           if (extractedMeasurements.isNotEmpty) {
             final merged = {...existingCustomer.measurements, ...extractedMeasurements};
-            await ref.read(customerRepositoryProvider.notifier).updateCustomer(
-              existingCustomer.copyWith(measurements: merged),
-            );
+            updated = updated.copyWith(measurements: merged);
+            needsUpdate = true;
+          }
+          if (request.customerPhotoUrl != null && request.customerPhotoUrl!.isNotEmpty && 
+              (existingCustomer.photoUrl == null || existingCustomer.photoUrl!.isEmpty)) {
+            updated = updated.copyWith(photoUrl: request.customerPhotoUrl);
+            needsUpdate = true;
+          }
+          
+          if (needsUpdate) {
+            await ref.read(customerRepositoryProvider.notifier).updateCustomer(updated);
           }
         }
 

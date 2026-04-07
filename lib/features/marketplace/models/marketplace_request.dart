@@ -13,6 +13,7 @@ class MarketplaceRequest with _$MarketplaceRequest {
     @JsonKey(name: 'customer_email') required String customerEmail,
     @JsonKey(name: 'customer_phone') String? customerPhone,
     @JsonKey(name: 'customer_whatsapp') String? customerWhatsapp,
+    @JsonKey(readValue: _readCustomerPhoto) String? customerPhotoUrl,
     required String description,
     @JsonKey(name: 'item_quantity') int? itemQuantity,
     @JsonKey(name: 'image_urls') @Default(<String>[]) List<String> imageUrls,
@@ -37,6 +38,13 @@ class MarketplaceRequest with _$MarketplaceRequest {
 Object? _readCustomerRating(Map map, String key) {
   if (map['customer_profile'] is Map) {
     return map['customer_profile']['customer_rating'];
+  }
+  return null;
+}
+
+Object? _readCustomerPhoto(Map map, String key) {
+  if (map['customer_profile'] is Map) {
+    return map['customer_profile']['photo_url'];
   }
   return null;
 }
