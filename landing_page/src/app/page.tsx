@@ -86,25 +86,25 @@ export default function LandingPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
                 <div className={cn("inline-flex items-center gap-2 rounded-full border px-4 py-1.5 mb-8", colors.primary.bgLight, colors.primary.borderLight)}>
                   <span className={cn("flex h-2 w-2 rounded-full animate-pulse", colors.primary.bg)} />
-                  <span className={cn("text-sm font-semibold", colors.primary.DEFAULT)}>The Ultimate Tool for Tailors</span>
+                  <span className={cn("text-sm font-semibold", colors.primary.DEFAULT)}>The Discovery Platform for Custom Fashion</span>
                 </div>
 
                 <h1 className={cn("text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-7xl mb-8 leading-[1.1]", colors.secondary.DEFAULT)}>
-                  Connect &amp; <br />
-                  <span className={cn("text-transparent bg-clip-text", colors.gradients.primary)}>Create.</span>
+                  Find Your <br />
+                  <span className={cn("text-transparent bg-clip-text", colors.gradients.primary)}>Perfect Fit.</span>
                 </h1>
 
                 <p className={cn("text-lg leading-8 mb-10 max-w-lg", colors.text.secondary)}>
-                  Elevate your fashion business with Needlix. Track orders, manage customer measurements, send PDF invoices, and join an exclusive tailor community—all from your smartphone.
+                  Browse thousands of professional African fashion designers. View their portfolios, securely share your exact measurements, and get custom outfits tailored perfectly to you.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <a href="#download" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-lg font-bold shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:shadow-2xl", colors.primary.bg, colors.text.inverse, colors.primary.bgHover)}>
-                    Download Now Free
-                  </a>
-                  <Link href="/marketplace" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl border px-8 py-4 text-lg font-bold shadow-sm transition-all", colors.background.paper, colors.border.DEFAULT, colors.text.primary, "hover:bg-slate-50", colors.primary.hover)}>
-                    <Search className={cn("h-5 w-5", colors.primary.DEFAULT)} />
-                    Find a Tailor
+                  <Link href="/marketplace" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-lg font-bold shadow-xl shadow-[#0076B6]/20 transition-all hover:-translate-y-1 hover:shadow-2xl", colors.primary.bg, colors.text.inverse, colors.primary.bgHover)}>
+                    <Search className="h-5 w-5" />
+                    Find a Designer
+                  </Link>
+                  <Link href="/signup" className={cn("inline-flex items-center justify-center gap-2 rounded-2xl border px-8 py-4 text-lg font-bold shadow-sm transition-all", colors.background.paper, colors.border.DEFAULT, colors.text.primary, "hover:bg-slate-50", colors.primary.hover)}>
+                    Create Client Account
                   </Link>
                 </div>
 
@@ -151,8 +151,8 @@ export default function LandingPage() {
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">Invoice Paid</p>
-                      <p className="text-xs text-slate-500">₦25,000 via Flutterwave</p>
+                      <p className="text-sm font-bold text-slate-900">Custom Measurements</p>
+                      <p className="text-xs text-slate-500">Saved securely to profile</p>
                     </div>
                   </div>
                 </div>
@@ -160,11 +160,11 @@ export default function LandingPage() {
                 <div className="block absolute -right-8 bottom-32 z-20 animate-float glass-panel p-4 rounded-2xl shadow-xl border border-white/40">
                   <div className="flex items-center gap-3">
                     <div className={cn("h-10 w-10 rounded-full flex items-center justify-center", colors.primary.bgLight)}>
-                      <Users className={cn("h-5 w-5", colors.primary.DEFAULT)} />
+                      <CheckCircle2 className={cn("h-5 w-5", colors.primary.DEFAULT)} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">New Referral</p>
-                      <p className="text-xs text-slate-500">+ ₦1,000 Commission</p>
+                      <p className="text-sm font-bold text-slate-900">Order Dispatched</p>
+                      <p className="text-xs text-slate-500">Arriving in 2 days</p>
                     </div>
                   </div>
                 </div>
@@ -174,27 +174,31 @@ export default function LandingPage() {
                   <div className="h-full w-full overflow-hidden rounded-[2.5rem] bg-slate-50 relative">
                     <div className={cn("absolute inset-0", colors.gradients.primary)}>
                       <div className="p-6 pt-16 text-white pb-32">
-                        <h3 className="text-2xl font-bold mb-1">Hi, Designer!</h3>
-                        <p className="text-cyan-100/80 mb-6 text-sm">Here&apos;s your shop overview</p>
+                        <h3 className="text-2xl font-bold mb-1">Hi, Sarah!</h3>
+                        <p className="text-cyan-100/80 mb-6 text-sm">Your wardrobe orders</p>
 
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mb-6">
-                          <p className="text-white/70 text-sm mb-1">Wallet Balance</p>
-                          <h4 className="text-4xl font-bold">₦14,500</h4>
+                          <p className="text-white/70 text-sm mb-1">Total Orders</p>
+                          <h4 className="text-4xl font-bold">4 Active</h4>
                         </div>
 
                         <div className="space-y-3">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between">
+                          {[
+                            { title: 'Agbada for Wedding', status: 'In Production' },
+                            { title: 'Corporate Suit', status: 'Ready for Fitting' },
+                            { title: 'Ankara Dress', status: 'At Delivery' },
+                          ].map((i, idx) => (
+                            <div key={idx} className="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
                                   <Scissors className="h-5 w-5 text-slate-400" />
                                 </div>
-                                <div>
-                                  <h5 className="font-bold text-slate-900 text-sm">Order #{1040 + i}</h5>
-                                  <p className="text-xs text-slate-500">In Progress</p>
+                                <div className="min-w-0">
+                                  <h5 className="font-bold text-slate-900 text-sm truncate max-w-[120px]">{i.title}</h5>
+                                  <p className="text-xs text-[#0076B6] font-medium">{i.status}</p>
                                 </div>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-slate-300" />
+                              <ChevronRight className="h-5 w-5 text-slate-300 flex-shrink-0" />
                             </div>
                           ))}
                         </div>
@@ -301,18 +305,18 @@ export default function LandingPage() {
               <div className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
                 {[
                   {
-                    title: 'Customer Management',
-                    description: 'Store precise measurements, contact details, and past orders securely in the cloud. Never lose a notebook again.',
+                    title: 'Smart Measurements',
+                    description: 'Measure once, shop forever. Store your exact body sizes securely in your profile and share them instantly with any tailor you choose.',
                     icon: Users,
                   },
                   {
-                    title: 'Professional Invoices',
-                    description: 'Generate and send beautiful PDF invoices and quotations to your clients instantly via WhatsApp or Email.',
+                    title: 'Verified Portfolios',
+                    description: 'Browse curated galleries of previous work, read genuine reviews from past clients, and hire designers with confidence.',
                     icon: ShieldCheck,
                   },
                   {
-                    title: 'Referral Program',
-                    description: 'Earn passive income! Upgrade to Premium and earn up to 40% commission when you refer other tailors to Needlix.',
+                    title: 'Real-Time Order Tracking',
+                    description: 'Never wonder about your outfit again. Get instant updates when your clothes are being cut, sewn, or shipped.',
                     icon: Scissors,
                   },
                 ].map((feature) => (
@@ -336,10 +340,10 @@ export default function LandingPage() {
 
           <div className="relative mx-auto max-w-7xl px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-5xl mb-6">
-              Ready to Upgrade Your Craft?
+              Are you a Fashion Designer?
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-slate-300 mb-10">
-              Join the fastest-growing community of tailors and fashion designers. Available now on Android.
+              Join 1,000+ professionals managing their businesses, getting new clients, and running their shops on the Needlix tailor-exclusive mobile app.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button className="inline-flex items-center justify-center gap-3 rounded-2xl bg-white px-8 py-4 text-left shadow-xl transition-transform hover:scale-105">
