@@ -23,6 +23,8 @@ export default function ClientProfilePage() {
     email: "",
   });
 
+  const [initialData, setInitialData] = useState<any>(null);
+
   const MALE_MEASUREMENTS = [
     'Neck', 'Shoulder', 'Chest', 'Stomach', 'Top Length', 'Sleeve Length', 
     'Muscle', 'Forearm', 'Wrist', 'Waist', 'Hips', 'Thigh', 'Knee', 
@@ -57,16 +59,30 @@ export default function ClientProfilePage() {
         .single();
       
       if (data) {
-        if (data.full_name) setContact(prev => ({ ...prev, fullName: data.full_name }));
-        if (data.phone_number) setContact(prev => ({ ...prev, phone: data.phone_number }));
-        if (data.email) setContact(prev => ({ ...prev, email: data.email }));
-        if (data.photo_url) setPhotoUrl(data.photo_url);
-        if (data.measurements) {
-          setMeasurements(data.measurements);
-        }
-        if (data.gender) {
-          setGender(data.gender === "Female" ? "Female" : "Male");
-        }
+        setContact({
+          fullName: data.full_name || "",
+          phone: data.phone_number || "",
+          email: data.email || "",
+        });
+        setPhotoUrl(data.photo_url || "");
+        if (data.measurements) setMeasurements(data.measurements);
+        
+        const loadedGender = data.gender === "Female" ? "Female" : "Male";
+        setGender(loadedGender);
+        
+        setInitialData({
+          fullName: data.full_name || "",
+          phone: data.phone_number || "",
+          email: data.email || session.user.email || "",
+          photoUrl: data.photo_url || "",
+          measurements: data.measurements || {},
+          gender: loadedGender,
+        });
+      } else {
+        setInitialData({
+          fullName: "", phone: "", email: session.user.email || "",
+          photoUrl: "", measurements: {}, gender: "Male"
+        });
       }
     } catch (err: any) {
       console.error("Error loading profile:", err);
@@ -126,6 +142,15 @@ export default function ClientProfilePage() {
 
       if (error) throw error;
       setMessage({ type: "success", text: "Profile & Measurements Saved!" });
+      
+      setInitialData({
+        fullName: contact.fullName,
+        phone: contact.phone,
+        email: contact.email || user.email,
+        photoUrl: photoUrl,
+        measurements: {...measurements},
+        gender: gender,
+      });
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Failed to save profile." });
     } finally {
@@ -140,6 +165,25 @@ export default function ClientProfilePage() {
       </div>
     );
   }
+
+  const isMeasurementsEqual = (obj1: Record<string, string>, obj2: Record<string, string>) => {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+    if (keys1.length !== keys2.length) return false;
+    for (const key of keys1) {
+      if (obj1[key] !== obj2[key]) return false;
+    }
+    return true;
+  };
+
+  const hasChanges = !initialData ? false : (
+    contact.fullName !== initialData.fullName ||
+    contact.phone !== initialData.phone ||
+    contact.email !== initialData.email ||
+    photoUrl !== initialData.photoUrl ||
+    gender !== initialData.gender ||
+    !isMeasurementsEqual(measurements, initialData.measurements)
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
@@ -274,11 +318,15 @@ export default function ClientProfilePage() {
 
           <button
             type="submit"
-            disabled={saving}
-            className="w-full py-4 rounded-2xl bg-[#0076B6] text-white font-bold shadow-lg hover:bg-[#00AEEF] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+            disabled={saving || !hasChanges}
+            className={`w-full py-4 rounded-2xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-70 ${
+              hasChanges 
+              ? 'bg-[#0076B6] text-white hover:bg-[#00AEEF]' 
+              : 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300 shadow-none hover:bg-slate-200 hover:text-slate-500'
+            }`}
           >
             <Save className="h-5 w-5" />
-            {saving ? "Saving Profile..." : "Save Measurements"}
+            {saving ? "Saving Profile..." : hasChanges ? "Save Measurements" : "Saved & Up To Date"}
           </button>
         </form>
       </main>
