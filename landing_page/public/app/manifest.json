@@ -1,11 +1,11 @@
 {
-    "name": "tailorsync_v2",
-    "short_name": "tailorsync_v2",
+    "name": "Needlix",
+    "short_name": "Needlix",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0A1128",
+    "theme_color": "#0076B6",
+    "description": "The ultimate business tool for tailors and fashion designers.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
