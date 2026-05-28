@@ -8,6 +8,7 @@ import 'package:needlix/features/community/screens/community_screen.dart';
 import 'package:needlix/core/app/offline_wrapper.dart';
 import 'package:needlix/core/utils/tutorial_service.dart';
 import 'package:needlix/core/widgets/subscription_banner.dart';
+import 'package:needlix/core/widgets/web_promo_banner.dart';
 import 'package:needlix/core/providers/navigation_provider.dart';
 import 'package:needlix/features/marketplace/services/marketplace_notification_service.dart';
 import 'package:needlix/features/marketplace/repositories/marketplace_repository.dart';
@@ -158,6 +159,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               ),
             ],
           ),
+          const WebPromoBanner(),
         ],
       ),
     );
